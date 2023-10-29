@@ -8,7 +8,10 @@ import givenImage from '../assets/images/given image.png';
 import { AiTwotoneHome, AiOutlineCloseCircle } from "react-icons/ai";
 import { VscDeviceCamera } from "react-icons/vsc";
 
+import { useNavigate } from 'react-router-dom';
+
 function Header() {
+    const navigate = useNavigate();
 
     return (
         <div>
@@ -19,7 +22,7 @@ function Header() {
                         <a className="nav-link" data-widget="pushmenu" href="#" role="button"><i className="fas fa-bars" /></a>
                     </li>
                     <li className="nav-item d-none d-sm-inline-block" >
-                        <span style={{ cursor: 'pointer' }} className="nav-link">Home</span>
+                        <span style={{ cursor: 'pointer' }} className="nav-link" onClick={() => navigate('/')}>Home</span>
                     </li>
                 </ul>
                 {/* Right navbar links */}
@@ -75,7 +78,7 @@ function Header() {
                             <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} ><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                                 Profile
                             </a>
-                            <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }}><i className="fa-sm fa-fw mr-2 text-gray-400" ><AiTwotoneHome size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
+                            <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}><i className="fa-sm fa-fw mr-2 text-gray-400" ><AiTwotoneHome size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
                                 Home
                             </a>
                             <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />

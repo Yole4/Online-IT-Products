@@ -6,6 +6,7 @@ import { AuthContext } from './context/AuthContext';
 import Header from './pages/Header';
 import SideBar from './pages/SideBar';
 import Home from './pages/body/Home';
+import Dashboard from './pages/body/Dashboard';
 
 function App() {
   // const {user} = useContext(AuthContext);
@@ -14,6 +15,7 @@ function App() {
 
     <Routes>
       <Route path="/" element={<Home /> } />
+      <Route path="/dashboard" element={<Dashboard /> } />
     </Routes>
   );
 }
