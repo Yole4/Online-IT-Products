@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const validator = require('validator');
 require('dotenv').config();
+const { sanitizeAndValidate, sanitizeAndValidateArray } = require('../validator and sanitizer/ValidatorAndSanitizer');
 
 const createToken = (id, fullname, username) => {
     const secretKey = process.env.SECRET_KEY;
@@ -18,7 +19,9 @@ const protected = async (req, res) => {
 
 // register user
 const registerUser = async (req, res) => {
+    const {registerUser} = req.body;
 
+    
 };
 
 // login users
