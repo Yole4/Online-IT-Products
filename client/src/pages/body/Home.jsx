@@ -20,12 +20,35 @@ import { VscDeviceCamera } from "react-icons/vsc";
 function Home() {
   const navigate = useNavigate();
 
+  const [startMessage, setStartMessage] = useState(true);
+
   const [isProfile, setIsProfile] = useState(false);
   const [isCart, setIsCart] = useState(false);
   const [isProductClick, setIsProductClick] = useState(false);
 
   return (
     <>
+      {/* Wala ni labot */}
+      {startMessage && (
+        <div className="popup">
+          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: startMessage ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+            <div className="popup-edit">
+              <h5>Reminder!</h5>
+            </div>
+            <hr />
+            <div className='form-div'>
+              <span>Kani lang nga design bay, ang dashboard okay naman <br /> naa rakoy g comment dha, bali kani ra sa customer side ang usoba or butangi og design</span>
+            </div>
+
+            <div style={{ marginTop: '25px'}}>
+              <button className='btn btn-danger' type='button' style={{ width: '100%' }} onClick={() => setStartMessage(false)}>Okay</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       <div className="product-header">
         <span>IT Products</span>
         <div>
@@ -77,7 +100,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content">
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -97,7 +120,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content">
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={computer} className='product-image' alt="" />
           <h3 className='product-name'>Computer</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -117,7 +140,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content">
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -137,7 +160,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content">
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={laptop} className='product-image' alt="" />
           <h3 className='product-name'>Laptop</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -157,7 +180,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content">
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -177,7 +200,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content">
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={computer} className='product-image' alt="" />
           <h3 className='product-name'>Computer</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -197,7 +220,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content">
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -258,7 +281,7 @@ function Home() {
             <div className="modal-close" onClick={() => setIsCart(false)}>
               <AiOutlineCloseCircle size={30} />
             </div>
-            cart is empty
+            cart is empty <br /> (ikaw nay bahala sa design lang sa dre sa cart, bahala og walay function, design ra)
           </div>
         </div>
       )}
@@ -282,6 +305,9 @@ function Home() {
             </div>
             <div>
               description
+            </div>
+            <div>
+              (below kay add to cart button) ikaw nay bahala sa design, (then butangi nalang sad og comment nga design sa ubos ani nga popup)
             </div>
           </div>
         </div>
