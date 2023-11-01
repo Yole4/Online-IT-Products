@@ -14,14 +14,13 @@ const createToken = (id, fullname, username) => {
 
 // verify token
 const protected = async (req, res) => {
-
+    // protected code
 };
 
 // register user
 const registerUser = async (req, res) => {
     const {registerUser} = req.body;
 
-    
 };
 
 // login users
@@ -41,7 +40,7 @@ const fetchSellerUsers = async (req, res) => {
 
 // change password
 const changePassword = async (req, res) => {
-
+    
 };
 
 // change profile info

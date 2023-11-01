@@ -9,13 +9,13 @@ import Home from './pages/body/Home';
 import Dashboard from './pages/body/Dashboard';
 
 function App() {
-  // const {user} = useContext(AuthContext);
+  const {user} = useContext(AuthContext);
   
   return (
 
     <Routes>
       <Route path="/" element={<Home /> } />
-      <Route path="/dashboard" element={<Dashboard /> } />
+      <Route path="/dashboard" element={ user ? <Dashboard /> : <Navigate to='/' replace/> } />
     </Routes>
   );
 }
