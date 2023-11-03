@@ -45,7 +45,7 @@ const changePassword = async (req, res) => {
 
 // change profile info
 const changeProfileInfo = async (req, res) => {
-
+    // change profile info
 };
 
 module.exports = {registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo};
