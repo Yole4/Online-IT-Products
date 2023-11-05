@@ -27,6 +27,21 @@ function Home() {
   const [isProductClick, setIsProductClick] = useState(false);
   const [isComments, setIsComments] = useState(false);
 
+  // ---------------------------------- SAMPLE AMMOUNT --------------------------------
+  const [quantity, setQuantity] = useState(0);
+  const [givenAmmount, setGivenAmmount] = useState(40);
+  const [ammount, setAmmount] = useState(0);
+  const [stack, setStack] = useState(50);
+
+  // solve the ammount
+  useEffect(() => {
+    if (quantity !== 0) {
+      setAmmount(givenAmmount * quantity);
+    }else{
+      setAmmount(0);
+    }
+  }, [quantity]);
+
   // useEffect(() => {
   //   const handleScroll = () => {
   //     if (window.scrollY > 0) {
@@ -42,9 +57,6 @@ function Home() {
   //     window.removeEventListener('scroll', handleScroll);
   //   };
   // }, []);
-
-  // quantity
-  const [quantity, setQuantity] = useState(0);
 
   return (
     <>
@@ -343,10 +355,10 @@ function Home() {
               <span>Mouse</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', fontSize: '13px' }}>
-              <span>Stock: 40</span>
+              <span>Stock: {stack}</span>
               <div>
                 <span>Ammount: </span>
-                <span>₱40</span>
+                <span>₱{ammount}</span>
               </div>
             </div>
             <div style={{ marginTop: '4px' }}>
