@@ -206,6 +206,14 @@ button {
     }
 }
 
+.search-bar{
+    position: absolute;
+    right: 287px;
+    z-index: 50;
+    margin-top: 25px;
+    color: #5c5c5c;
+}
+
 @media screen and (max-width: 1000px) {
     .product-content {
         width: 450px;
@@ -236,5 +244,10 @@ button {
 
     .popup-body {
         width: 96%;
+    }
+
+    .search-bar{
+        right: 0;
+        left: 30px;
     }
 }

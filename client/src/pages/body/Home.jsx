@@ -84,7 +84,7 @@ function Home() {
       <div className="product-header">
         <span>IT Products</span>
         <div>
-          <BiSearchAlt2 style={{ position: 'absolute', right: '287px', zIndex: '50', marginTop: '25px', color: '#5c5c5c' }} size={23} />
+          <BiSearchAlt2 className='search-bar' size={23} />
           {/* <input type="text" style={{borderRadius: '10px', height: '36px', padding: '10px 10px 10px 30px'}}/> */}
           <input type="text" className="form-control" style={{ position: 'absolute', right: '120px', paddingLeft: '38px', width: '200px', top: '18px' }} />
 
