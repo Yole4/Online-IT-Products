@@ -14,35 +14,34 @@ import { useNavigate } from 'react-router-dom';
 import { LuShoppingCart } from "react-icons/lu";
 import { BsPersonCircle, BsArrowUpSquare } from "react-icons/bs";
 import { BiSearchAlt2 } from "react-icons/bi";
-import { AiOutlineCloseCircle, AiOutlineMinus, AiOutlinePlus, AiFillLike } from "react-icons/ai";
+import { AiOutlineCloseCircle, AiOutlineMinus, AiOutlinePlus, AiFillLike, AiFillShop } from "react-icons/ai";
 import { VscDeviceCamera } from "react-icons/vsc";
 
 function Home() {
   const navigate = useNavigate();
 
-  const [startMessage, setStartMessage] = useState(true);
+  // const [startMessage, setStartMessage] = useState(true);
 
   const [isProfile, setIsProfile] = useState(false);
   const [isCart, setIsCart] = useState(false);
   const [isProductClick, setIsProductClick] = useState(false);
   const [isComments, setIsComments] = useState(false);
-  const [backToTop, setBackToTop] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 0) {
-        setBackToTop(true);
-      } else {
-        setBackToTop(false);
-      }
-    };
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     if (window.scrollY > 0) {
+  //       setBackToTop(true);
+  //     } else {
+  //       setBackToTop(false);
+  //     }
+  //   };
 
-    window.addEventListener('scroll', handleScroll);
+  //   window.addEventListener('scroll', handleScroll);
 
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener('scroll', handleScroll);
+  //   };
+  // }, []);
 
   // quantity
   const [quantity, setQuantity] = useState(0);
@@ -50,7 +49,7 @@ function Home() {
   return (
     <>
       {/* Wala ni labot */}
-      {startMessage && (
+      {/* {startMessage && (
         <div className="popup">
           <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: startMessage ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
@@ -67,7 +66,7 @@ function Home() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
 
       <div className="product-header">
@@ -302,7 +301,33 @@ function Home() {
             <div className="modal-close" onClick={() => setIsCart(false)}>
               <AiOutlineCloseCircle size={30} />
             </div>
-            cart is empty <br /> (ikaw nay bahala sa design lang sa dre sa cart, bahala og walay function, design ra)
+            {/* <span style={{color: 'red'}}>Cart is Empty!</span> */}
+            <div style={{marginBottom: '15px', fontWeight: 'bold'}}>
+              <span>My Cart</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'left', alignItems: 'start', gap: '8px' }}>
+              <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
+              <AiFillShop size={20} />
+              <span>Eloy's Shop</span>
+            </div>
+            <hr />
+            <div style={{ display: 'flex', justifyContent: 'left', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
+              <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
+              <img src={laptop} alt="" style={{ width: '50px', height: '50px' }} />
+              <span>Laptop</span>
+
+              <div style={{ display: 'flex' }}>
+                <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
+                <span style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px', padding: '2px' }}>{quantity}</span>
+                <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
+              </div>
+
+              <span>Delete</span>
+            </div>
+
+            <div style={{marginTop: '20px'}}>
+              <button style={{width: '100%', fontSize: '15px', borderRadius: '4px', color: 'black', padding: '10px'}}>Check Out</button>
+            </div>
           </div>
         </div>
       )}
@@ -375,7 +400,7 @@ function Home() {
                         <span>this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments</span>
                       </div>
                       <div style={{ display: 'flex', fontSize: '15px', gap: '5px', marginTop: '8px' }}>
-                        <AiFillLike size={20} />
+                        <AiFillLike style={{ cursor: 'pointer' }} size={20} />
                         <span> 5</span>
                       </div>
                     </div>
@@ -449,12 +474,6 @@ function Home() {
             )}
           </div>
 
-          {/* arrow up */}
-          {backToTop && (
-            <div onClick={(e) => e.stopPropagation()} style={{ position: 'fixed', bottom: '10px', marginLeft: '375px' }}>
-              <a href="#comments"><BsArrowUpSquare style={{ fontSize: '25px', cursor: 'pointer' }} /></a>
-            </div>
-          )}
         </div>
       )}
     </>
