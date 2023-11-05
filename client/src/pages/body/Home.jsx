@@ -381,7 +381,7 @@ function Home() {
 
             {/* comments */}
             {isComments && (
-              <div>
+              <div style={{ animation: isComments ? 'dropBottom .3s linear' : '' }}>
                 <hr />
                 <div>
                   <span>Product Ratings and Comments</span>
