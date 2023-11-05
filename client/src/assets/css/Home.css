@@ -206,6 +206,8 @@ button {
     }
 }
 
+
+
 @media screen and (max-width: 1000px) {
     .product-content {
         width: 450px;

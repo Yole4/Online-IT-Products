@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import '../../assets/css/Home.css';
 
@@ -12,9 +12,9 @@ import { useNavigate } from 'react-router-dom';
 
 // react icons
 import { LuShoppingCart } from "react-icons/lu";
-import { BsPersonCircle } from "react-icons/bs";
+import { BsPersonCircle, BsArrowUpSquare } from "react-icons/bs";
 import { BiSearchAlt2 } from "react-icons/bi";
-import { AiOutlineCloseCircle } from "react-icons/ai";
+import { AiOutlineCloseCircle, AiOutlineMinus, AiOutlinePlus, AiFillLike } from "react-icons/ai";
 import { VscDeviceCamera } from "react-icons/vsc";
 
 function Home() {
@@ -25,6 +25,27 @@ function Home() {
   const [isProfile, setIsProfile] = useState(false);
   const [isCart, setIsCart] = useState(false);
   const [isProductClick, setIsProductClick] = useState(false);
+  const [isComments, setIsComments] = useState(false);
+  const [backToTop, setBackToTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setBackToTop(true);
+      } else {
+        setBackToTop(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // quantity
+  const [quantity, setQuantity] = useState(0);
 
   return (
     <>
@@ -41,7 +62,7 @@ function Home() {
               <span>Kani lang nga design bay, ang dashboard okay naman <br /> naa rakoy g comment dha, bali kani ra sa customer side ang usoba or butangi og design</span>
             </div>
 
-            <div style={{ marginTop: '25px'}}>
+            <div style={{ marginTop: '25px' }}>
               <button className='btn btn-danger' type='button' style={{ width: '100%' }} onClick={() => setStartMessage(false)}>Okay</button>
             </div>
           </div>
@@ -290,26 +311,150 @@ function Home() {
       {isProductClick && (
         <div className="popup" onClick={() => setIsProductClick(false)}>
           <div className="popup-body" onClick={(e) => e.stopPropagation()} style={{ animation: isProductClick ? 'dropBottom .3s linear' : '' }}>
-            <div className="modal-close" onClick={() => setIsProductClick(false)}>
+            <div className="modal-close" onClick={() => setIsProductClick(false)} id='comments'>
               <AiOutlineCloseCircle size={30} />
             </div>
-            <div>
+            <div style={{ fontWeight: 'bold' }}>
               <span>Mouse</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', fontSize: '13px' }}>
               <span>Stock: 40</span>
               <div>
                 <span>Ammount: </span>
                 <span>₱40</span>
               </div>
             </div>
-            <div>
+            <div style={{ marginTop: '4px' }}>
               description
             </div>
-            <div>
-              (below kay add to cart button) ikaw nay bahala sa design, (then butangi nalang sad og comment nga design sa ubos ani nga popup)
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex' }}>
+                <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
+                <span style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px', padding: '2px' }}>{quantity}</span>
+                <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
+              </div>
+              <div>
+                <button style={{ borderRadius: '20px', fontSize: '15px', width: '150px', padding: '8px', color: 'black', backgroundColor: quantity !== 0 ? 'lightblue' : '' }}>Add to cart</button>
+              </div>
             </div>
+
+            <div>
+              <button style={{ padding: '2px', marginTop: '10px', background: 'transparent', color: 'black', fontSize: '13px' }} onClick={() => setIsComments(isComments ? false : true)}>{isComments ? 'Show Less' : 'Show Comments'}</button>
+            </div>
+
+            {/* comments */}
+            {isComments && (
+              <div>
+                <hr />
+                <div>
+                  <span>Product Ratings and Comments</span>
+
+                  <hr />
+
+                  <div>
+                    <div style={{ display: 'flex' }}>
+                      <img src={mouse} style={{ width: '60px', height: '60px', borderRadius: '50%' }} alt="" />
+                      <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '10px' }}>
+                        <span style={{ fontSize: '15px', fontWeight: 'bold', marginTop: '10px' }}>User Name</span>
+                        <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px', fontSize: '13.5px', marginBottom: '4px' }}>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li style={{ color: 'black', marginLeft: '10px' }}> | </li>
+                          <li style={{ marginLeft: '10px', color: 'black' }}>Mouse</li>
+                        </ul>
+                        <span style={{ fontSize: '12px' }}>August 5, 1999</span>
+                      </div>
+                    </div>
+
+                    <div style={{ marginLeft: '70px', marginTop: '20px', fontSize: '14px' }}>
+                      <div style={{ width: '100%' }}>
+                        <span>this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments</span>
+                      </div>
+                      <div style={{ display: 'flex', fontSize: '15px', gap: '5px', marginTop: '8px' }}>
+                        <AiFillLike size={20} />
+                        <span> 5</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr />
+
+                  <div>
+                    <div style={{ display: 'flex' }}>
+                      <img src={mouse} style={{ width: '60px', height: '60px', borderRadius: '50%' }} alt="" />
+                      <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '10px' }}>
+                        <span style={{ fontSize: '15px', fontWeight: 'bold', marginTop: '10px' }}>User Name</span>
+                        <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px', fontSize: '13.5px', marginBottom: '4px' }}>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li style={{ color: 'black', marginLeft: '10px' }}> | </li>
+                          <li style={{ marginLeft: '10px', color: 'black' }}>Mouse</li>
+                        </ul>
+                        <span style={{ fontSize: '12px' }}>August 5, 1999</span>
+                      </div>
+                    </div>
+
+                    <div style={{ marginLeft: '70px', marginTop: '20px', fontSize: '14px' }}>
+                      <div style={{ width: '100%' }}>
+                        <span>this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments</span>
+                      </div>
+                      <div style={{ display: 'flex', fontSize: '15px', gap: '5px', marginTop: '8px' }}>
+                        <AiFillLike size={20} />
+                        <span> 5</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr />
+
+                  <div>
+                    <div style={{ display: 'flex' }}>
+                      <img src={mouse} style={{ width: '60px', height: '60px', borderRadius: '50%' }} alt="" />
+                      <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '10px' }}>
+                        <span style={{ fontSize: '15px', fontWeight: 'bold', marginTop: '10px' }}>User Name</span>
+                        <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px', fontSize: '13.5px', marginBottom: '4px' }}>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li><i className='fa fa-star'></i></li>
+                          <li style={{ color: 'black', marginLeft: '10px' }}> | </li>
+                          <li style={{ marginLeft: '10px', color: 'black' }}>Mouse</li>
+                        </ul>
+                        <span style={{ fontSize: '12px' }}>August 5, 1999</span>
+                      </div>
+                    </div>
+
+                    <div style={{ marginLeft: '70px', marginTop: '20px', fontSize: '14px' }}>
+                      <div style={{ width: '100%' }}>
+                        <span>this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments</span>
+                      </div>
+                      <div style={{ display: 'flex', fontSize: '15px', gap: '5px', marginTop: '8px' }}>
+                        <AiFillLike size={20} />
+                        <span> 5</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* arrow up */}
+          {backToTop && (
+            <div onClick={(e) => e.stopPropagation()} style={{ position: 'fixed', bottom: '10px', marginLeft: '375px' }}>
+              <a href="#comments"><BsArrowUpSquare style={{ fontSize: '25px', cursor: 'pointer' }} /></a>
+            </div>
+          )}
         </div>
       )}
     </>
