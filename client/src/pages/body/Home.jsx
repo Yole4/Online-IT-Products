@@ -82,7 +82,7 @@ function Home() {
 
 
       <div className="product-header">
-        <span>IT Products</span>
+        <span className='system-name'>IT Products</span>
         <div>
           <BiSearchAlt2 className='search-bar' size={23} />
           {/* <input type="text" style={{borderRadius: '10px', height: '36px', padding: '10px 10px 10px 30px'}}/> */}

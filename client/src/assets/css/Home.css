@@ -250,4 +250,8 @@ button {
         right: 0;
         left: 30px;
     }
+
+    .system-name{
+        display: none;
+    }
 }
