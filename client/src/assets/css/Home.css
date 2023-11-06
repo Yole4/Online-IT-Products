@@ -207,11 +207,8 @@ button {
 }
 
 .search-bar{
-    position: absolute;
-    right: 287px;
-    z-index: 50;
-    margin-top: 25px;
-    color: #5c5c5c;
+    width: 300px;
+    margin-left: 180px;
 }
 
 @media screen and (max-width: 1000px) {
@@ -247,11 +244,26 @@ button {
     }
 
     .search-bar{
-        right: 0;
-        left: 30px;
+        width: 80%;
+        margin-left: 50px;
+        margin-top: 60px;
     }
 
     .system-name{
-        display: none;
+        /* display: none; */
+        width: 100%;
+        background-color: #2F6690;
+        position: absolute;
+        top: 0;
+        height: 35px;
+        text-align: center;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        color: #fff;
+    }
+
+    .right-corner{
+        margin-top: 35px;
     }
 }

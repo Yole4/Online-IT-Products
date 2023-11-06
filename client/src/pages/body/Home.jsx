@@ -14,8 +14,10 @@ import { useNavigate } from 'react-router-dom';
 import { LuShoppingCart } from "react-icons/lu";
 import { BsPersonCircle, BsArrowUpSquare } from "react-icons/bs";
 import { BiSearchAlt2 } from "react-icons/bi";
-import { AiOutlineCloseCircle, AiOutlineMinus, AiOutlinePlus, AiFillLike, AiFillShop } from "react-icons/ai";
+import { AiOutlineCloseCircle, AiOutlineMinus, AiOutlinePlus, AiFillLike, AiFillShop, AiTwotoneHome } from "react-icons/ai";
 import { VscDeviceCamera } from "react-icons/vsc";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { GrProductHunt } from "react-icons/gr";
 
 function Home() {
   const navigate = useNavigate();
@@ -26,6 +28,7 @@ function Home() {
   const [isCart, setIsCart] = useState(false);
   const [isProductClick, setIsProductClick] = useState(false);
   const [isComments, setIsComments] = useState(false);
+  const [isSearch, setIsSearch] = useState(false);
 
   // ---------------------------------- SAMPLE AMMOUNT --------------------------------
   const [quantity, setQuantity] = useState(0);
@@ -37,7 +40,7 @@ function Home() {
   useEffect(() => {
     if (quantity !== 0) {
       setAmmount(givenAmmount * quantity);
-    }else{
+    } else {
       setAmmount(0);
     }
   }, [quantity]);
@@ -60,58 +63,97 @@ function Home() {
 
   return (
     <>
-      {/* Wala ni labot */}
-      {/* {startMessage && (
-        <div className="popup">
-          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: startMessage ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
-            <div className="popup-edit">
-              <h5>Reminder!</h5>
+      <nav className="main-header navbar navbar-expand navbar-primary navbar-dark bg-navy" style={{ marginLeft: '0' }}>
+        {/* Left navbar links */}
+        <ul className="navbar-nav">
+
+          <li className="nav-item">
+            <a className="nav-link"><GrProductHunt size={20} /></a>
+          </li>
+
+          <li className="nav-item d-sm-inline-block d-none" style={{ marginLeft: '-20px' }}>
+            <span style={{ cursor: 'pointer' }} className="nav-link">IT Products</span>
+          </li>
+
+          <li className="nav-item">
+            <a className="nav-link" data-widget="navbar-search" href="#" role="button" onClick={() => setIsSearch(true)}>
+              <i className="fas fa-search" />
+            </a>
+            {isSearch && (
+                <div className="navbar-search-block search-bar" onClick={(e) => e.stopPropagation()}>
+                  <form className="form-inline">
+                    <div className="input-group input-group-sm">
+                      <input className="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search" style={{ background: '#2F4858' }} />
+                    </div>
+                  </form>
+                </div>  
+            )}
+          </li>
+
+
+        </ul>
+        {/* Right navbar links */}
+        <ul className="navbar-nav ml-auto" onClick={() => setIsSearch(false)}>
+
+          {/* // ================================================================= NOTIFICATION =============================================================================== */}
+          <li className="nav-item dropdown">
+            <a className="nav-link" data-toggle="dropdown" href="#">
+              <i className="far fa-bell" />
+              <span className="badge badge-warning navbar-badge">3</span>
+            </a>
+            <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+              <span className="dropdown-item dropdown-header">3 Notification</span>
+
+
+              <div style={{ maxHeight: '400px', overflow: 'auto' }}>
+                <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer' }}>
+                  <div style={{ display: 'flex' }}>
+                    <i className="fas fa-bell mr-2" style={{ color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px' }} /><p style={{ marginLeft: '10px' }}>this is the Notification</p>
+                  </div>
+                  <div style={{ marginLeft: '10px' }}>
+                    <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>August 4, 19899</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="dropdown-divider" />
+              <a data-toggle="modal" data-target="#allNotification" style={{ cursor: 'pointer' }} className="dropdown-item dropdown-footer">See All Notifications</a>
             </div>
-            <hr />
-            <div className='form-div'>
-              <span>Kani lang nga design bay, ang dashboard okay naman <br /> naa rakoy g comment dha, bali kani ra sa customer side ang usoba or butangi og design</span>
+          </li>
+
+          <li className="nav-item dropdown" onClick={() => setIsCart(true)}>
+            <div className="nav-link">
+              <LuShoppingCart style={{ cursor: 'pointer' }} size={20} />
             </div>
+          </li>
 
-            <div style={{ marginTop: '25px' }}>
-              <button className='btn btn-danger' type='button' style={{ width: '100%' }} onClick={() => setStartMessage(false)}>Okay</button>
+          <li className="nav-item dropdown no-arrow">
+            <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span className="mr-2 d-none d-lg-inline text-gray-600 small">Shelo Mora Paglinawan</span>
+              <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={laptop} />
+            </a>
+
+            <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+              <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
+                Profile
+              </a>
+              <a className="dropdown-item" onClick={() => navigate('/')} data-toggle="modal" style={{ cursor: 'pointer' }}><i className="fa-sm fa-fw mr-2 text-gray-400" ><AiTwotoneHome size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
+                Home
+              </a>
+              <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
+                Change Password
+              </a>
+              <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }}>
+                <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
+                Logout
+              </a>
             </div>
-          </div>
-        </div>
-      )} */}
+          </li>
+        </ul>
+      </nav>
 
-
-      <div className="product-header">
-        <span><span className='system-name'>IT Products</span></span>
-        <div>
-          <BiSearchAlt2 className='search-bar' size={23} />
-          {/* <input type="text" style={{borderRadius: '10px', height: '36px', padding: '10px 10px 10px 30px'}}/> */}
-          <input type="text" className="form-control" style={{ position: 'absolute', right: '120px', paddingLeft: '38px', width: '200px', top: '18px' }} />
-
-          <LuShoppingCart style={{ margin: '20px 10px 20px 20px', color: '#fff', cursor: 'pointer' }} onClick={() => setIsCart(isCart ? false : true)} size={30} />
-          <BsPersonCircle style={{ margin: '20px 20px 20px 10px', color: '#fff', cursor: 'pointer' }} onClick={() => setIsProfile(isProfile ? false : true)} size={30} />
-        </div>
-      </div>
-
-      <div className="product-options">
-        <div className='product-list'>
-          <button className='active'>All</button>
-        </div>
-        <div className='product-list'>
-          <button>Mouse</button>
-        </div>
-        <div className='product-list'>
-          <button>Laptop</button>
-        </div>
-        <div className='product-list'>
-          <button>Computer</button>
-        </div>
-        <div className='product-list'>
-          <button>Laptop</button>
-        </div>
-      </div>
-
-      <div className="gallery">
+      <div className="gallery" onClick={() => setIsSearch(false)}>
         <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={laptop} className='product-image' alt="" />
           <h3 className='product-name'>Laptop</h3>
@@ -314,19 +356,25 @@ function Home() {
               <AiOutlineCloseCircle size={30} />
             </div>
             {/* <span style={{color: 'red'}}>Cart is Empty!</span> */}
-            <div style={{marginBottom: '15px', fontWeight: 'bold'}}>
+            <div style={{ marginBottom: '15px', fontWeight: 'bold' }}>
               <span>My Cart</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'left', alignItems: 'start', gap: '8px' }}>
               <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
               <AiFillShop size={20} />
               <span>Eloy's Shop</span>
+              <div style={{ position: 'absolute', right: '20px', color: 'red' }}>
+                <span>₱123</span>
+              </div>
             </div>
+
             <hr />
-            <div style={{ display: 'flex', justifyContent: 'left', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
-              <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
-              <img src={laptop} alt="" style={{ width: '50px', height: '50px' }} />
-              <span>Laptop</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
+              <div style={{ display: 'flex', gap: '7px', justifyContent: 'center', alignItems: 'center' }}>
+                <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
+                <img src={laptop} alt="" style={{ width: '50px', height: '50px' }} />
+                <span>Laptop</span>
+              </div>
 
               <div style={{ display: 'flex' }}>
                 <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
@@ -334,12 +382,47 @@ function Home() {
                 <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
               </div>
 
-              <span>Delete</span>
+              <span><RiDeleteBin6Line size={20} style={{ color: 'red', cursor: 'pointer' }} /></span>
             </div>
 
-            <div style={{marginTop: '20px'}}>
-              <button style={{width: '100%', fontSize: '15px', borderRadius: '4px', color: 'black', padding: '10px'}}>Check Out</button>
+            <hr />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
+              <div style={{ display: 'flex', gap: '7px', justifyContent: 'center', alignItems: 'center' }}>
+                <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
+                <img src={laptop} alt="" style={{ width: '50px', height: '50px' }} />
+                <span>Laptop</span>
+              </div>
+
+              <div style={{ display: 'flex' }}>
+                <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
+                <span style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px', padding: '2px' }}>{quantity}</span>
+                <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
+              </div>
+
+              <span><RiDeleteBin6Line size={20} style={{ color: 'red', cursor: 'pointer' }} /></span>
             </div>
+
+            <hr />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
+              <div style={{ display: 'flex', gap: '7px', justifyContent: 'center', alignItems: 'center' }}>
+                <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
+                <img src={laptop} alt="" style={{ width: '50px', height: '50px' }} />
+                <span>Laptop</span>
+              </div>
+
+              <div style={{ display: 'flex' }}>
+                <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
+                <span style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px', padding: '2px' }}>{quantity}</span>
+                <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
+              </div>
+
+              <span><RiDeleteBin6Line size={20} style={{ color: 'red', cursor: 'pointer' }} /></span>
+            </div>
+
+            <div style={{ marginTop: '20px' }}>
+              <button style={{ width: '100%', fontSize: '15px', borderRadius: '4px', color: 'black', padding: '10px', background: 'orange' }}>Check Out</button>
+            </div>
+
           </div>
         </div>
       )}
