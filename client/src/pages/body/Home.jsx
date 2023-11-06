@@ -33,6 +33,9 @@ function Home() {
   const [isSearch, setIsSearch] = useState(false);
   const [isLogout, setIsLogout] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
+  const [isMyAddress, setIsMyAddress] = useState(false);
+  const [isAddAddress, setIsAddAddress] = useState(false);
+  const [isMyOrder, setIsMyOrder] = useState(false);
 
   // ---------------------------------- SAMPLE AMMOUNT --------------------------------
   const [quantity, setQuantity] = useState(0);
@@ -143,10 +146,10 @@ function Home() {
               <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                 Profile
               </a>
-              <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FaAddressCard size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
+              <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => setIsMyAddress(true)}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FaAddressCard size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
                 My Address
               </a>
-              <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FcShipped size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
+              <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => setIsMyOrder(true)}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FcShipped size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
                 My Orders
               </a>
               <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }} onClick={() => setIsChangePassword(true)}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
@@ -332,7 +335,7 @@ function Home() {
               <AiOutlineCloseCircle size={30} />
             </div>
             <div style={{ textAlign: 'center' }}>
-              <img src={mouse} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
+              <img src={laptop} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
               <label htmlFor="uploadPhoto" style={{ marginLeft: '-40px', cursor: 'pointer', zIndex: '3', color: 'white', position: 'absolute', marginTop: '110px' }}>
                 <VscDeviceCamera size={30} style={{ backgroundColor: 'rgb(71, 71, 98)', padding: '3px', borderRadius: '50%' }} />
                 <input type="file" id="uploadPhoto" style={{ display: 'none' }} />
@@ -577,6 +580,117 @@ function Home() {
             )}
           </div>
 
+        </div>
+      )}
+
+      {/* My Address */}
+      {isMyAddress && (
+        <div className="popup">
+          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isMyAddress ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+            <div className="popup-edit" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+              <span>My Address</span>
+              <button onClick={() => setIsAddAddress(true)} style={{width: 'auto', padding: '3px 10px', fontSize: '15px', borderRadius: '4px'}} className='btn btn-primary'>Add</button>
+            </div>
+
+            <hr />
+            <div className="form-div" style={{ marginLeft: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'start', gap: '10px', alignItems: 'center', width: '100%' }}>
+                <input type="radio" />
+                <span>Libertad Aurora Zamboanga Del Sur</span>
+              </div>
+            </div>
+
+            <hr />
+            <div className="form-div" style={{ marginLeft: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'start', gap: '10px', alignItems: 'center', width: '100%' }}>
+                <input type="radio" />
+                <span>Sta Cruz, Dapitan City</span>
+              </div>
+            </div>
+
+            <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+              <button className='btn btn-danger' type='button' style={{ width: '80px', fontSize: '15px' }} onClick={() => setIsMyAddress(false)}>Cancel</button>
+              <button className='btn btn-primary' type='submit' style={{ width: '80px', fontSize: '15px' }}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Address */}
+      {isAddAddress && (
+        <div className="popup" style={{fontSize: '15px'}}>
+          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isAddAddress ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+            <div className="popup-edit">
+              <span style={{fontWeight: 'bold'}}>Add Address</span>
+            </div>
+
+            <hr />
+
+            <form >
+              <div className='form-div'>
+                <label htmlFor="">Street</label>
+                <input type="text" className='form-control' placeholder='e.g. Sta. Cruz' required />
+              </div>
+
+              <div style={{ marginTop: '15px' }}>
+                <label htmlFor="">Village (Barangay)</label>
+                <input type="text" className='form-control' placeholder='e.g. Libertad' required />
+              </div>
+
+              <div style={{ marginTop: '15px' }}>
+                <label htmlFor="">Municipality/City</label>
+                <input type="text" className='form-control' placeholder='e.g. Dapitan City' required />
+              </div>
+
+              <div style={{ marginTop: '15px' }}>
+                <label htmlFor="">Province/State</label>
+                <input type="text" className='form-control' placeholder='e.g. Zamboanga Del Norte' required />
+              </div>
+
+              <div style={{ marginTop: '15px' }}>
+                <label htmlFor="">Postal Code/Zip Code</label>
+                <input type="number" className='form-control' placeholder='Zip Code' required />
+              </div>
+
+              <div style={{ marginTop: '15px' }}>
+                <label htmlFor="">Country</label>
+                <input type="text" className='form-control' placeholder='e.g. Philippines' required />
+              </div>
+
+              <div style={{ marginTop: '15px' }}>
+                <label htmlFor="">Land Mark (Additional Address Info)</label>
+                <input type="text" className='form-control' placeholder='e.g. Inside Rice Mailing Corporation' required />
+              </div>
+
+              <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsAddAddress(false)}>Cancel</button>
+                <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* My Order */}
+      {isMyOrder && (
+        <div className="popup">
+          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isMyOrder ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+            <div className="popup-edit">
+              <span>My Order</span>
+            </div>
+
+            <hr />
+            <div className="form-div" style={{color: 'red'}}>
+              <span>No Order Yet</span>
+            </div>
+<br />
+            <div>
+              <button className='btn btn-primary' style={{width: '100%'}} onClick={() => setIsMyOrder(false)}>Okay</button>
+            </div>
+          </div>
         </div>
       )}
 
