@@ -29,6 +29,8 @@ function Home() {
   const [isProductClick, setIsProductClick] = useState(false);
   const [isComments, setIsComments] = useState(false);
   const [isSearch, setIsSearch] = useState(false);
+  const [isLogout, setIsLogout] = useState(false);
+  const [isChangePassword, setIsChangePassword] = useState(false);
 
   // ---------------------------------- SAMPLE AMMOUNT --------------------------------
   const [quantity, setQuantity] = useState(0);
@@ -81,13 +83,13 @@ function Home() {
               <i className="fas fa-search" />
             </a>
             {isSearch && (
-                <div className="navbar-search-block search-bar" onClick={(e) => e.stopPropagation()}>
-                  <form className="form-inline">
-                    <div className="input-group input-group-sm">
-                      <input className="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search" style={{ background: '#2F4858' }} />
-                    </div>
-                  </form>
-                </div>  
+              <div className="navbar-search-block search-bar" onClick={(e) => e.stopPropagation()}>
+                <form className="form-inline">
+                  <div className="input-group input-group-sm">
+                    <input className="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search" style={{ background: '#2F4858' }} />
+                  </div>
+                </form>
+              </div>
             )}
           </li>
 
@@ -141,10 +143,10 @@ function Home() {
               <a className="dropdown-item" onClick={() => navigate('/')} data-toggle="modal" style={{ cursor: 'pointer' }}><i className="fa-sm fa-fw mr-2 text-gray-400" ><AiTwotoneHome size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
                 Home
               </a>
-              <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
+              <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }} onClick={() => setIsChangePassword(true)}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
                 Change Password
               </a>
-              <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }}>
+              <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }} onClick={() => setIsLogout(true)}>
                 <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
                 Logout
               </a>
@@ -362,7 +364,7 @@ function Home() {
             <div style={{ display: 'flex', justifyContent: 'left', alignItems: 'start', gap: '8px' }}>
               <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
               <AiFillShop size={20} />
-              <span>Eloy's Shop</span>
+              <span>Eloy's Cart</span>
               <div style={{ position: 'absolute', right: '20px', color: 'red' }}>
                 <span>₱123</span>
               </div>
@@ -437,7 +439,7 @@ function Home() {
             <div style={{ fontWeight: 'bold' }}>
               <span>Mouse</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', fontSize: '13px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', fontSize: '13px', color: 'red' }}>
               <span>Stock: {stack}</span>
               <div>
                 <span>Ammount: </span>
@@ -454,7 +456,7 @@ function Home() {
                 <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
               </div>
               <div>
-                <button style={{ borderRadius: '20px', fontSize: '15px', width: '150px', padding: '8px', color: 'black', backgroundColor: quantity !== 0 ? 'lightblue' : '' }}>Add to cart</button>
+                <button style={{ borderRadius: '20px', fontSize: '15px', width: '150px', padding: '8px', color: 'black', backgroundColor: quantity !== 0 ? 'orange' : '' }}>Add to cart</button>
               </div>
             </div>
 
@@ -569,6 +571,66 @@ function Home() {
             )}
           </div>
 
+        </div>
+      )}
+
+      {/* Change Password */}
+      {isChangePassword && (
+        <div className="popup">
+          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isChangePassword ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+            <div className="popup-edit">
+              <span>Change Password</span>
+            </div>
+            <hr />
+            <form >
+              <div className='form-div'>
+                <label htmlFor="">Username</label>
+                <input type="text" className='form-control' placeholder='Username' required />
+              </div>
+
+              <div style={{ marginTop: '15px' }}>
+                <label htmlFor="">Current Password</label>
+                <input type="password" className='form-control' placeholder='*********' required />
+              </div>
+
+              <div style={{ marginTop: '15px' }}>
+                <label htmlFor="">New Password</label>
+                <input type="password" className='form-control' placeholder='*********' required />
+              </div>
+
+              <div style={{ marginTop: '15px' }}>
+                <label htmlFor="">Confirm Password</label>
+                <input type="password" className='form-control' placeholder='*********' required />
+              </div>
+
+              <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsChangePassword(false)}>Cancel</button>
+                <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* -----------------------LOGOUT CONFIRMATION---------------------- */}
+      {isLogout && (
+        <div className="popup">
+          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isLogout ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+            <div className="popup-edit">
+              <h5>Logout?</h5>
+            </div>
+            <hr />
+            <div className='form-div'>
+              <span>Are you sure you wan't to logout?</span>
+            </div>
+
+            <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+              <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsLogout(false)}>No</button>
+              <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { localStorage.removeItem('token'); navigate('/'); setIsLogout(false) }}>Yes</button>
+            </div>
+          </div>
         </div>
       )}
     </>

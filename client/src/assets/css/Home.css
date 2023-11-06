@@ -211,6 +211,16 @@ button {
     margin-left: 180px;
 }
 
+@keyframes animateCenter {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
 @media screen and (max-width: 1000px) {
     .product-content {
         width: 450px;
