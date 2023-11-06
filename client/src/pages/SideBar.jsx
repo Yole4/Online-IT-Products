@@ -14,6 +14,7 @@ import logo from '../assets/images/logo.png';
 
 function SideBar() {
     const location = useLocation();
+    const navigate = useNavigate();
 
     return (
         <div>
@@ -38,8 +39,7 @@ function SideBar() {
                     {/* Sidebar Menu */}
                     <nav className="mt-2" style={{ marginLeft: '10px' }}>
                         <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                            {/* =========================================================== PUBLICIZE RESEARCH ======================================================================================== */}
-                            <li className="nav-item dropdown" >
+                            <li className="nav-item dropdown" onClick={() => navigate('/dashboard')}>
                                 <a href="#" className={location.pathname === '/dashboard' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon fas fa-tachometer-alt"></i>
                                     <p>
@@ -47,20 +47,13 @@ function SideBar() {
                                     </p>
                                 </a>
                             </li>
-                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} >
-                                <a className={location.pathname === '/archive-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
-                                    <i className="nav-icon"><FiArchive /></i>
-                                    <p style={{ marginLeft: '10px' }}>
-                                        Archive List
-                                    </p>
-                                </a>
-                            </li>
-                            {/* =========================================================== RESEARCH WORKS ======================================================================================== */}
+
+
                             <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
                                 <a className={location.pathname === '/student-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FaUsers /></i>
                                     <p style={{ marginLeft: '10px' }}>
-                                        Request User
+                                        Orders
                                     </p>
                                 </a>
                             </li>
@@ -70,12 +63,21 @@ function SideBar() {
 
                     <nav className="mt-2" style={{ marginLeft: '10px' }}>
                         <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                            {/* =========================================================== PUBLICIZE RESEARCH ======================================================================================== */}
-                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} >
-                                <a className={location.pathname === '/department-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+
+                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/users')}>
+                                <a className={location.pathname === '/users' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+                                    <i className="nav-icon"><FaUsersCog /></i>
+                                    <p style={{ marginLeft: '10px' }}>
+                                        Users
+                                    </p>
+                                </a>
+                            </li>
+
+                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/categories')}>
+                                <a className={location.pathname === '/categories' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FaThList /></i>
                                     <p style={{ marginLeft: '10px' }}>
-                                        Department List
+                                        Categories
                                     </p>
                                 </a>
                             </li>
@@ -84,26 +86,11 @@ function SideBar() {
                                 <a className={location.pathname === '/curriculumn-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><RiNewspaperLine /></i>
                                     <p style={{ marginLeft: '10px' }}>
-                                        Courses
+                                        Products
                                     </p>
                                 </a>
                             </li>
-                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} >
-                                <a className={location.pathname === '/school-year' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
-                                    <i className="nav-icon"><MdDateRange /></i>
-                                    <p style={{ marginLeft: '10px' }}>
-                                        School Year
-                                    </p>
-                                </a>
-                            </li>
-                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
-                                <a className={location.pathname === '/users-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
-                                    <i className="nav-icon"><FaUsersCog /></i>
-                                    <p style={{ marginLeft: '10px' }}>
-                                        User List
-                                    </p>
-                                </a>
-                            </li>
+
                             <li className="nav-item dropdown" style={{ cursor: 'pointer' }} >
                                 <a className={location.pathname === '/settings' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><IoSettingsOutline /></i>

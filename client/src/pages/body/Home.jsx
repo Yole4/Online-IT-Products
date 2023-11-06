@@ -30,12 +30,14 @@ function Home() {
   const [isCart, setIsCart] = useState(false);
   const [isProductClick, setIsProductClick] = useState(false);
   const [isComments, setIsComments] = useState(false);
-  const [isSearch, setIsSearch] = useState(false);
   const [isLogout, setIsLogout] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [isMyAddress, setIsMyAddress] = useState(false);
   const [isAddAddress, setIsAddAddress] = useState(false);
   const [isMyOrder, setIsMyOrder] = useState(false);
+
+  // ---------------------------------- PARTIAL LOGIN --------------------------------
+  const [isLogin, setIsLogin] = useState(false);
 
   // ---------------------------------- SAMPLE AMMOUNT --------------------------------
   const [quantity, setQuantity] = useState(0);
@@ -52,22 +54,6 @@ function Home() {
     }
   }, [quantity]);
 
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     if (window.scrollY > 0) {
-  //       setBackToTop(true);
-  //     } else {
-  //       setBackToTop(false);
-  //     }
-  //   };
-
-  //   window.addEventListener('scroll', handleScroll);
-
-  //   return () => {
-  //     window.removeEventListener('scroll', handleScroll);
-  //   };
-  // }, []);
-
   return (
     <>
 
@@ -79,29 +65,13 @@ function Home() {
             <a className="nav-link"><GrProductHunt size={20} /></a>
           </li>
 
-          <li className="nav-item d-sm-inline-block d-none" style={{ marginLeft: '-20px' }}>
+          <li className="nav-item d-sm-inline-block" style={{ marginLeft: '-20px' }}>
             <span style={{ cursor: 'pointer' }} className="nav-link">IT Products</span>
           </li>
 
-          <li className="nav-item">
-            <a className="nav-link" data-widget="navbar-search" href="#" role="button" onClick={() => setIsSearch(true)}>
-              <i className="fas fa-search" />
-            </a>
-            {isSearch && (
-              <div className="navbar-search-block search-bar" onClick={(e) => e.stopPropagation()}>
-                <form className="form-inline">
-                  <div className="input-group input-group-sm">
-                    <input className="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search" style={{ background: '#2F4858' }} />
-                  </div>
-                </form>
-              </div>
-            )}
-          </li>
-
-
         </ul>
         {/* Right navbar links */}
-        <ul className="navbar-nav ml-auto" onClick={() => setIsSearch(false)}>
+        <ul className="navbar-nav ml-auto">
 
           {/* // ================================================================= NOTIFICATION =============================================================================== */}
           <li className="nav-item dropdown">
@@ -164,7 +134,31 @@ function Home() {
         </ul>
       </nav>
 
-      <div className="gallery" onClick={() => setIsSearch(false)}>
+      <div className='top-search'>
+        <form action="simple-results.html">
+          <div>
+            <input type="search" className="form-control " placeholder="Search Product" style={{paddingLeft: '35px', borderRadius: '5px', height: '40px', fontSize: '15px'}} />
+            <BiSearchAlt2 size={23} style={{position: 'absolute', marginTop: '-30px', marginLeft: '8px'}} />
+          </div>
+        </form>
+      </div>
+
+      <div className='category-container'>
+        <button className='category'>Tablets</button>
+        <button className='category'>Mouse</button>
+        <button className='category'>Keyboards</button>
+        <button className='category'>Networking</button>
+        <button className='category'>Computer</button>
+        <button className='category'>Computer</button>
+        <button className='category'>Laptop</button>
+        <button className='category'>Tablets</button>
+        <button className='category'>Mouse</button>
+        <button className='category'>Keyboards</button>
+        <button className='category'>Networking</button>
+        <button className='category'>Computer</button>
+      </div>
+
+      <div className="gallery">
         <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={laptop} className='product-image' alt="" />
           <h3 className='product-name'>Laptop</h3>
@@ -588,9 +582,9 @@ function Home() {
         <div className="popup">
           <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isMyAddress ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
-            <div className="popup-edit" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <div className="popup-edit" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>My Address</span>
-              <button onClick={() => setIsAddAddress(true)} style={{width: 'auto', padding: '3px 10px', fontSize: '15px', borderRadius: '4px'}} className='btn btn-primary'>Add</button>
+              <button onClick={() => setIsAddAddress(true)} style={{ width: 'auto', padding: '3px 10px', fontSize: '15px', borderRadius: '4px' }} className='btn btn-primary'>Add</button>
             </div>
 
             <hr />
@@ -619,11 +613,11 @@ function Home() {
 
       {/* Add Address */}
       {isAddAddress && (
-        <div className="popup" style={{fontSize: '15px'}}>
+        <div className="popup" style={{ fontSize: '15px' }}>
           <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isAddAddress ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
             <div className="popup-edit">
-              <span style={{fontWeight: 'bold'}}>Add Address</span>
+              <span style={{ fontWeight: 'bold' }}>Add Address</span>
             </div>
 
             <hr />
@@ -683,12 +677,12 @@ function Home() {
             </div>
 
             <hr />
-            <div className="form-div" style={{color: 'red'}}>
+            <div className="form-div" style={{ color: 'red' }}>
               <span>No Order Yet</span>
             </div>
-<br />
+            <br />
             <div>
-              <button className='btn btn-primary' style={{width: '100%'}} onClick={() => setIsMyOrder(false)}>Okay</button>
+              <button className='btn btn-primary' style={{ width: '100%' }} onClick={() => setIsMyOrder(false)}>Okay</button>
             </div>
           </div>
         </div>
