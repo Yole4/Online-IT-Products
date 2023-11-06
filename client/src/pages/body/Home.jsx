@@ -129,6 +129,7 @@ function Home() {
           <li className="nav-item dropdown" onClick={() => setIsCart(true)}>
             <div className="nav-link">
               <LuShoppingCart style={{ cursor: 'pointer' }} size={20} />
+              <span className="badge badge-warning navbar-badge">3</span>
             </div>
           </li>
 
