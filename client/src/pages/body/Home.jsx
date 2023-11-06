@@ -14,10 +14,12 @@ import { useNavigate } from 'react-router-dom';
 import { LuShoppingCart } from "react-icons/lu";
 import { BsPersonCircle, BsArrowUpSquare } from "react-icons/bs";
 import { BiSearchAlt2 } from "react-icons/bi";
-import { AiOutlineCloseCircle, AiOutlineMinus, AiOutlinePlus, AiFillLike, AiFillShop, AiTwotoneHome } from "react-icons/ai";
+import { AiOutlineCloseCircle, AiOutlineMinus, AiOutlinePlus, AiFillLike, AiFillShop } from "react-icons/ai";
 import { VscDeviceCamera } from "react-icons/vsc";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { FaAddressCard } from "react-icons/fa";
 import { GrProductHunt } from "react-icons/gr";
+import { FcShipped } from "react-icons/fc";
 
 function Home() {
   const navigate = useNavigate();
@@ -140,8 +142,11 @@ function Home() {
               <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                 Profile
               </a>
-              <a className="dropdown-item" onClick={() => navigate('/')} data-toggle="modal" style={{ cursor: 'pointer' }}><i className="fa-sm fa-fw mr-2 text-gray-400" ><AiTwotoneHome size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
-                Home
+              <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FaAddressCard size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
+                My Address
+              </a>
+              <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FcShipped size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
+                My Orders
               </a>
               <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }} onClick={() => setIsChangePassword(true)}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
                 Change Password
