@@ -9,6 +9,7 @@ import Home from './pages/body/Home';
 import Dashboard from './pages/body/Dashboard';
 import UsersList from './pages/body/UsersList';
 import Categories from './pages/body/Categories';
+import Undefine from './pages/404/Undefine';
 
 function App() {
   const {user} = useContext(AuthContext);
@@ -21,6 +22,8 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/users" element={<UsersList />} />
       <Route path="/categories" element={<Categories />} />
+
+      <Route path="*" element={<Undefine />} />
     </Routes>
   );
 }

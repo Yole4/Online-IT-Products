@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import '../../assets/css/Home.css';
 
@@ -21,10 +21,10 @@ import { FaAddressCard } from "react-icons/fa";
 import { GrProductHunt } from "react-icons/gr";
 import { FcShipped } from "react-icons/fc";
 
+import { AuthContext } from '../../context/AuthContext';
+
 function Home() {
   const navigate = useNavigate();
-
-  // const [startMessage, setStartMessage] = useState(true);
 
   const [isProfile, setIsProfile] = useState(false);
   const [isCart, setIsCart] = useState(false);
@@ -56,6 +56,31 @@ function Home() {
       setAmmount(0);
     }
   }, [quantity]);
+
+
+  // ------------------------------------  LOGIN SIDE---------------------------------------
+  const { isLoading, errorResponse, user, logoutUser, updateLoginInfo, loginInfo, handleLogin } = useContext(AuthContext); // require auth context
+
+  const [isErrorResponse, setIsErrorResponse] = useState(false);
+
+  useEffect(() => {
+    if (errorResponse?.error) {
+      setIsErrorResponse(true);
+
+      setTimeout(() => {
+        setIsErrorResponse(false);
+      }, 5000);
+    }
+  }, [errorResponse]);
+
+  // ---------------------------- CHECK IF LOGIN OR NOT -----------------------------
+  useEffect(() => {
+    if (user){
+      setIsLogin(true);
+    }else{
+      setIsLogin(false);
+    }
+  }, [user]);
 
   return (
     <>
@@ -138,7 +163,7 @@ function Home() {
               </div>
             </li>
           ) : (
-            <li className="nav-item dropdown" onClick={(e) => {e.stopPropagation(); setIsOpenLogin(true)} }>
+            <li className="nav-item dropdown" onClick={(e) => { e.stopPropagation(); setIsOpenLogin(true) }}>
               <a className="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span className="mr-2 d-none d-lg-inline text-gray-600 small">Login/Register</span>
                 <BsPersonCircle style={{ cursor: 'pointer' }} size={20} />
@@ -756,7 +781,7 @@ function Home() {
 
             <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
               <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsLogout(false)}>No</button>
-              <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { localStorage.removeItem('token'); navigate('/'); setIsLogout(false) }}>Yes</button>
+              <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => {logoutUser(); setIsLogout(false)}}>Yes</button>
             </div>
           </div>
         </div>
@@ -774,19 +799,19 @@ function Home() {
               <AiOutlineCloseCircle size={30} />
             </div>
 
-            <form>
+            <form onSubmit={handleLogin}>
               <div className='form-div'>
                 <label htmlFor="">Username</label>
-                <input type="text" className='form-control' placeholder='Username' required />
+                <input type="text" value={updateLoginInfo.username} onChange={(e) => updateLoginInfo({ ...loginInfo, username: e.target.value })} className='form-control' placeholder='Username' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>
                 <label htmlFor="">Password</label>
-                <input type="password" className='form-control' placeholder='*********' required />
+                <input type="password" value={updateLoginInfo.password} onChange={(e) => updateLoginInfo({ ...loginInfo, password: e.target.value })} className='form-control' placeholder='*********' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>
-                <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Login" />
+                <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value={isLoading ? "Loging in..." : "Login"} />
               </div>
 
             </form>
@@ -856,6 +881,18 @@ function Home() {
             </div>
           </div>
         </div>
+      )}
+
+
+      {/* Loading div */}
+      {isErrorResponse && errorResponse?.error ? (
+        <div className='error-respond' style={{ backgroundColor: '#fb7d60' }}>
+          <div>
+            <h5>{errorResponse.message}</h5>
+          </div>
+        </div>
+      ) : (
+        <></>
       )}
     </>
   )

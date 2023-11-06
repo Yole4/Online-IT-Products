@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 function Undefine() {
     const navigate = useNavigate();
     return (
-        <div>
+        <div style={{background: '#fff', left: '0', right: '0', bottom: '0', top: '0', position: 'fixed'}}>
             <div>
                 <section className="content-header">
                     <div className="container-fluid">
@@ -21,7 +21,7 @@ function Undefine() {
                         </div>
                     </div>
                 </section>
-                <h2 style={{textAlign: 'center', margin: '50px'}}>Thesis and Capstone Archiving System Integrated knowledge-based referencing chatbot</h2>
+                <h2 style={{textAlign: 'center', margin: '50px'}}>Online IT Products</h2>
                 <section className="content">
                     <div className="error-page">
                         <h2 className="headline text-warning"> 404</h2>
