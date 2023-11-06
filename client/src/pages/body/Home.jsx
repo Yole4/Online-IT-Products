@@ -39,6 +39,9 @@ function Home() {
   // ---------------------------------- PARTIAL LOGIN --------------------------------
   const [isLogin, setIsLogin] = useState(false);
 
+  const [isOpenLogin, setIsOpenLogin] = useState(false);
+  const [isOpenRegister, setIsOpenRegister] = useState(false);
+
   // ---------------------------------- SAMPLE AMMOUNT --------------------------------
   const [quantity, setQuantity] = useState(0);
   const [givenAmmount, setGivenAmmount] = useState(40);
@@ -74,71 +77,82 @@ function Home() {
         <ul className="navbar-nav ml-auto">
 
           {/* // ================================================================= NOTIFICATION =============================================================================== */}
-          <li className="nav-item dropdown">
-            <a className="nav-link" data-toggle="dropdown" href="#">
-              <i className="far fa-bell" />
-              <span className="badge badge-warning navbar-badge">3</span>
-            </a>
-            <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-              <span className="dropdown-item dropdown-header">3 Notification</span>
+          {isLogin && (
+            <li className="nav-item dropdown">
+              <a className="nav-link" data-toggle="dropdown" href="#">
+                <i className="far fa-bell" />
+                <span className="badge badge-warning navbar-badge">3</span>
+              </a>
+              <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                <span className="dropdown-item dropdown-header">3 Notification</span>
 
 
-              <div style={{ maxHeight: '400px', overflow: 'auto' }}>
-                <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer' }}>
-                  <div style={{ display: 'flex' }}>
-                    <i className="fas fa-bell mr-2" style={{ color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px' }} /><p style={{ marginLeft: '10px' }}>this is the Notification</p>
-                  </div>
-                  <div style={{ marginLeft: '10px' }}>
-                    <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>August 4, 19899</p>
+                <div style={{ maxHeight: '400px', overflow: 'auto' }}>
+                  <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex' }}>
+                      <i className="fas fa-bell mr-2" style={{ color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px' }} /><p style={{ marginLeft: '10px' }}>this is the Notification</p>
+                    </div>
+                    <div style={{ marginLeft: '10px' }}>
+                      <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>August 4, 19899</p>
+                    </div>
                   </div>
                 </div>
+
+                <div className="dropdown-divider" />
+                <a data-toggle="modal" data-target="#allNotification" style={{ cursor: 'pointer' }} className="dropdown-item dropdown-footer">See All Notifications</a>
               </div>
+            </li>
+          )}
 
-              <div className="dropdown-divider" />
-              <a data-toggle="modal" data-target="#allNotification" style={{ cursor: 'pointer' }} className="dropdown-item dropdown-footer">See All Notifications</a>
-            </div>
-          </li>
-
-          <li className="nav-item dropdown" onClick={() => setIsCart(true)}>
+          <li className="nav-item dropdown" onClick={() => isLogin ? setIsCart(true) : setIsOpenLogin(true)}>
             <div className="nav-link">
               <LuShoppingCart style={{ cursor: 'pointer' }} size={20} />
               <span className="badge badge-warning navbar-badge">3</span>
             </div>
           </li>
 
-          <li className="nav-item dropdown no-arrow">
-            <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span className="mr-2 d-none d-lg-inline text-gray-600 small">Shelo Mora Paglinawan</span>
-              <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={laptop} />
-            </a>
+          {isLogin ? (
+            <li className="nav-item dropdown no-arrow">
+              <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span className="mr-2 d-none d-lg-inline text-gray-600 small">Shelo Mora Paglinawan</span>
+                <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={laptop} />
+              </a>
 
-            <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-              <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
-                Profile
+              <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
+                  Profile
+                </a>
+                <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => setIsMyAddress(true)}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FaAddressCard size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
+                  My Address
+                </a>
+                <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => setIsMyOrder(true)}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FcShipped size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
+                  My Orders
+                </a>
+                <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }} onClick={() => setIsChangePassword(true)}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
+                  Change Password
+                </a>
+                <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }} onClick={() => setIsLogout(true)}>
+                  <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
+                  Logout
+                </a>
+              </div>
+            </li>
+          ) : (
+            <li className="nav-item dropdown" onClick={(e) => {e.stopPropagation(); setIsOpenLogin(true)} }>
+              <a className="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span className="mr-2 d-none d-lg-inline text-gray-600 small">Login/Register</span>
+                <BsPersonCircle style={{ cursor: 'pointer' }} size={20} />
               </a>
-              <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => setIsMyAddress(true)}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FaAddressCard size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
-                My Address
-              </a>
-              <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => setIsMyOrder(true)}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FcShipped size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
-                My Orders
-              </a>
-              <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }} onClick={() => setIsChangePassword(true)}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
-                Change Password
-              </a>
-              <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }} onClick={() => setIsLogout(true)}>
-                <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
-                Logout
-              </a>
-            </div>
-          </li>
+            </li>
+          )}
         </ul>
       </nav>
 
       <div className='top-search'>
         <form action="simple-results.html">
           <div>
-            <input type="search" className="form-control " placeholder="Search Product" style={{paddingLeft: '35px', borderRadius: '5px', height: '40px', fontSize: '15px'}} />
-            <BiSearchAlt2 size={23} style={{position: 'absolute', marginTop: '-30px', marginLeft: '8px'}} />
+            <input type="search" className="form-control " placeholder="Search Product" style={{ paddingLeft: '35px', borderRadius: '5px', height: '40px', fontSize: '15px' }} />
+            <BiSearchAlt2 size={23} style={{ position: 'absolute', marginTop: '-30px', marginLeft: '8px' }} />
           </div>
         </form>
       </div>
@@ -159,7 +173,7 @@ function Home() {
       </div>
 
       <div className="gallery">
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={laptop} className='product-image' alt="" />
           <h3 className='product-name'>Laptop</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -179,7 +193,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -199,7 +213,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={computer} className='product-image' alt="" />
           <h3 className='product-name'>Computer</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -219,7 +233,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -239,7 +253,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={laptop} className='product-image' alt="" />
           <h3 className='product-name'>Laptop</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -259,7 +273,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -279,7 +293,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={computer} className='product-image' alt="" />
           <h3 className='product-name'>Computer</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -299,7 +313,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -743,6 +757,102 @@ function Home() {
             <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
               <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsLogout(false)}>No</button>
               <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { localStorage.removeItem('token'); navigate('/'); setIsLogout(false) }}>Yes</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isOpenLogin && !isOpenRegister && (
+        <div onClick={() => setIsOpenLogin(false)} className='popup'>
+
+          {/* Register page */}
+          <div onClick={(e) => e.stopPropagation()} className='popup-body' style={{ animation: isOpenLogin ? 'dropBottom .3s linear' : '' }} >
+            <div style={{ textAlign: 'center' }}>
+              <h3>Login</h3><br />
+            </div>
+            <div className="modal-close" onClick={() => setIsOpenLogin(false)}>
+              <AiOutlineCloseCircle size={30} />
+            </div>
+
+            <form>
+              <div className='form-div'>
+                <label htmlFor="">Username</label>
+                <input type="text" className='form-control' placeholder='Username' required />
+              </div>
+
+              <div style={{ marginTop: '20px' }}>
+                <label htmlFor="">Password</label>
+                <input type="password" className='form-control' placeholder='*********' required />
+              </div>
+
+              <div style={{ marginTop: '20px' }}>
+                <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Login" />
+              </div>
+
+            </form>
+            <div style={{ marginTop: '10px', textAlign: 'center' }} className='forgot-password'>
+              <span>Forgot Password?</span>
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+              <span>Don't Have Account? <a style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }} onClick={() => { setIsOpenRegister(true); setIsOpenLogin(false) }} >Register</a></span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Register page */}
+      {isOpenRegister && !isOpenLogin && (
+        <div onClick={() => setIsOpenRegister(false)} className='popup'>
+
+          {/* Register page */}
+          <div onClick={(e) => e.stopPropagation()} className='popup-body' style={{ animation: isOpenRegister ? 'dropBottom .3s linear' : '' }} >
+            <div style={{ textAlign: 'center' }}>
+              <h3>Register</h3><br />
+            </div>
+            <div className="modal-close" onClick={() => setIsOpenRegister(false)}>
+              <AiOutlineCloseCircle size={30} />
+            </div>
+
+            <form>
+              <div className='form-div'>
+                <label htmlFor="">First Name</label>
+                <input type="text" className='form-control' placeholder='First Name' required />
+              </div>
+
+              <div style={{ marginTop: '20px' }}>
+                <label htmlFor="">Middle Name (Optional)</label>
+                <input type="text" className='form-control' placeholder='Middle Name' />
+              </div>
+
+              <div style={{ marginTop: '20px' }}>
+                <label htmlFor="">Last Name</label>
+                <input type="text" className='form-control' placeholder='Last Name' required />
+              </div>
+
+              <div style={{ marginTop: '20px' }}>
+                <label htmlFor="">Username</label>
+                <input type="text" className='form-control' placeholder='Username' required />
+              </div>
+
+              <div style={{ marginTop: '20px' }}>
+                <label htmlFor="">Password</label>
+                <input type="password" className='form-control' placeholder='*********' required />
+              </div>
+
+              <div style={{ marginTop: '20px' }}>
+                <label htmlFor="">Confirm Password</label>
+                <input type="password" className='form-control' placeholder='*********' required />
+              </div>
+
+              <div style={{ marginTop: '20px' }}>
+                <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Register" />
+              </div>
+
+            </form>
+
+            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+              <span>Already have account? <a style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }} onClick={() => { setIsOpenLogin(true); setIsOpenRegister(false) }} >Login</a></span>
             </div>
           </div>
         </div>
