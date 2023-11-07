@@ -36,7 +36,7 @@ function Home() {
   const [isMyOrder, setIsMyOrder] = useState(false);
 
   // ---------------------------------- PARTIAL LOGIN --------------------------------
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
 
   // ---------------------------------- SAMPLE AMMOUNT --------------------------------
   const [quantity, setQuantity] = useState(0);
@@ -98,7 +98,7 @@ function Home() {
         <ul className="navbar-nav ml-auto">
 
           {/* // ================================================================= NOTIFICATION =============================================================================== */}
-          {isLogin && (
+          {/* {isLogin && ( */}
             <li className="nav-item dropdown">
               <a className="nav-link" data-toggle="dropdown" href="#">
                 <i className="far fa-bell" />
@@ -123,18 +123,18 @@ function Home() {
                 <a data-toggle="modal" data-target="#allNotification" style={{ cursor: 'pointer' }} className="dropdown-item dropdown-footer">See All Notifications</a>
               </div>
             </li>
-          )}
+          {/* )} */}
 
-          {user?.user_type !== "Admin" && (
+          {/* {user?.user_type !== "Admin" && ( */}
             <li className="nav-item dropdown" onClick={() => isLogin ? setIsCart(true) : setIsOpenLogin(true)}>
               <div className="nav-link">
                 <LuShoppingCart style={{ cursor: 'pointer' }} size={20} />
                 <span className="badge badge-warning navbar-badge">3</span>
               </div>
             </li>
-          )}
+          {/* )} */}
 
-          {isLogin ? (
+          {/* {isLogin ? ( */}
             <li className="nav-item dropdown no-arrow">
               <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span className="mr-2 d-none d-lg-inline text-gray-600 small">Shelo Mora Paglinawan</span>
@@ -169,14 +169,14 @@ function Home() {
                 </a>
               </div>
             </li>
-          ) : (
+          {/* ) : (
             <li className="nav-item dropdown" onClick={(e) => { e.stopPropagation(); setIsOpenLogin(true) }}>
               <a className="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span className="mr-2 d-none d-lg-inline text-gray-600 small">Login/Register</span>
                 <BsPersonCircle style={{ cursor: 'pointer' }} size={20} />
               </a>
             </li>
-          )}
+          )} */}
         </ul>
       </nav>
 

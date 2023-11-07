@@ -91,31 +91,31 @@ export const AuthContextProvider = ({ children }) => {
     }, [loginInfo]);
 
     // ------------------------------------ PROTECTED   -------------------------------------------
-    const [userCredentials, setUserCredentials] = useState([]);
-    const token = localStorage.getItem('token');
+    // const [userCredentials, setUserCredentials] = useState([]);
+    // const token = localStorage.getItem('token');
 
-    useEffect(() => {
-        if (token){
-            setIsLoading(true);
+    // useEffect(() => {
+    //     if (token){
+    //         setIsLoading(true);
 
-            const fetchUser = async () => {
-                const response = await getRequest(`${baseUrl}/users/protected`);
+    //         const fetchUser = async () => {
+    //             const response = await getRequest(`${baseUrl}/users/protected`);
 
                 
 
-                if (response.error){
-                    return setErrorResponse(response);
-                }else{
-                    setUserCredentials(response);
-                    setIsLoading(false);
-                    console.log(response);
-                }
-            };
-            fetchUser();
-        }else{
-            setUser(null);
-        }
-    },[token]);
+    //             if (response.error){
+    //                 return setErrorResponse(response);
+    //             }else{
+    //                 setUserCredentials(response);
+    //                 setIsLoading(false);
+    //                 console.log(response);
+    //             }
+    //         };
+    //         fetchUser();
+    //     }else{
+    //         setUser(null);
+    //     }
+    // },[token]);
 
     return <AuthContext.Provider value={{
         user,
