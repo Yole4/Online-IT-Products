@@ -205,7 +205,7 @@ function Home() {
       </div>
 
       <div className="gallery">
-        <div className="product-content" onClick={() => setIsOpenLogin(true)}>
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={laptop} className='product-image' alt="" />
           <h3 className='product-name'>Laptop</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -225,7 +225,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsOpenLogin(true)}>
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -245,7 +245,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsOpenLogin(true)}>
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={computer} className='product-image' alt="" />
           <h3 className='product-name'>Computer</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -265,7 +265,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsOpenLogin(true)}>
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -285,7 +285,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsOpenLogin(true)}>
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={laptop} className='product-image' alt="" />
           <h3 className='product-name'>Laptop</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -305,7 +305,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsOpenLogin(true)}>
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -325,7 +325,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsOpenLogin(true)}>
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={computer} className='product-image' alt="" />
           <h3 className='product-name'>Computer</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -345,7 +345,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsOpenLogin(true)}>
+        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
