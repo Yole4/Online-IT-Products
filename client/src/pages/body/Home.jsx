@@ -30,17 +30,13 @@ function Home() {
   const [isCart, setIsCart] = useState(false);
   const [isProductClick, setIsProductClick] = useState(false);
   const [isComments, setIsComments] = useState(false);
-  const [isLogout, setIsLogout] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [isMyAddress, setIsMyAddress] = useState(false);
   const [isAddAddress, setIsAddAddress] = useState(false);
   const [isMyOrder, setIsMyOrder] = useState(false);
 
   // ---------------------------------- PARTIAL LOGIN --------------------------------
-  const [isLogin, setIsLogin] = useState(false);
-
-  const [isOpenLogin, setIsOpenLogin] = useState(false);
-  const [isOpenRegister, setIsOpenRegister] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
 
   // ---------------------------------- SAMPLE AMMOUNT --------------------------------
   const [quantity, setQuantity] = useState(0);
@@ -59,7 +55,7 @@ function Home() {
 
 
   // ------------------------------------  LOGIN SIDE---------------------------------------
-  const { isLoading, errorResponse, user, logoutUser, updateLoginInfo, loginInfo, handleLogin } = useContext(AuthContext); // require auth context
+  const { isLoading, errorResponse, user, logoutUser, updateLoginInfo, loginInfo, handleLogin, isOpenLogin, setIsOpenLogin, isLogout, setIsLogout, registerInfo, updateRegisterInfo, registerUser, isOpenRegister, setIsOpenRegister } = useContext(AuthContext); // require auth context
 
   const [isErrorResponse, setIsErrorResponse] = useState(false);
 
@@ -75,9 +71,9 @@ function Home() {
 
   // ---------------------------- CHECK IF LOGIN OR NOT -----------------------------
   useEffect(() => {
-    if (user){
+    if (user) {
       setIsLogin(true);
-    }else{
+    } else {
       setIsLogin(false);
     }
   }, [user]);
@@ -129,12 +125,14 @@ function Home() {
             </li>
           )}
 
-          <li className="nav-item dropdown" onClick={() => isLogin ? setIsCart(true) : setIsOpenLogin(true)}>
-            <div className="nav-link">
-              <LuShoppingCart style={{ cursor: 'pointer' }} size={20} />
-              <span className="badge badge-warning navbar-badge">3</span>
-            </div>
-          </li>
+          {user?.user_type !== "Admin" && (
+            <li className="nav-item dropdown" onClick={() => isLogin ? setIsCart(true) : setIsOpenLogin(true)}>
+              <div className="nav-link">
+                <LuShoppingCart style={{ cursor: 'pointer' }} size={20} />
+                <span className="badge badge-warning navbar-badge">3</span>
+              </div>
+            </li>
+          )}
 
           {isLogin ? (
             <li className="nav-item dropdown no-arrow">
@@ -147,12 +145,21 @@ function Home() {
                 <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                   Profile
                 </a>
-                <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => setIsMyAddress(true)}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FaAddressCard size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
-                  My Address
-                </a>
-                <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => setIsMyOrder(true)}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FcShipped size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
-                  My Orders
-                </a>
+                {user?.user_type === "Admin" && (
+                  <a className="dropdown-item" data-toggle="modal" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}><i className="nav-icon fas fa-tachometer-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                    Dashboard
+                  </a>
+                )}
+                {user?.user_type !== "Admin" && (
+                  <>
+                    <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => setIsMyAddress(true)}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FaAddressCard size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
+                      My Address
+                    </a>
+                    <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => setIsMyOrder(true)}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FcShipped size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
+                      My Orders
+                    </a>
+                  </>
+                )}
                 <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }} onClick={() => setIsChangePassword(true)}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
                   Change Password
                 </a>
@@ -483,24 +490,29 @@ function Home() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', fontSize: '13px', color: 'red' }}>
               <span>Stock: {stack}</span>
-              <div>
-                <span>Ammount: </span>
-                <span>₱{ammount}</span>
-              </div>
+              {user?.user_type !== "Admin" && (
+                <div>
+                  <span>Ammount: </span>
+                  <span>₱{ammount}</span>
+                </div>
+              )}
             </div>
             <div style={{ marginTop: '4px' }}>
               description
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex' }}>
-                <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
-                <span style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px', padding: '2px' }}>{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
+
+            {user?.user_type !== "Admin" && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex' }}>
+                  <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
+                  <span style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px', padding: '2px' }}>{quantity}</span>
+                  <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
+                </div>
+                <div>
+                  <button style={{ borderRadius: '20px', fontSize: '15px', width: '150px', padding: '8px', color: 'black', backgroundColor: quantity !== 0 ? 'orange' : '' }}>Add to cart</button>
+                </div>
               </div>
-              <div>
-                <button style={{ borderRadius: '20px', fontSize: '15px', width: '150px', padding: '8px', color: 'black', backgroundColor: quantity !== 0 ? 'orange' : '' }}>Add to cart</button>
-              </div>
-            </div>
+            )}
 
             <div>
               <button style={{ padding: '2px', marginTop: '10px', background: 'transparent', color: 'black', fontSize: '13px' }} onClick={() => setIsComments(isComments ? false : true)}>{isComments ? 'Show Less' : 'Show Comments'}</button>
@@ -781,7 +793,7 @@ function Home() {
 
             <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
               <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsLogout(false)}>No</button>
-              <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => {logoutUser(); setIsLogout(false)}}>Yes</button>
+              <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { logoutUser() }}>Yes</button>
             </div>
           </div>
         </div>
@@ -839,39 +851,39 @@ function Home() {
               <AiOutlineCloseCircle size={30} />
             </div>
 
-            <form>
+            <form onSubmit={registerUser}>
               <div className='form-div'>
                 <label htmlFor="">First Name</label>
-                <input type="text" className='form-control' placeholder='First Name' required />
+                <input type="text" className='form-control' value={updateRegisterInfo.firstName} onChange={(e) => updateRegisterInfo({...registerInfo, firstName: e.target.value})} placeholder='First Name' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>
                 <label htmlFor="">Middle Name (Optional)</label>
-                <input type="text" className='form-control' placeholder='Middle Name' />
+                <input type="text" className='form-control' value={updateRegisterInfo.middleName} onChange={(e) => updateRegisterInfo({...registerInfo, middleName: e.target.value})} placeholder='Middle Name' />
               </div>
 
               <div style={{ marginTop: '20px' }}>
                 <label htmlFor="">Last Name</label>
-                <input type="text" className='form-control' placeholder='Last Name' required />
+                <input type="text" className='form-control' value={updateRegisterInfo.lastName} onChange={(e) => updateRegisterInfo({...registerInfo, lastName: e.target.value})} placeholder='Last Name' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>
                 <label htmlFor="">Username</label>
-                <input type="text" className='form-control' placeholder='Username' required />
+                <input type="text" className='form-control' value={updateRegisterInfo.username} onChange={(e) => updateRegisterInfo({...registerInfo, username: e.target.value})} placeholder='Username' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>
                 <label htmlFor="">Password</label>
-                <input type="password" className='form-control' placeholder='*********' required />
+                <input type="password" className='form-control' value={updateRegisterInfo.password} onChange={(e) => updateRegisterInfo({...registerInfo, password: e.target.value})} placeholder='*********' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>
                 <label htmlFor="">Confirm Password</label>
-                <input type="password" className='form-control' placeholder='*********' required />
+                <input type="password" className='form-control' value={updateRegisterInfo.confirmPassword} onChange={(e) => updateRegisterInfo({...registerInfo, confirmPassword: e.target.value})} placeholder='*********' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>
-                <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Register" />
+                <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value={isLoading ? "Registering..." : "Register"} />
               </div>
 
             </form>
@@ -893,6 +905,16 @@ function Home() {
         </div>
       ) : (
         <></>
+      )}
+
+      {/* fetching data screen */}
+      {isLoading && (
+        <div className="popup">
+          <div className="modal-pop-up-loading">
+            <div className="modal-pop-up-loading-spiner"></div>
+            <p>Loading...</p>
+          </div>
+        </div>
       )}
     </>
   )

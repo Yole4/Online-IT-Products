@@ -1,5 +1,5 @@
 import { createContext, useCallback, useEffect, useState } from "react";
-import { baseUrl, postRequest } from "../utils/Services";
+import { baseUrl, getRequest, postRequest } from "../utils/Services";
 
 export const AuthContext = createContext();
 
@@ -12,20 +12,25 @@ export const AuthContextProvider = ({ children }) => {
 
 
     const [registerInfo, setRegisterInfo] = useState({
-        fullname: '',
+        firstName: '',
+        middleName: '',
+        lastName: '',
         username: '',
         password: '',
         confirmPassword: ''
     });
 
     useEffect(() => {
-        const user = localStorage.getItem('User');
+        const user = localStorage.getItem('token');
         setUser(JSON.parse(user));
     }, []);
 
     const updateRegisterInfo = useCallback((info) => {
         setRegisterInfo(info);
     }, []);
+
+    // -------------------------------------    REGISTER    ---------------------------------------------
+    const [isOpenRegister, setIsOpenRegister] = useState(false);
 
     const registerUser = useCallback( async (e) => {
         e.preventDefault();
@@ -36,19 +41,23 @@ export const AuthContextProvider = ({ children }) => {
         const response = await postRequest(`${baseUrl}/users/register`, JSON.stringify(registerInfo));
         
         setIsLoading(false);
+        setIsOpenRegister(false);
 
         if (response.error){
             return setErrorResponse(response);
         }else{
-            localStorage.setItem("User", JSON.stringify(response));
+            localStorage.setItem("token", JSON.stringify(response.token));
             setUser(response);
         }
     }, [registerInfo]);
 
     // -------------------------------------   LOGOUT  --------------------------------------------
+    const [isLogout, setIsLogout] = useState(false);
+
     const logoutUser = useCallback(() => {
-        localStorage.removeItem('User');
+        localStorage.removeItem('token');
         setUser(null);
+        setIsLogout(false);
     }, []);
 
     // ------------------------------------    LOGIN USERS -----------------------------------------
@@ -56,6 +65,7 @@ export const AuthContextProvider = ({ children }) => {
         username: "",
         password: ""
     });
+    const [isOpenLogin, setIsOpenLogin] = useState(false);
 
     const updateLoginInfo = useCallback((info) => {
         setLoginInfo(info);
@@ -70,14 +80,42 @@ export const AuthContextProvider = ({ children }) => {
         const response = await postRequest(`${baseUrl}/users/login`, JSON.stringify(loginInfo));
 
         setIsLoading(false);
+        setIsOpenLogin(false);
 
         if (response.error){
             return setErrorResponse(response);
         }else{
-            localStorage.setItem("User", JSON.stringify(response));
+            localStorage.setItem("token", JSON.stringify(response.token));
             setUser(response);
         }
     }, [loginInfo]);
+
+    // ------------------------------------ PROTECTED   -------------------------------------------
+    const [userCredentials, setUserCredentials] = useState([]);
+    const token = localStorage.getItem('token');
+
+    useEffect(() => {
+        if (token){
+            setIsLoading(true);
+
+            const fetchUser = async () => {
+                const response = await getRequest(`${baseUrl}/users/protected`);
+
+                
+
+                if (response.error){
+                    return setErrorResponse(response);
+                }else{
+                    setUserCredentials(response);
+                    setIsLoading(false);
+                    console.log(response);
+                }
+            };
+            fetchUser();
+        }else{
+            setUser(null);
+        }
+    },[token]);
 
     return <AuthContext.Provider value={{
         user,
@@ -89,7 +127,13 @@ export const AuthContextProvider = ({ children }) => {
         logoutUser,
         loginInfo,
         updateLoginInfo,
-        handleLogin
+        handleLogin,
+        isOpenLogin,
+        setIsOpenLogin,
+        isLogout,
+        setIsLogout,
+        isOpenRegister,
+        setIsOpenRegister
     }}>
         {children}
     </AuthContext.Provider>

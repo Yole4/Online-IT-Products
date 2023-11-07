@@ -14,7 +14,9 @@ const createToken = (id, username) => {
 
 // verify token
 const protected = async (req, res) => {
-    // protected code
+    const { user } = req;
+
+    res.status(200).json({ message: 'Success', user: user });
 };
 
 // register user
@@ -31,7 +33,7 @@ const registerUser = async (req, res) => {
                     if (results.length > 0) {
                         res.status(401).json({ message: "Username already exist!" });
                     } else {
-                        if (!fullname || !password || !confirmPassword) {
+                        if (!firstName || !lastName || !password || !confirmPassword) {
                             res.status(401).json({ message: "All fields is required!" });
                         } else {
                             // if (!validator.isEmail(email)) {
@@ -42,8 +44,8 @@ const registerUser = async (req, res) => {
                                 if (password.length > 7) {
                                     // register user
                                     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-                                    const registerUser = `INSERT INTO users (first_name, middle_name, last_name, username, password) VALUES (?, ?, ?, ?, ?)`;
-                                    db.query(registerUser, [firstName, middleName, lastName, username, hashedPassword], (error, results) => {
+                                    const registerUser = `INSERT INTO users (first_name, middle_name, last_name, username, password, user_type) VALUES (?, ?, ?, ?, ?, ?)`;
+                                    db.query(registerUser, [firstName, middleName, lastName, username, hashedPassword, "Customer"], (error, results) => {
                                         if (error) {
                                             res.status(401).json({ message: "Server side error!" });
                                         } else {
@@ -70,8 +72,8 @@ const registerUser = async (req, res) => {
             console.log(error);
             res.status(401).json({ message: error });
         }
-    }else{
-        res.status(401).json({message: "Invalid Input!"});
+    } else {
+        res.status(401).json({ message: "Invalid Input!" });
     }
 };
 
@@ -102,9 +104,10 @@ const loginUser = async (req, res) => {
                             // get user id
                             const userId = results[0].id;
                             const token = createToken(userId, username);
+                            const userType = results[0].user_type;
 
                             // send to client
-                            res.status(200).json({ message: "Login success!", token: token, id: userId });
+                            res.status(200).json({ message: "Login success!", token: token, id: userId, user_type: userType });
                         } else {
                             res.status(401).json({ message: "Invalid Password!" });
                         }
