@@ -2,13 +2,16 @@ const db = require('../database/Connection');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const validator = require('validator');
+const fs = require('fs');
+const multer = require('multer');
+const mime = require('mime-types');
 require('dotenv').config();
 const { sanitizeAndValidate, sanitizeAndValidateArray } = require('../validator and sanitizer/ValidatorAndSanitizer');
 
-const createToken = (id, username) => {
+const createToken = (id, username, userType) => {
     const secretKey = process.env.SECRET_KEY;
 
-    const token = jwt.sign({ id, username }, secretKey, { expiresIn: '1d' });
+    const token = jwt.sign({ id, username, userType }, secretKey, { expiresIn: '1d' });
     return token;
 };
 
@@ -53,7 +56,7 @@ const registerUser = async (req, res) => {
                                             // create token
                                             const userId = results.insertId;
 
-                                            const token = createToken(userId, username);
+                                            const token = createToken(userId, username, "Customer");
                                             res.status(200).json({ message: "New user has been successfully registered!", token: token, id: userId });
                                         }
                                     });
@@ -103,11 +106,11 @@ const loginUser = async (req, res) => {
                             // create token
                             // get user id
                             const userId = results[0].id;
-                            const token = createToken(userId, username);
                             const userType = results[0].user_type;
+                            const token = createToken(userId, username, userType);
 
                             // send to client
-                            res.status(200).json({ message: "Login success!", token: token, id: userId, user_type: userType });
+                            res.status(200).json({ message: "Login success!", token: token, id: userId });
                         } else {
                             res.status(401).json({ message: "Invalid Password!" });
                         }
@@ -122,6 +125,82 @@ const loginUser = async (req, res) => {
         res.status(401).json({ message: error });
     }
 };
+
+// fetch user credentials
+const fetchUserCredentials = async (req, res) => {
+    const { id } = req.body;
+
+    if (id) {
+        const selectData = `SELECT * FROM users WHERE id = ?`;
+        db.query(selectData, [id], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                res.status(200).json({ message: results });
+            }
+        });
+    } else {
+        res.status(401).json({ message: "Something went wrong!" });
+    }
+}
+
+// auto image upload
+const imageUpload = multer({
+    dest: 'assets/image upload/',
+});
+
+const profileUpload = async (req, res) => {
+    // const { userId } = req.body;
+    // console.log(userId);
+    console.log(req.body);
+
+    // const validationRules = [
+    //     { validator: validator.isLength, options: { min: 1, max: 50 } },
+    // ];
+
+    // const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
+
+    // if (!sanitizeUserId) {
+    //     return res.status(401).json({ message: "Invalid Input!" });
+    // }
+
+    // Use imageUpload middleware to handle file upload
+    // imageUpload.single('image')(req, res, (err) => {
+    //     if (err) {
+    //         return res.status(401).json({ message: "Error to upload file" });
+    //     }
+
+    //     const originalFileName = req.file.originalname;
+    //     const uniqueFileName = `${Date.now()}_${originalFileName}`;
+    //     const uniqueFilePath = `assets/image upload/${uniqueFileName}`;
+
+    //     const typeMime = mime.lookup(originalFileName);
+
+    //     if (typeMime === 'image/png' || typeMime === 'image/jpeg') {
+    //         fs.rename(req.file.path, uniqueFilePath, (renameErr) => {
+    //             if (renameErr) {
+    //                 return res.status(401).json({ message: "Error to upload file" });
+    //             } else {
+    //                 const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
+    //                 if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
+    //                     return res.status(401).json({ message: "Invalid File Name!" });
+    //                 } else {
+    //                     const updateQuery = `UPDATE users SET image = ? WHERE id = ?`;
+    //                     db.query(updateQuery, [uniqueFilePath, sanitizeUserId], (updateErr, results) => {
+    //                         if (updateErr) {
+    //                             return res.status(401).json({ message: "Server side error!" });
+    //                         } else {
+    //                             return res.status(200).json({ message: "Profile image changed!" });
+    //                         }
+    //                     });
+    //                 }
+    //             }
+    //         });
+    //     } else {
+    //         return res.status(401).json({ message: "Invalid Image Type!" });
+    //     }
+    // });
+}
 
 // fetch all customerUsers
 const fetchCustomerUsers = async (req, res) => {
@@ -143,4 +222,4 @@ const changeProfileInfo = async (req, res) => {
     // change profile info
 };
 
-module.exports = { registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo };
+module.exports = { registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload };

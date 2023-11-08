@@ -7,6 +7,7 @@ import image from '../../assets/images/archive-1.png';
 import mouse from '../../assets/images/mouse.jpeg';
 import computer from '../../assets/images/computer.png';
 import laptop from '../../assets/images/laptop.avif';
+import givenImage from '../../assets/images/given image.png';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -55,7 +56,11 @@ function Home() {
 
 
   // ------------------------------------  LOGIN SIDE---------------------------------------
-  const { isLoading, errorResponse, user, logoutUser, updateLoginInfo, loginInfo, handleLogin, isOpenLogin, setIsOpenLogin, isLogout, setIsLogout, registerInfo, updateRegisterInfo, registerUser, isOpenRegister, setIsOpenRegister } = useContext(AuthContext); // require auth context
+  const { isLoading, errorResponse, user, logoutUser, updateLoginInfo, loginInfo, 
+    userCredentials, handleLogin, isOpenLogin, setIsOpenLogin, isLogout, setIsLogout, 
+    registerInfo, updateRegisterInfo, registerUser, isOpenRegister, setIsOpenRegister,
+    updateProfile
+  } = useContext(AuthContext); // require auth context
 
   const [isErrorResponse, setIsErrorResponse] = useState(false);
 
@@ -98,7 +103,7 @@ function Home() {
         <ul className="navbar-nav ml-auto">
 
           {/* // ================================================================= NOTIFICATION =============================================================================== */}
-          {/* {isLogin && ( */}
+          {isLogin && (
             <li className="nav-item dropdown">
               <a className="nav-link" data-toggle="dropdown" href="#">
                 <i className="far fa-bell" />
@@ -123,34 +128,34 @@ function Home() {
                 <a data-toggle="modal" data-target="#allNotification" style={{ cursor: 'pointer' }} className="dropdown-item dropdown-footer">See All Notifications</a>
               </div>
             </li>
-          {/* )} */}
+          )}
 
-          {/* {user?.user_type !== "Admin" && ( */}
-            <li className="nav-item dropdown" onClick={() =>  setIsCart(true)}>
+          {userCredentials?.user_type === "Customer" && (
+            <li className="nav-item dropdown" onClick={() => isLogin ? setIsCart(true) : setIsOpenLogin(true)}>
               <div className="nav-link">
                 <LuShoppingCart style={{ cursor: 'pointer' }} size={20} />
                 <span className="badge badge-warning navbar-badge">3</span>
               </div>
             </li>
-          {/* )} */}
+          )}
 
-          {/* {isLogin ? ( */}
+          {isLogin && (
             <li className="nav-item dropdown no-arrow">
               <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span className="mr-2 d-none d-lg-inline text-gray-600 small">Shelo Mora Paglinawan</span>
-                <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={laptop} />
+                <span className="mr-2 d-none d-lg-inline text-gray-600 small">{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</span>
+                <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={userCredentials && userCredentials.given_image ? userCredentials.given_image : givenImage} />
               </a>
 
               <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                 <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                   Profile
                 </a>
-                {user?.user_type === "Admin" && (
+                {userCredentials?.user_type === "Admin" && (
                   <a className="dropdown-item" data-toggle="modal" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}><i className="nav-icon fas fa-tachometer-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                     Dashboard
                   </a>
                 )}
-                {user?.user_type !== "Admin" && (
+                {userCredentials?.user_type === "Customer" && (
                   <>
                     <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => setIsMyAddress(true)}><i className="fa-sm fa-fw mr-2 text-gray-400" ><FaAddressCard size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
                       My Address
@@ -169,14 +174,16 @@ function Home() {
                 </a>
               </div>
             </li>
-          {/* ) : (
+          )}
+
+          {!isLogin && (
             <li className="nav-item dropdown" onClick={(e) => { e.stopPropagation(); setIsOpenLogin(true) }}>
               <a className="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span className="mr-2 d-none d-lg-inline text-gray-600 small">Login/Register</span>
                 <BsPersonCircle style={{ cursor: 'pointer' }} size={20} />
               </a>
             </li>
-          )} */}
+          )}
         </ul>
       </nav>
 
@@ -205,7 +212,7 @@ function Home() {
       </div>
 
       <div className="gallery">
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={laptop} className='product-image' alt="" />
           <h3 className='product-name'>Laptop</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -225,7 +232,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -245,7 +252,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={computer} className='product-image' alt="" />
           <h3 className='product-name'>Computer</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -265,7 +272,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -285,7 +292,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={laptop} className='product-image' alt="" />
           <h3 className='product-name'>Laptop</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -305,7 +312,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -325,7 +332,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={computer} className='product-image' alt="" />
           <h3 className='product-name'>Computer</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -345,7 +352,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="product-content" onClick={() => setIsProductClick(isProductClick ? false : true)}>
+        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
           <img src={mouse} className='product-image' alt="" />
           <h3 className='product-name'>Mouse</h3>
           <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
@@ -375,19 +382,19 @@ function Home() {
               <AiOutlineCloseCircle size={30} />
             </div>
             <div style={{ textAlign: 'center' }}>
-              <img src={laptop} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
+              <img src={userCredentials && userCredentials.given_image ? userCredentials.given_image : givenImage} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
               <label htmlFor="uploadPhoto" style={{ marginLeft: '-40px', cursor: 'pointer', zIndex: '3', color: 'white', position: 'absolute', marginTop: '110px' }}>
                 <VscDeviceCamera size={30} style={{ backgroundColor: 'rgb(71, 71, 98)', padding: '3px', borderRadius: '50%' }} />
-                <input type="file" id="uploadPhoto" style={{ display: 'none' }} />
+                <input type="file" id="uploadPhoto" onChange={(e) => updateProfile(e.target.files[0])} style={{ display: 'none' }} />
                 {/* <input type="file" id="uploadPhoto" onChange={(e) => setAutoImage(e.target.files[0])} style={{ display: 'none' }} /> */}
               </label>
             </div>
             <div style={{ textAlign: 'center' }}>
               <div>
-                <h2 style={{ fontSize: '20px' }}>Shelo Mora Paglinawan</h2>
+                <h2 style={{ fontSize: '20px' }}>{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</h2>
               </div>
               <div style={{ marginTop: '10px' }}>
-                <span>Customer</span>
+                <span>{userCredentials && userCredentials.user_type}</span>
               </div><br />
             </div>
             <hr />
@@ -397,7 +404,6 @@ function Home() {
           </div>
         </div>
       )}
-
 
       {/* --------   CART ---------- */}
       {isCart && (
@@ -490,7 +496,7 @@ function Home() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', fontSize: '13px', color: 'red' }}>
               <span>Stock: {stack}</span>
-              {user?.user_type !== "Admin" && (
+              {userCredentials?.user_type === "Customer" && (
                 <div>
                   <span>Ammount: </span>
                   <span>₱{ammount}</span>
@@ -501,7 +507,7 @@ function Home() {
               description
             </div>
 
-            {user?.user_type !== "Admin" && (
+            {userCredentials?.user_type === "Customer" && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex' }}>
                   <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
@@ -854,32 +860,32 @@ function Home() {
             <form onSubmit={registerUser}>
               <div className='form-div'>
                 <label htmlFor="">First Name</label>
-                <input type="text" className='form-control' value={updateRegisterInfo.firstName} onChange={(e) => updateRegisterInfo({...registerInfo, firstName: e.target.value})} placeholder='First Name' required />
+                <input type="text" className='form-control' value={updateRegisterInfo.firstName} onChange={(e) => updateRegisterInfo({ ...registerInfo, firstName: e.target.value })} placeholder='First Name' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>
                 <label htmlFor="">Middle Name (Optional)</label>
-                <input type="text" className='form-control' value={updateRegisterInfo.middleName} onChange={(e) => updateRegisterInfo({...registerInfo, middleName: e.target.value})} placeholder='Middle Name' />
+                <input type="text" className='form-control' value={updateRegisterInfo.middleName} onChange={(e) => updateRegisterInfo({ ...registerInfo, middleName: e.target.value })} placeholder='Middle Name' />
               </div>
 
               <div style={{ marginTop: '20px' }}>
                 <label htmlFor="">Last Name</label>
-                <input type="text" className='form-control' value={updateRegisterInfo.lastName} onChange={(e) => updateRegisterInfo({...registerInfo, lastName: e.target.value})} placeholder='Last Name' required />
+                <input type="text" className='form-control' value={updateRegisterInfo.lastName} onChange={(e) => updateRegisterInfo({ ...registerInfo, lastName: e.target.value })} placeholder='Last Name' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>
                 <label htmlFor="">Username</label>
-                <input type="text" className='form-control' value={updateRegisterInfo.username} onChange={(e) => updateRegisterInfo({...registerInfo, username: e.target.value})} placeholder='Username' required />
+                <input type="text" className='form-control' value={updateRegisterInfo.username} onChange={(e) => updateRegisterInfo({ ...registerInfo, username: e.target.value })} placeholder='Username' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>
                 <label htmlFor="">Password</label>
-                <input type="password" className='form-control' value={updateRegisterInfo.password} onChange={(e) => updateRegisterInfo({...registerInfo, password: e.target.value})} placeholder='*********' required />
+                <input type="password" className='form-control' value={updateRegisterInfo.password} onChange={(e) => updateRegisterInfo({ ...registerInfo, password: e.target.value })} placeholder='*********' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>
                 <label htmlFor="">Confirm Password</label>
-                <input type="password" className='form-control' value={updateRegisterInfo.confirmPassword} onChange={(e) => updateRegisterInfo({...registerInfo, confirmPassword: e.target.value})} placeholder='*********' required />
+                <input type="password" className='form-control' value={updateRegisterInfo.confirmPassword} onChange={(e) => updateRegisterInfo({ ...registerInfo, confirmPassword: e.target.value })} placeholder='*********' required />
               </div>
 
               <div style={{ marginTop: '20px' }}>

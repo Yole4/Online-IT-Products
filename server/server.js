@@ -16,6 +16,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// require image folder
+app.use('/assets', express.static('assets'));
+
 // routers
 app.use('/api/users', userRoutes);
 app.use('/api/customers', customerRoutes);

@@ -1,68 +1,79 @@
 import axios from "axios";
 
 export const baseUrl = "http://localhost:3001/api";
-const token = localStorage.getItem('token');
 
+// post request for not login
 export const postRequest = async (url, body) => {
-    const response = await fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        let message;
-
-        if (data?.message) {
-            message = data.message;
-        } else {
-            message = data;
+    try {
+        const response = await axios.post(url, body);
+        if (response.status === 200) {
+            return response.data;
         }
-
-        return { error: true, message };
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            return { error: true, message: error.response.data.message };
+        } else {
+            console.log("Error: ", error);
+        }
     }
-
-    return data;
 };
 
+// get request for login
 export const getRequest = async (url) => {
-    const response = await axios.get(url, {
-        headers: {
-            'Authorization': `Bearer: ${token}`
+    try {
+        const response = await axios.get(url);
+        if (response.status === 200) {
+            return response.data;
         }
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        let message = "An error occured...";
-
-        if (data?.message) {
-            message = data.message;
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            return { error: true, message: error.response.data.message };
+        } else {
+            console.log("Error: ", error);
         }
-
-        return { error: true, message };
     }
 }
 
-// export const getRequest = async (url) => {
-//     const response = await fetch(url);
+// post request for not login
+export const apostRequest = async (url, body) => {
+    // console.log('requestImageToUpload:', Object.fromEntries(body.entries()));
+    try {
+        const token = JSON.parse(localStorage.getItem('token'));
+        const response = await axios.post(url, body, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
 
-//     const data = await response.json();
+        if (response.status === 200) {
+            return response.data;
+        }
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            return { error: true, message: error.response.data.message };
+        } else {
+            console.log("Error: ", error);
+        }
+    }
+};
 
-//     if (!response.ok){
-//         let message = "An error occured...";
-
-//         if (data?.message){
-//             message = data.message;
-//         }
-
-//         return {error: true, message};
-//     }
-
-//     return data;
-// }
+// get request for login
+export const agetRequest = async (url) => {
+    try {
+        const token = JSON.parse(localStorage.getItem('token'));
+        const response = await axios.get(url, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (response.status === 200) {
+            return response.data;
+        }
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            return { error: true, message: error.response.data.message };
+        } else {
+            console.log("Error: ", error);
+        }
+    }
+}

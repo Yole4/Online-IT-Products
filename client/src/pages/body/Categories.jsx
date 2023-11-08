@@ -103,21 +103,10 @@ function Categories() {
                         <div className="container-fluid">
                             <form>
                                 <div className="form-group">
-                                    <label htmlFor="name" className="control-label">Name</label>
-                                    <input type="text" className="form-control form-control-border" placeholder="Department Name" required />
+                                    <label htmlFor="name" className="control-label">Category Name</label>
+                                    <input type="text" className="form-control form-control-border" placeholder="Category Name" required />
                                 </div>
-                                <div className="form-group">
-                                    <label htmlFor="name" className="control-label">Description</label>
-                                    <input type="text" className="form-control form-control-border" placeholder="Description" required />
-                                </div>
-                                <div className="form-group" style={{ marginBottom: '30px' }}>
-                                    <label htmlFor className="control-label">Status</label>
-                                    <select name="status" id="status" className="form-control form-control-border" required>
-                                        <option value="" selected disabled>Select Status</option>
-                                        <option value="Active">Active</option>
-                                        <option value="Inactive">Inactive</option>
-                                    </select>
-                                </div>
+                                
                                 <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <button className='btn btn-danger' style={{ width: '100px' }} type='button' onClick={() => setIsAddCategories(false)}>Cancel</button>
                                     <button className='btn btn-primary' style={{ width: '100px' }} type='submit'>Add</button>
