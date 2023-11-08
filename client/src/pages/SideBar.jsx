@@ -7,6 +7,8 @@ import { RiNewspaperLine } from "react-icons/ri";
 import { FiArchive } from "react-icons/fi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { MdDateRange } from "react-icons/md";
+import { FcShipped } from "react-icons/fc";
+import { FaBoxesStacked } from "react-icons/fa6";
 
 // images
 import givenImage from '../assets/images/given image.png';
@@ -51,7 +53,7 @@ function SideBar() {
 
                             <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
                                 <a className={location.pathname === '/student-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
-                                    <i className="nav-icon"><FaUsers /></i>
+                                    <i className="nav-icon"><FcShipped /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Orders
                                     </p>
@@ -84,7 +86,7 @@ function SideBar() {
                             {/* =========================================================== RESEARCH WORKS ======================================================================================== */}
                             <li className="nav-item dropdown" style={{ cursor: 'pointer' }} >
                                 <a className={location.pathname === '/curriculumn-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
-                                    <i className="nav-icon"><RiNewspaperLine /></i>
+                                    <i className="nav-icon"><FaBoxesStacked /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Products
                                     </p>

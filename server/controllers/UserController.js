@@ -57,7 +57,7 @@ const registerUser = async (req, res) => {
                                             const userId = results.insertId;
 
                                             const token = createToken(userId, username, "Customer");
-                                            res.status(200).json({ message: "New user has been successfully registered!", token: token, id: userId });
+                                            res.status(200).json({ message: `${firstName} ${middleName} ${lastName} has been successfully registered!`, token: token, id: userId });
                                         }
                                     });
                                 } else {

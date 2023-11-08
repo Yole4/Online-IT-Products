@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export const baseUrl = "http://localhost:3001/api";
+export const backendUrl = "http://localhost:3001";
 
 // post request for not login
 export const postRequest = async (url, body) => {

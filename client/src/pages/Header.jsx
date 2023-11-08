@@ -9,9 +9,13 @@ import { AiTwotoneHome, AiOutlineCloseCircle } from "react-icons/ai";
 import { VscDeviceCamera } from "react-icons/vsc";
 
 import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 function Header() {
     const navigate = useNavigate();
+
+    const { logoutUser, isLogout, setIsLogout } = useContext(AuthContext);
 
     return (
         <div>
@@ -51,14 +55,14 @@ function Header() {
 
                             <div style={{ maxHeight: '400px', overflow: 'auto' }}>
                                 {/* {myNotifications && myNotifications.reverse().map(item => ( */}
-                                    <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer', backgroundColor: 'rgba(131, 131, 131, 0.20)' }}>
-                                        <div style={{ display: 'flex' }}>
-                                            <i className="fas fa-bell mr-2" style={{ color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px' }} /><p style={{ marginLeft: '10px' }}>this is the content of notification</p>
-                                        </div>
-                                        <div style={{ marginLeft: '10px' }}>
-                                            <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>notification date</p>
-                                        </div>
+                                <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer', backgroundColor: 'rgba(131, 131, 131, 0.20)' }}>
+                                    <div style={{ display: 'flex' }}>
+                                        <i className="fas fa-bell mr-2" style={{ color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px' }} /><p style={{ marginLeft: '10px' }}>this is the content of notification</p>
                                     </div>
+                                    <div style={{ marginLeft: '10px' }}>
+                                        <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>notification date</p>
+                                    </div>
+                                </div>
                                 {/* ))} */}
                             </div>
 
@@ -84,7 +88,7 @@ function Header() {
                             <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
                                 Change Password
                             </a>
-                            <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }}>
+                            <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }} onClick={() => setIsLogout(true)}>
                                 <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
                                 Logout
                             </a>
@@ -133,7 +137,7 @@ function Header() {
             )} */}
 
             {/* -----------------------LOGOUT CONFIRMATION---------------------- */}
-            {/* {isLogout && (
+            {isLogout && (
                 <div className="popup">
                     <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isLogout ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
@@ -147,11 +151,11 @@ function Header() {
 
                         <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
                             <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsLogout(false)}>No</button>
-                            <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { localStorage.removeItem('token'); navigate('/'); setIsLogout(false) }}>Yes</button>
+                            <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { logoutUser() }}>Yes</button>
                         </div>
                     </div>
                 </div>
-            )} */}
+            )}
 
             {/* --------   PROFILE ---------- */}
             {/* {isProfile && (

@@ -56,8 +56,8 @@ function Home() {
 
 
   // ------------------------------------  LOGIN SIDE---------------------------------------
-  const { isLoading, errorResponse, user, logoutUser, updateLoginInfo, loginInfo, 
-    userCredentials, handleLogin, isOpenLogin, setIsOpenLogin, isLogout, setIsLogout, 
+  const { isLoading, errorResponse, user, logoutUser, updateLoginInfo, loginInfo,
+    userCredentials, handleLogin, isOpenLogin, setIsOpenLogin, isLogout, setIsLogout,
     registerInfo, updateRegisterInfo, registerUser, isOpenRegister, setIsOpenRegister,
     updateProfile
   } = useContext(AuthContext); // require auth context
@@ -65,7 +65,7 @@ function Home() {
   const [isErrorResponse, setIsErrorResponse] = useState(false);
 
   useEffect(() => {
-    if (errorResponse?.error) {
+    if (errorResponse) {
       setIsErrorResponse(true);
 
       setTimeout(() => {
@@ -903,8 +903,8 @@ function Home() {
 
 
       {/* Loading div */}
-      {isErrorResponse && errorResponse?.error ? (
-        <div className='error-respond' style={{ backgroundColor: '#fb7d60' }}>
+      {isErrorResponse && errorResponse ? (
+        <div className='error-respond' style={{ backgroundColor: errorResponse.isError ? '#fb7d60' : '#7b4ae4' }}>
           <div>
             <h5>{errorResponse.message}</h5>
           </div>

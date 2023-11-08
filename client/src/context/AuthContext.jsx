@@ -1,10 +1,13 @@
 import { createContext, useCallback, useEffect, useState } from "react";
 import { agetRequest, apostRequest, baseUrl, getRequest, postRequest } from "../utils/Services";
+import { useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+
+    const navigate = useNavigate();
 
     // loading
     const [errorResponse, setErrorResponse] = useState(null);
@@ -53,10 +56,11 @@ export const AuthContextProvider = ({ children }) => {
         setMount(mount ? false : true);
 
         if (response.error) {
-            return setErrorResponse(response);
+            setErrorResponse({message: response.message, isError: true});
         } else {
             localStorage.setItem("token", JSON.stringify(response.token));
             setUser(response.token);
+            setErrorResponse({message: response.message, isError: false});
         }
     }, [registerInfo]);
 
@@ -68,6 +72,8 @@ export const AuthContextProvider = ({ children }) => {
         setUser(null);
         setUserCredentials(null);
         setIsLogout(false);
+        setErrorResponse({message: "Logout Success", isError: false});
+        navigate('/');
     }, []);
 
     // ------------------------------------    LOGIN USERS -----------------------------------------
@@ -98,10 +104,11 @@ export const AuthContextProvider = ({ children }) => {
         setMount(mount ? false : true);
 
         if (response.error) {
-            return setErrorResponse(response);
+            setErrorResponse({message: response.message, isError: true});
         } else {
             localStorage.setItem("token", JSON.stringify(response.token));
             setUser(response.token);
+            setErrorResponse({message: response.message, isError: false});
         }
     }, [loginInfo]);
 
@@ -120,7 +127,7 @@ export const AuthContextProvider = ({ children }) => {
 
                 if (response.error) {
                     setUser(null);
-                    return setErrorResponse(response);
+                    setErrorResponse({message: response.message, isError: true});
                 } else {
                     setUserId(response.user);
                 }
@@ -144,8 +151,7 @@ export const AuthContextProvider = ({ children }) => {
                     setIsLoading(false);
 
                     if (response.error) {
-                        return setErrorResponse(response);
-                        // console.log(response);
+                        console.log(response.message);
                     } else {
                         setUserCredentials(response.message[0]);
                     }
@@ -199,32 +205,6 @@ export const AuthContextProvider = ({ children }) => {
         }
     }, [autoImage]);
 
-    // ==================================   ADD CATEGORY    ===========================================
-    const [categoryName, setCategoryName] = useState('');
-
-    const updateCategoryName = useCallback((info) => {
-        setCategoryName(info);
-    }, []);
-
-    const handleAddCategory = async (e) => {
-        e.preventDefault();
-
-        setIsLoading(true);
-        setErrorResponse(null);
-
-        try {
-            const response = await apostRequest(`${baseUrl}/users/add-category`, {categoryName});
-
-            if (response.error){
-                return setErrorResponse(response);
-            }else{
-                setErrorResponse(response.message);
-            }
-        } catch (error) {
-            
-        }
-    }
-
     return <AuthContext.Provider value={{
         user,
         registerInfo,
@@ -244,9 +224,7 @@ export const AuthContextProvider = ({ children }) => {
         setIsOpenRegister,
         userCredentials,
         updateProfile,
-        categoryName,
-        updateCategoryName,
-        handleAddCategory
+        userId
     }}>
         {children}
     </AuthContext.Provider>
