@@ -3,6 +3,13 @@ import axios from "axios";
 export const baseUrl = "http://localhost:3001/api";
 export const backendUrl = "http://localhost:3001";
 
+// DB_HOST=b1niqsxa4j0domrkbsco-mysql.services.clever-cloud.com
+// DB_USER=uenooh0ash2f7g8h
+// DB_PASSWORD=qBsh3yuHNmvnOmb6afDx
+// DB_DATABASE=b1niqsxa4j0domrkbsco
+// DB_PORT=3306
+// SECRET_KEY=this is my secret key
+
 // post request for not login
 export const postRequest = async (url, body) => {
     try {

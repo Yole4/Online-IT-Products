@@ -263,7 +263,9 @@ export const AdminContextProvider = ({ children }) => {
         productImage: [],
         productName: '',
         stock: null,
-        description: ''
+        description: '',
+        prize: null,
+        address: ''
     });
 
     const handleAddProduct = async (e) => {
@@ -278,6 +280,8 @@ export const AdminContextProvider = ({ children }) => {
         addProduct.append("productName", addProductData.productName);
         addProduct.append("stock", addProductData.stock);
         addProduct.append("description", addProductData.description);
+        addProduct.append("prize", addProductData.prize);
+        addProduct.append("address", addProductData.address);
 
         try {
             const response = await apostRequest(`${baseUrl}/admin/add-product`, addProduct);
@@ -304,7 +308,9 @@ export const AdminContextProvider = ({ children }) => {
         productName: '',
         stock: '',
         description: '',
-        editId: ''
+        editId: '',
+        prize: null,
+        address: ''
     });
     const [isEditProduct, setIsEditProduct] = useState(false);
 
@@ -321,6 +327,8 @@ export const AdminContextProvider = ({ children }) => {
         editProduct.append("stock", editProductData.stock);
         editProduct.append("description", editProductData.description);
         editProduct.append("editId", editProductData.editId);
+        editProduct.append("prize", editProductData.prize);
+        editProduct.append("address", editProductData.address);
 
         try {
             const response = await apostRequest(`${baseUrl}/admin/edit-product`, editProduct);

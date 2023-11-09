@@ -216,4 +216,54 @@ const changeProfileInfo = async (req, res) => {
     // change profile info
 };
 
-module.exports = { registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload };
+// add to cart
+const addCart = async (req, res) => {
+    const {productId, quantity} = req.body;
+
+    if (productId && quantity){
+        // select if product is already on cart
+        const selectCart = `SELECT * FROM my_cart WHERE product_id = ? AND isDelete = ?`;
+        db.query(selectCart, [productId, "not"], (error, results) => {
+            if (error) {
+                res.status(401).json({message: "Server side error!"});
+            }else{
+                if (results.length > 0){
+                    res.status(401).json({message: "Product already on cart!"});
+                }else{
+                    // insert to cart
+                    const inserttocart = `INSERT INTO my_cart (product_id, quantity) VALUES (?, ?)`;
+                    db.query(inserttocart, [productId, quantity], (error, results) => {
+                        if (error) {
+                            res.status(401).json({message: "Server side error!"});
+                        }else{
+                            res.status(200).json({message: `Product added to cart!`});
+                        }
+                    });
+                }
+            }
+        });
+    }else{
+        res.status(401).json({message: "Something went wrong!"});
+    }
+}
+
+// fetch cart
+const fetchCart = async (req, res) => {
+    //get the cart
+    const getCart = `SELECT * FROM my_cart
+    LEFT JOIN products ON my_cart.product_id = products.id
+    WHERE my_cart.isDelete = ?`;
+    db.query(getCart, ["not"], (error, results) => {
+        if (error) {
+            res.status(401).json({message: "Server side error!"});
+        }else{
+            if (results.length > 0){
+                res.status(200).json({message: results});
+            }else{
+                res.status(401).json({message: "No cart found!"});
+            }
+        }
+    })
+}
+
+module.exports = { registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart };

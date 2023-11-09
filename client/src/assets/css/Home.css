@@ -81,6 +81,7 @@ body {
     font-size: 26px;
     transition: .4s;
     margin: 3px;
+    /* color: rgb(170, 146, 146); */
 }
 
 .checked {

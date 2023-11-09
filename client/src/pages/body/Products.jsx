@@ -39,7 +39,9 @@ function Products() {
             productName: item.name,
             stock: item.stock,
             description: item.stock,
-            editId: item.id
+            editId: item.id,
+            prize: item.prize,
+            address: item.address
         });
     }
 
@@ -52,7 +54,9 @@ function Products() {
             productName: item.name,
             stock: item.stock,
             description: item.stock,
-            editId: item.id
+            editId: item.id,
+            prize: item.prize,
+            address: item.address
         });
     }
 
@@ -102,9 +106,11 @@ function Products() {
                                                     <th>Image</th>
                                                     <th>Product Name</th>
                                                     <th>Stock</th>
+                                                    <th>Prize</th>
                                                     <th>Sold</th>
                                                     <th>Ratings</th>
                                                     <th>Description</th>
+                                                    <th>Address</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
@@ -120,6 +126,7 @@ function Products() {
                                                             <td className="text-center"><img src={`${backendUrl}/${item.image}`} style={{ height: '40px', width: '40px', borderRadius: '50%' }} className="img-avatar img-thumbnail p-0 border-2" alt="user_avatar" /></td>
                                                             <td>{item.name}</td>
                                                             <td><p className="m-0 truncate-1">{item.stock}</p></td>
+                                                            <td><p className="m-0 truncate-1">{item.prize}</p></td>
                                                             <td><p className="m-0">{item.sold}</p></td>
                                                             <td>
                                                                 <div style={{ display: 'flex', listStyle: 'none', fontSize: '15px' }}>
@@ -136,6 +143,7 @@ function Products() {
                                                                 </div>
                                                             </td>
                                                             <td><p className="m-0">{item.description}</p></td>
+                                                            <td><p className="m-0">{item.address}</p></td>
                                                             <td style={{ textAlign: 'center' }}>
                                                                 <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
                                                                     Action
@@ -191,8 +199,18 @@ function Products() {
                                 </div>
 
                                 <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Prize</label>
+                                    <input type="number" value={addProductData.prize} onChange={(e) => setAddProductdata((prev) => ({ ...prev, prize: e.target.value }))} className="form-control form-control-border" placeholder="Prize" required />
+                                </div>
+
+                                <div className="form-group">
                                     <label htmlFor="name" className="control-label">Description (Optional)</label>
                                     <textarea value={addProductData.description} onChange={(e) => setAddProductdata((prev) => ({ ...prev, description: e.target.value }))} className="form-control form-control-border" placeholder="Description" id="" cols="30" rows="4"></textarea>
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Address</label>
+                                    <input type="text" value={addProductData.address} onChange={(e) => setAddProductdata((prev) => ({ ...prev, address: e.target.value }))} className="form-control form-control-border" placeholder="Address" required />
                                 </div>
 
                                 <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -236,8 +254,18 @@ function Products() {
                                 </div>
 
                                 <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Prize</label>
+                                    <input type="number" value={editProductData.prize} onChange={(e) => setEditProductData((prev) => ({ ...prev, prize: e.target.value }))} className="form-control form-control-border" placeholder="Prize" required />
+                                </div>
+
+                                <div className="form-group">
                                     <label htmlFor="name" className="control-label">Description (Optional)</label>
                                     <textarea value={editProductData.description} onChange={(e) => setEditProductData((prev) => ({ ...prev, description: e.target.value }))} className="form-control form-control-border" placeholder="Description" id="" cols="30" rows="4"></textarea>
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Address</label>
+                                    <input type="text" value={editProductData.address} onChange={(e) => setEditProductData((prev) => ({ ...prev, address: e.target.value }))} className="form-control form-control-border" placeholder="Address" required />
                                 </div>
 
                                 <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -8,6 +8,7 @@ const customerRoutes = require('./routes/CustomerRoutes');
 const sellerRoutes = require('./routes/SellerRoutes');
 const feedbackRoutes = require('./routes/FeedbackRoutes');
 const adminRoutes = require('./routes/AdminRoutes');
+const PublicRoutes = require('./routes/PublicRoutes');
 
 
 // port number
@@ -27,6 +28,7 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/seller', sellerRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/public', PublicRoutes);
 
 app.get('/', (req, res) => {
     res.send("Welcome to e-commerce system backend!");

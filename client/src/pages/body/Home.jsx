@@ -23,13 +23,14 @@ import { GrProductHunt } from "react-icons/gr";
 import { FcShipped } from "react-icons/fc";
 
 import { AuthContext } from '../../context/AuthContext';
+import { PublicContext } from '../../context/PublicContext';
+import { backendUrl } from '../../utils/Services';
 
 function Home() {
   const navigate = useNavigate();
 
   const [isProfile, setIsProfile] = useState(false);
   const [isCart, setIsCart] = useState(false);
-  const [isProductClick, setIsProductClick] = useState(false);
   const [isComments, setIsComments] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [isMyAddress, setIsMyAddress] = useState(false);
@@ -39,28 +40,15 @@ function Home() {
   // ---------------------------------- PARTIAL LOGIN --------------------------------
   const [isLogin, setIsLogin] = useState(false);
 
-  // ---------------------------------- SAMPLE AMMOUNT --------------------------------
-  const [quantity, setQuantity] = useState(0);
-  const [givenAmmount, setGivenAmmount] = useState(40);
-  const [ammount, setAmmount] = useState(0);
-  const [stack, setStack] = useState(50);
-
-  // solve the ammount
-  useEffect(() => {
-    if (quantity !== 0) {
-      setAmmount(givenAmmount * quantity);
-    } else {
-      setAmmount(0);
-    }
-  }, [quantity]);
-
 
   // ------------------------------------  LOGIN SIDE---------------------------------------
   const { isLoading, errorResponse, user, logoutUser, updateLoginInfo, loginInfo,
     userCredentials, handleLogin, isOpenLogin, setIsOpenLogin, isLogout, setIsLogout,
     registerInfo, updateRegisterInfo, registerUser, isOpenRegister, setIsOpenRegister,
-    updateProfile
+    updateProfile, handleAddToCart, isProductClick, setIsProductClick, cartList
   } = useContext(AuthContext); // require auth context
+
+  const { categoryList, publicLoading, productList } = useContext(PublicContext);
 
   const [isErrorResponse, setIsErrorResponse] = useState(false);
 
@@ -82,6 +70,61 @@ function Home() {
       setIsLogin(false);
     }
   }, [user]);
+
+  // ---------------------------- GET EACH PRODUCT INFO -------------------------------
+  const [eachProductInfo, setEachProductInfo] = useState({
+    id: null,
+    image: '',
+    name: '',
+    description: '',
+    address: '',
+    stock: null,
+    prize: null,
+    sold: null,
+    ratings: null,
+    date: ''
+  });
+  const productButton = async (item) => {
+    setIsProductClick(isProductClick ? false : true);
+
+    setEachProductInfo({
+      id: item.id,
+      image: item.image,
+      name: item.name,
+      description: item.description,
+      address: item.address,
+      stock: item.stock,
+      prize: item.prize,
+      sold: item.sold,
+      ratings: item.ratings,
+      date: item.date
+    });
+  }
+
+  // ---------------------------------- SOLVE AMMOUNT --------------------------------
+  const [quantity, setQuantity] = useState(0);
+  const [ammount, setAmmount] = useState(0);
+  // solve the ammount
+  useEffect(() => {
+    if (quantity !== 0) {
+      setAmmount(eachProductInfo.prize * quantity);
+    } else {
+      setAmmount(0);
+    }
+  }, [quantity]);
+
+  //--------------------------------  BUTTON ADD TO CART  ---------------------------
+  const buttonAddToCart = async () => {
+    if (quantity > 0) {
+      if (eachProductInfo?.stock > quantity) {
+        handleAddToCart(eachProductInfo.id, quantity);
+      } else {
+        alert(`Sorry our stock on this product is ${eachProductInfo.stock} left!`);
+      }
+    } else {
+      alert('Please select the quantity');
+    }
+  }
 
   return (
     <>
@@ -197,180 +240,40 @@ function Home() {
       </div>
 
       <div className='category-container'>
-        <button className='category'>Tablets</button>
-        <button className='category'>Mouse</button>
-        <button className='category'>Keyboards</button>
-        <button className='category'>Networking</button>
-        <button className='category'>Computer</button>
-        <button className='category'>Computer</button>
-        <button className='category'>Laptop</button>
-        <button className='category'>Tablets</button>
-        <button className='category'>Mouse</button>
-        <button className='category'>Keyboards</button>
-        <button className='category'>Networking</button>
-        <button className='category'>Computer</button>
+        {categoryList?.map(item => (
+          <button key={item.id} className='category'>{item.category_name}</button>
+        ))}
       </div>
 
       <div className="gallery">
-        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
-          <img src={laptop} className='product-image' alt="" />
-          <h3 className='product-name'>Laptop</h3>
-          <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
-            <span>₱100</span>
-            <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px' }}>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li style={{ marginLeft: '10px', color: 'black' }}>100 Sold</li>
-            </ul>
+        {productList?.map(item => (
+          <div key={item.id} className="product-content" onClick={() => isLogin ? productButton(item) : setIsOpenLogin(true)}>
+            <img src={`${backendUrl}/${item.image}`} className='product-image' alt="" />
+            <h3 className='product-name'>{item.name}</h3>
+            <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px' }}>
+              <span>₱{item.prize}</span>
+              <ul style={{ display: 'flex', listStyle: 'none', marginLeft: '-40px' }}>
+                <li><i className={item.ratings > 0 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                <li><i className={item.ratings > 1 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                <li><i className={item.ratings > 2 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                <li><i className={item.ratings > 3 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                <li><i className={item.ratings > 4 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                <li><i className={item.ratings > 5 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                <li><i className={item.ratings > 6 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                <li><i className={item.ratings > 7 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                <li><i className={item.ratings > 8 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                <li><i className={item.ratings > 9 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                <li style={{ marginLeft: '10px', color: 'red' }}>{item.sold} Sold</li>
+              </ul>
+            </div>
+            <div style={{ textAlign: 'left', marginLeft: '10px', fontSize: '15px', padding: '0px 15px 10px 10px' }}>
+              <span>{item.address}</span>
+            </div>
+            <div style={{ textAlign: 'left', marginBottom: '10px', marginLeft: '20px', fontSize: '13px', color: 'rgb(170, 146, 146)' }}>
+              <span>{item.date}</span>
+            </div>
           </div>
-          <div style={{ textAlign: 'left', marginLeft: '10px', padding: '0px 15px 10px 10px' }}>
-            <span>Sta. Cruz Libertad Aurora, Zamboanga Del Sur</span>
-          </div>
-        </div>
-
-        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
-          <img src={mouse} className='product-image' alt="" />
-          <h3 className='product-name'>Mouse</h3>
-          <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
-            <span>₱150</span>
-            <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px' }}>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li style={{ marginLeft: '10px', color: 'black' }}>100 Sold</li>
-            </ul>
-          </div>
-          <div style={{ textAlign: 'left', marginLeft: '10px', padding: '0px 15px 10px 10px' }}>
-            <span>Sta. Cruz Libertad Aurora, Zamboanga Del Sur</span>
-          </div>
-        </div>
-
-        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
-          <img src={computer} className='product-image' alt="" />
-          <h3 className='product-name'>Computer</h3>
-          <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
-            <span>₱150</span>
-            <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px' }}>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li style={{ marginLeft: '10px', color: 'black' }}>100 Sold</li>
-            </ul>
-          </div>
-          <div style={{ textAlign: 'left', marginLeft: '10px', padding: '0px 15px 10px 10px' }}>
-            <span>Sta. Cruz Libertad Aurora, Zamboanga Del Sur</span>
-          </div>
-        </div>
-
-        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
-          <img src={mouse} className='product-image' alt="" />
-          <h3 className='product-name'>Mouse</h3>
-          <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
-            <span>₱150</span>
-            <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px' }}>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li style={{ marginLeft: '10px', color: 'black' }}>100 Sold</li>
-            </ul>
-          </div>
-          <div style={{ textAlign: 'left', marginLeft: '10px', padding: '0px 15px 10px 10px' }}>
-            <span>Sta. Cruz Libertad Aurora, Zamboanga Del Sur</span>
-          </div>
-        </div>
-
-        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
-          <img src={laptop} className='product-image' alt="" />
-          <h3 className='product-name'>Laptop</h3>
-          <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
-            <span>₱100</span>
-            <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px' }}>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li style={{ marginLeft: '10px', color: 'black' }}>100 Sold</li>
-            </ul>
-          </div>
-          <div style={{ textAlign: 'left', marginLeft: '10px', padding: '0px 15px 10px 10px' }}>
-            <span>Sta. Cruz Libertad Aurora, Zamboanga Del Sur</span>
-          </div>
-        </div>
-
-        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
-          <img src={mouse} className='product-image' alt="" />
-          <h3 className='product-name'>Mouse</h3>
-          <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
-            <span>₱150</span>
-            <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px' }}>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li style={{ marginLeft: '10px', color: 'black' }}>100 Sold</li>
-            </ul>
-          </div>
-          <div style={{ textAlign: 'left', marginLeft: '10px', padding: '0px 15px 10px 10px' }}>
-            <span>Sta. Cruz Libertad Aurora, Zamboanga Del Sur</span>
-          </div>
-        </div>
-
-        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
-          <img src={computer} className='product-image' alt="" />
-          <h3 className='product-name'>Computer</h3>
-          <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
-            <span>₱150</span>
-            <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px' }}>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li style={{ marginLeft: '10px', color: 'black' }}>100 Sold</li>
-            </ul>
-          </div>
-          <div style={{ textAlign: 'left', marginLeft: '10px', padding: '0px 15px 10px 10px' }}>
-            <span>Sta. Cruz Libertad Aurora, Zamboanga Del Sur</span>
-          </div>
-        </div>
-
-        <div className="product-content" onClick={() => isLogin ? setIsProductClick(isProductClick ? false : true) : setIsOpenLogin(true)}>
-          <img src={mouse} className='product-image' alt="" />
-          <h3 className='product-name'>Mouse</h3>
-          <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px', color: 'red' }}>
-            <span>₱150</span>
-            <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px' }}>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li><i className='fa fa-star'></i></li>
-              <li style={{ marginLeft: '10px', color: 'black' }}>100 Sold</li>
-            </ul>
-          </div>
-          <div style={{ textAlign: 'left', marginLeft: '10px', padding: '0px 15px 10px 10px' }}>
-            <span>Sta. Cruz Libertad Aurora, Zamboanga Del Sur</span>
-          </div>
-        </div>
+        ))}
       </div>
 
 
@@ -419,83 +322,48 @@ function Home() {
             <div style={{ display: 'flex', justifyContent: 'left', alignItems: 'start', gap: '8px' }}>
               <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
               <AiFillShop size={20} />
-              <span>Eloy's Cart</span>
+              <span>{`${userCredentials?.first_name}'s`} Cart</span>
               <div style={{ position: 'absolute', right: '20px', color: 'red' }}>
                 <span>₱123</span>
               </div>
             </div>
 
-            <hr />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
-              <div style={{ display: 'flex', gap: '7px', justifyContent: 'center', alignItems: 'center' }}>
-                <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
-                <img src={laptop} alt="" style={{ width: '50px', height: '50px' }} />
-                <span>Laptop</span>
-              </div>
+            {cartList?.map(item => (
+              <>
+                <hr />
+                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
+                  <div style={{ display: 'flex', gap: '7px', justifyContent: 'center', alignItems: 'center' }}>
+                    <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
+                    <img src={`${backendUrl}/${item.image}`} alt="" style={{ width: '50px', height: '50px' }} />
+                    <span>{item.name}</span>
+                  </div>
 
-              <div style={{ display: 'flex' }}>
-                <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
-                <span style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px', padding: '2px' }}>{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
-              </div>
+                  <div style={{ display: 'flex' }}>
+                    <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
+                    <span style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px', padding: '2px' }}>{quantity}</span>
+                    <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
+                  </div>
 
-              <span><RiDeleteBin6Line size={20} style={{ color: 'red', cursor: 'pointer' }} /></span>
-            </div>
-
-            <hr />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
-              <div style={{ display: 'flex', gap: '7px', justifyContent: 'center', alignItems: 'center' }}>
-                <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
-                <img src={laptop} alt="" style={{ width: '50px', height: '50px' }} />
-                <span>Laptop</span>
-              </div>
-
-              <div style={{ display: 'flex' }}>
-                <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
-                <span style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px', padding: '2px' }}>{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
-              </div>
-
-              <span><RiDeleteBin6Line size={20} style={{ color: 'red', cursor: 'pointer' }} /></span>
-            </div>
-
-            <hr />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
-              <div style={{ display: 'flex', gap: '7px', justifyContent: 'center', alignItems: 'center' }}>
-                <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
-                <img src={laptop} alt="" style={{ width: '50px', height: '50px' }} />
-                <span>Laptop</span>
-              </div>
-
-              <div style={{ display: 'flex' }}>
-                <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
-                <span style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px', padding: '2px' }}>{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
-              </div>
-
-              <span><RiDeleteBin6Line size={20} style={{ color: 'red', cursor: 'pointer' }} /></span>
-            </div>
-
-            <div style={{ marginTop: '20px' }}>
-              <button style={{ width: '100%', fontSize: '15px', borderRadius: '4px', color: 'black', padding: '10px', background: 'orange' }}>Check Out</button>
-            </div>
-
+                  <span><RiDeleteBin6Line size={20} style={{ color: 'red', cursor: 'pointer' }} /></span>
+                </div>
+              </>
+            ))}
           </div>
         </div>
       )}
 
       {/* --------   PRODUCT LIST ---------- */}
       {isProductClick && (
-        <div className="popup" onClick={() => setIsProductClick(false)}>
+        <div className="popup" onClick={() => { setIsProductClick(false); setAmmount(0); setQuantity(0) }}>
           <div className="popup-body" onClick={(e) => e.stopPropagation()} style={{ animation: isProductClick ? 'dropBottom .3s linear' : '' }}>
             <div className="modal-close" onClick={() => setIsProductClick(false)} id='comments'>
               <AiOutlineCloseCircle size={30} />
             </div>
             <div style={{ fontWeight: 'bold' }}>
-              <span>Mouse</span>
+              <span>{eachProductInfo?.name}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', fontSize: '13px', color: 'red' }}>
-              <span>Stock: {stack}</span>
+              <span>Stock: {eachProductInfo?.stock}</span>
               {userCredentials?.user_type === "Customer" && (
                 <div>
                   <span>Ammount: </span>
@@ -504,7 +372,7 @@ function Home() {
               )}
             </div>
             <div style={{ marginTop: '4px' }}>
-              description
+              {eachProductInfo?.description}
             </div>
 
             {userCredentials?.user_type === "Customer" && (
@@ -515,7 +383,7 @@ function Home() {
                   <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
                 </div>
                 <div>
-                  <button style={{ borderRadius: '20px', fontSize: '15px', width: '150px', padding: '8px', color: 'black', backgroundColor: quantity !== 0 ? 'orange' : '' }}>Add to cart</button>
+                  <button onClick={() => buttonAddToCart()} style={{ borderRadius: '20px', fontSize: '15px', width: '150px', padding: '8px', color: 'black', backgroundColor: quantity !== 0 ? 'orange' : '' }}>Add to cart</button>
                 </div>
               </div>
             )}
@@ -914,7 +782,7 @@ function Home() {
       )}
 
       {/* fetching data screen */}
-      {isLoading && (
+      {isLoading || publicLoading && (
         <div className="popup">
           <div className="modal-pop-up-loading">
             <div className="modal-pop-up-loading-spiner"></div>

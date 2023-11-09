@@ -1,6 +1,4 @@
 const db = require('../database/Connection');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const validator = require('validator');
 const fs = require('fs');
 const sanitizeHtml = require('sanitize-html');
@@ -216,7 +214,7 @@ const deleteUser = async (req, res) => {
 
 // add new product
 const addProduct = async (req, res) => {
-    const { category, productName, stock, description } = req.body;
+    const { category, productName, stock, description, prize, address } = req.body;
 
     const validationRules = [
         { validator: validator.isLength, options: { min: 1, max: 255 } },
@@ -225,8 +223,10 @@ const addProduct = async (req, res) => {
     const sanitizeCategory = sanitizeAndValidate(category, validationRules);
     const sanitizeProductName = sanitizeAndValidate(productName, validationRules);
     const sanitizeStock = sanitizeAndValidate(stock, validationRules);
+    const sanitizePrize = sanitizeAndValidate(prize, validationRules);
+    const sanitizeAddress = sanitizeAndValidate(address, validationRules);
 
-    if (!sanitizeCategory || !sanitizeProductName || !sanitizeStock) {
+    if (!sanitizeCategory || !sanitizeProductName || !sanitizeStock || !sanitizePrize || !sanitizeAddress) {
         res.status(401).json({ message: "Invalid Input!" });
     }
     else {
@@ -246,8 +246,8 @@ const addProduct = async (req, res) => {
                         return res.status(401).send({ message: "Invalid File Name!" });
                     }
                     else {
-                        const insert = `INSERT INTO products (category, image, name, description, stock) VALUES (?, ?, ?, ?, ?)`;
-                        db.query(insert, [sanitizeCategory, uniqueFilePath, sanitizeProductName, description, sanitizeStock], (error, results) => {
+                        const insert = `INSERT INTO products (category, image, name, description, stock, prize, address) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                        db.query(insert, [sanitizeCategory, uniqueFilePath, sanitizeProductName, description, sanitizeStock, sanitizePrize, sanitizeAddress], (error, results) => {
                             if (error) {
                                 res.status(401).json({ message: "Server side error!" });
                             } else {
@@ -280,7 +280,7 @@ const fetchProduct = async (req, res) => {
 
 // edit product
 const editProduct = async (req, res) => {
-    const { category, productName, stock, description, editId } = req.body;
+    const { category, productName, stock, description, editId, prize, address } = req.body;
 
     const validationRules = [
         { validator: validator.isLength, options: { min: 1, max: 255 } },
@@ -289,8 +289,10 @@ const editProduct = async (req, res) => {
     const sanitizeCategory = sanitizeAndValidate(category, validationRules);
     const sanitizeProductName = sanitizeAndValidate(productName, validationRules);
     const sanitizeStock = sanitizeAndValidate(stock, validationRules);
+    const sanitizePrize = sanitizeAndValidate(prize, validationRules);
+    const sanitizeAddress = sanitizeAndValidate(address, validationRules);
 
-    if (!sanitizeCategory || !sanitizeProductName || !sanitizeStock) {
+    if (!sanitizeCategory || !sanitizeProductName || !sanitizeStock || !sanitizeAddress) {
         res.status(401).json({ message: "Invalid Input!" });
     }
     else {
@@ -310,8 +312,8 @@ const editProduct = async (req, res) => {
                         return res.status(401).send({ message: "Invalid File Name!" });
                     }
                     else {
-                        const updateProduct = `UPDATE products SET category = ?, image = ?, name = ?, description = ?, stock = ? WHERE id = ?`;
-                        db.query(updateProduct, [sanitizeCategory, uniqueFilePath, sanitizeProductName, description, sanitizeStock, editId], (error, results) => {
+                        const updateProduct = `UPDATE products SET category = ?, image = ?, name = ?, description = ?, stock = ?, prize = ?, address = ? WHERE id = ?`;
+                        db.query(updateProduct, [sanitizeCategory, uniqueFilePath, sanitizeProductName, description, sanitizeStock, sanitizePrize, sanitizeAddress, editId], (error, results) => {
                             if (error) {
                                 res.status(401).json({ message: "Server side error!" });
                             } else {

@@ -56,11 +56,11 @@ export const AuthContextProvider = ({ children }) => {
         setMount(mount ? false : true);
 
         if (response.error) {
-            setErrorResponse({message: response.message, isError: true});
+            setErrorResponse({ message: response.message, isError: true });
         } else {
             localStorage.setItem("token", JSON.stringify(response.token));
             setUser(response.token);
-            setErrorResponse({message: response.message, isError: false});
+            setErrorResponse({ message: response.message, isError: false });
         }
     }, [registerInfo]);
 
@@ -72,7 +72,7 @@ export const AuthContextProvider = ({ children }) => {
         setUser(null);
         setUserCredentials(null);
         setIsLogout(false);
-        setErrorResponse({message: "Logout Success", isError: false});
+        setErrorResponse({ message: "Logout Success", isError: false });
         navigate('/');
     }, []);
 
@@ -104,11 +104,11 @@ export const AuthContextProvider = ({ children }) => {
         setMount(mount ? false : true);
 
         if (response.error) {
-            setErrorResponse({message: response.message, isError: true});
+            setErrorResponse({ message: response.message, isError: true });
         } else {
             localStorage.setItem("token", JSON.stringify(response.token));
             setUser(response.token);
-            setErrorResponse({message: response.message, isError: false});
+            setErrorResponse({ message: response.message, isError: false });
         }
     }, [loginInfo]);
 
@@ -127,7 +127,7 @@ export const AuthContextProvider = ({ children }) => {
 
                 if (response.error) {
                     setUser(null);
-                    setErrorResponse({message: response.message, isError: true});
+                    setErrorResponse({ message: response.message, isError: true });
                 } else {
                     setUserId(response.user);
                 }
@@ -205,6 +205,61 @@ export const AuthContextProvider = ({ children }) => {
         }
     }, [autoImage]);
 
+    // ---------------------------------    HANDLE ADD TO CART  -------------------------------------------
+    const [addCartMount, setAddCartMount] = useState(false);
+    const [isProductClick, setIsProductClick] = useState(false);
+
+    const handleAddToCart = useCallback(async (productId, quantity) => {
+
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        try {
+            const response = await apostRequest(`${baseUrl}/users/add-cart`, { productId, quantity });
+
+            setIsLoading(false);
+
+            if (response.error) {
+                setErrorResponse({ message: response.message, isError: true });
+            } else {
+                setIsProductClick(false);
+                setAddCartMount(addCartMount ? false : true);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    }, []);
+
+    // ---------------------------------------  FETCH CART ----------------------------------
+    const [cartList, setCartList] = useState(null);
+
+    useEffect(() => {
+        if (userId) {
+            setIsLoading(true);
+            setErrorResponse(null);
+
+            const fetchCart = async () => {
+                try {
+                    const response = await agetRequest(`${baseUrl}/users/fetch-cart`);
+
+                    setIsLoading(false);
+
+                    if (response.error) {
+                        setErrorResponse({ message: response.message, isError: true });
+                    } else {
+                        setCartList(response.message);
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                    console.log("Error: ", error);
+                }
+            };
+            fetchCart();
+        }
+    }, userId, addCartMount);
+
     return <AuthContext.Provider value={{
         user,
         registerInfo,
@@ -224,7 +279,11 @@ export const AuthContextProvider = ({ children }) => {
         setIsOpenRegister,
         userCredentials,
         updateProfile,
-        userId
+        userId,
+        handleAddToCart,
+        isProductClick,
+        setIsProductClick,
+        cartList
     }}>
         {children}
     </AuthContext.Provider>
