@@ -10,6 +10,7 @@ import Dashboard from './pages/body/Dashboard';
 import UsersList from './pages/body/UsersList';
 import Categories from './pages/body/Categories';
 import Undefine from './pages/404/Undefine';
+import Products from './pages/body/Products';
 
 function App() {
   const {user} = useContext(AuthContext);
@@ -18,10 +19,10 @@ function App() {
 
     <Routes>
       <Route path="/" element={<Home /> } />
-      {/* <Route path="/dashboard" element={ user ? <Dashboard /> : <Navigate to='/' replace/> } /> */}
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/users" element={<UsersList />} />
-      <Route path="/categories" element={<Categories />} />
+      <Route path="/dashboard" element={user? <Dashboard /> : <Navigate to="/" replace /> } />
+      <Route path="/users" element={user? <UsersList /> : <Navigate to="/" replace /> } />
+      <Route path="/categories" element={user? <Categories /> : <Navigate to="/" replace /> } />
+      <Route path="/products" element={user? <Products /> : <Navigate to="/" replace /> } />
 
       <Route path="*" element={<Undefine />} />
     </Routes>

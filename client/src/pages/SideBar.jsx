@@ -84,8 +84,8 @@ function SideBar() {
                                 </a>
                             </li>
                             {/* =========================================================== RESEARCH WORKS ======================================================================================== */}
-                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} >
-                                <a className={location.pathname === '/curriculumn-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/products')}>
+                                <a className={location.pathname === '/products' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FaBoxesStacked /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Products

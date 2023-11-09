@@ -1,9 +1,15 @@
 const express = require('express');
 const {verifyToken} = require('../auth/Authentication');
+const multer = require('multer');
 
 const router = express.Router();
 
 const {protected, loginUser, registerUser, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload} = require('../controllers/UserController');
+
+// auto image upload
+const imageUpload = multer({
+    dest: 'assets/image upload/',
+});
 
 router.get('/protected', verifyToken, protected);
 router.post('/login', loginUser);

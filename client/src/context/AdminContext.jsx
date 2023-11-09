@@ -201,22 +201,22 @@ export const AdminContextProvider = ({ children }) => {
         setIsLoading(true);
         setErrorResponse(null);
 
-        const data = {deleteData, userId: userId.id};
+        const data = { deleteData, userId: userId.id };
 
         try {
             const response = await apostRequest(`${baseUrl}/admin/delete-user`, data);
 
             setIsLoading(false);
 
-            if (response.error){
+            if (response.error) {
                 setErrorResponse({ message: response.message, isError: true });
-            }else{
+            } else {
                 setIsDeleteUser(false);
                 setUserMount(userMount ? false : true);
                 setErrorResponse({ message: response.message, isError: false });
             }
         } catch (error) {
-            
+
         }
     }
 
@@ -255,6 +255,154 @@ export const AdminContextProvider = ({ children }) => {
         item.last_name.toLowerCase().includes(searchUser.toLowerCase())
     );
 
+    // ==========================================================   ADD NEW PRODUCT =============================================
+    const [isAddProduct, setIsAddProduct] = useState(false);
+    const [productMount, setProductMount] = useState(false);
+    const [addProductData, setAddProductdata] = useState({
+        category: '',
+        productImage: [],
+        productName: '',
+        stock: null,
+        description: ''
+    });
+
+    const handleAddProduct = async (e) => {
+        e.preventDefault();
+
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        const addProduct = new FormData();
+        addProduct.append("category", addProductData.category);
+        addProduct.append("productImage", addProductData.productImage);
+        addProduct.append("productName", addProductData.productName);
+        addProduct.append("stock", addProductData.stock);
+        addProduct.append("description", addProductData.description);
+
+        try {
+            const response = await apostRequest(`${baseUrl}/admin/add-product`, addProduct);
+
+            setIsLoading(false);
+
+            if (response.error) {
+                setErrorResponse({ message: response.message, isError: true });
+            } else {
+                setIsAddProduct(false);
+                setProductMount(productMount ? false : true);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    }
+
+    // ================================================ EDIT PRODUCT    ==============================================
+    const [editProductData, setEditProductData] = useState({
+        category: '',
+        productImage: [],
+        productName: '',
+        stock: '',
+        description: '',
+        editId: ''
+    });
+    const [isEditProduct, setIsEditProduct] = useState(false);
+
+    const handleEditProduct = async (e) => {
+        e.preventDefault();
+
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        const editProduct = new FormData();
+        editProduct.append("category", editProductData.category);
+        editProduct.append("productImage", editProductData.productImage);
+        editProduct.append("productName", editProductData.productName);
+        editProduct.append("stock", editProductData.stock);
+        editProduct.append("description", editProductData.description);
+        editProduct.append("editId", editProductData.editId);
+
+        try {
+            const response = await apostRequest(`${baseUrl}/admin/edit-product`, editProduct);
+
+            setIsLoading(false);
+
+            if (response.error) {
+                setErrorResponse({ message: response.message, isError: true });
+            } else {
+                setIsEditProduct(false);
+                setProductMount(productMount ? false : true);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    }
+
+    // =================================================    DELETE PRODUCT  ======================================================
+    const [isDeleteProduct, setIsDeleteProduct] = useState(false);
+
+    const handleDeleteProduct = async (e) => {
+        e.preventDefault();
+
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        const data = { editProductData, userId: userId.id };
+
+        try {
+            const response = await apostRequest(`${baseUrl}/admin/delete-product`, data);
+
+            setIsLoading(false);
+
+            if (response.error) {
+                setErrorResponse({ message: response.message, isError: true });
+            } else {
+                setIsDeleteProduct(false);
+                setProductMount(productMount ? false : true);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    }
+
+    // =================================================    FETCH PRODUCT   =====================================================
+    const [productList, setProductList] = useState(null);
+    const [searchProduct, setSearchProduct] = useState('');
+
+    useEffect(() => {
+        if (userId) {
+            const fetchProduct = async () => {
+
+                setIsLoading(true)
+                setErrorResponse(null);
+
+                try {
+                    const response = await agetRequest(`${baseUrl}/admin/fetch-product`);
+
+                    setIsLoading(false);
+
+                    if (response.error) {
+                        setErrorResponse({ message: response.message, isError: true });
+                    } else {
+                        setProductList(response.message);
+                    }
+                } catch (error) {
+
+                }
+            };
+            fetchProduct();
+        }
+    }, [userId, productMount]);
+
+    const productListToSearch = productList?.filter(item =>
+        item.category.toLowerCase().includes(searchProduct.toLowerCase()) ||
+        item.name.toLowerCase().includes(searchProduct.toLowerCase())
+    );
+
     return (
         <AdminContext.Provider
             value={{
@@ -289,7 +437,23 @@ export const AdminContextProvider = ({ children }) => {
                 handleDeleteUser,
                 isDeleteUser,
                 setIsDeleteUser,
-                usersList
+                usersList,
+                addProductData,
+                setAddProductdata,
+                handleAddProduct,
+                isAddProduct,
+                setIsAddProduct,
+                productListToSearch,
+                searchProduct,
+                setSearchProduct,
+                editProductData,
+                setEditProductData,
+                isEditProduct,
+                setIsEditProduct,
+                handleEditProduct,
+                isDeleteProduct,
+                setIsDeleteProduct,
+                handleDeleteProduct
             }}
         >
             {children}

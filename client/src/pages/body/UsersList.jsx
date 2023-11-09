@@ -198,7 +198,7 @@ function UsersList() {
                         <hr />
                         <form onSubmit={handleDeleteUser}>
                             <div className='form-div'>
-                                <span>Are you sure you wan't to {`${deleteData.firstName} ${deleteData.middleName} ${deleteData.lastName}`}?</span>
+                                <span>Are you sure you wan't to delete {`${deleteData.firstName} ${deleteData.middleName} ${deleteData.lastName}`}?</span>
                             </div>
 
                             <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>

@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const validator = require('validator');
 const fs = require('fs');
-const multer = require('multer');
 const mime = require('mime-types');
 require('dotenv').config();
 const { sanitizeAndValidate, sanitizeAndValidateArray } = require('../validator and sanitizer/ValidatorAndSanitizer');
@@ -143,11 +142,6 @@ const fetchUserCredentials = async (req, res) => {
         res.status(401).json({ message: "Something went wrong!" });
     }
 }
-
-// auto image upload
-const imageUpload = multer({
-    dest: 'assets/image upload/',
-});
 
 const profileUpload = async (req, res) => {
     // const { userId } = req.body;
