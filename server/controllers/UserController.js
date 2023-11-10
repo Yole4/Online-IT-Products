@@ -2,6 +2,7 @@ const db = require('../database/Connection');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const validator = require('validator');
+const sanitizeHtml = require('sanitize-html');
 const fs = require('fs');
 const mime = require('mime-types');
 require('dotenv').config();
@@ -144,19 +145,17 @@ const fetchUserCredentials = async (req, res) => {
 }
 
 const profileUpload = async (req, res) => {
-    // const { userId } = req.body;
-    // console.log(userId);
-    console.log(req.body);
+    const { userId } = req.body;
 
-    // const validationRules = [
-    //     { validator: validator.isLength, options: { min: 1, max: 50 } },
-    // ];
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
 
-    // const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
+    const sanitizeUserId = sanitizeAndValidate(userId, validationRules);
 
-    // if (!sanitizeUserId) {
-    //     return res.status(401).json({ message: "Invalid Input!" });
-    // }
+    if (!sanitizeUserId) {
+        return res.status(401).json({ message: "Invalid Input!" });
+    }
 
     // Use imageUpload middleware to handle file upload
     // imageUpload.single('image')(req, res, (err) => {
@@ -164,35 +163,35 @@ const profileUpload = async (req, res) => {
     //         return res.status(401).json({ message: "Error to upload file" });
     //     }
 
-    //     const originalFileName = req.file.originalname;
-    //     const uniqueFileName = `${Date.now()}_${originalFileName}`;
-    //     const uniqueFilePath = `assets/image upload/${uniqueFileName}`;
+    const originalFileName = req.file.originalname;
+    const uniqueFileName = `${Date.now()}_${originalFileName}`;
+    const uniqueFilePath = `assets/image upload/${uniqueFileName}`;
 
-    //     const typeMime = mime.lookup(originalFileName);
+    const typeMime = mime.lookup(originalFileName);
 
-    //     if (typeMime === 'image/png' || typeMime === 'image/jpeg') {
-    //         fs.rename(req.file.path, uniqueFilePath, (renameErr) => {
-    //             if (renameErr) {
-    //                 return res.status(401).json({ message: "Error to upload file" });
-    //             } else {
-    //                 const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
-    //                 if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
-    //                     return res.status(401).json({ message: "Invalid File Name!" });
-    //                 } else {
-    //                     const updateQuery = `UPDATE users SET image = ? WHERE id = ?`;
-    //                     db.query(updateQuery, [uniqueFilePath, sanitizeUserId], (updateErr, results) => {
-    //                         if (updateErr) {
-    //                             return res.status(401).json({ message: "Server side error!" });
-    //                         } else {
-    //                             return res.status(200).json({ message: "Profile image changed!" });
-    //                         }
-    //                     });
-    //                 }
-    //             }
-    //         });
-    //     } else {
-    //         return res.status(401).json({ message: "Invalid Image Type!" });
-    //     }
+    if (typeMime === 'image/png' || typeMime === 'image/jpeg') {
+        fs.rename(req.file.path, uniqueFilePath, (renameErr) => {
+            if (renameErr) {
+                return res.status(401).json({ message: "Error to upload file" });
+            } else {
+                const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
+                if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
+                    return res.status(401).json({ message: "Invalid File Name!" });
+                } else {
+                    const updateQuery = `UPDATE users SET given_image = ? WHERE id = ?`;
+                    db.query(updateQuery, [uniqueFilePath, sanitizeUserId], (updateErr, results) => {
+                        if (updateErr) {
+                            return res.status(401).json({ message: "Server side errors!" });
+                        } else {
+                            return res.status(200).json({ message: "Profile image changed!" });
+                        }
+                    });
+                }
+            }
+        });
+    } else {
+        return res.status(401).json({ message: "Invalid Image Type!" });
+    }
     // });
 }
 
@@ -208,7 +207,81 @@ const fetchSellerUsers = async (req, res) => {
 
 // change password
 const changePassword = async (req, res) => {
+    const { changePasswordData, userId } = req.body;
 
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+
+    const sanitizeUsername = sanitizeAndValidate(changePasswordData.username, validationRules);
+    const sanitizeUserId = sanitizeAndValidate(userId.toString(), validationRules);
+    const sanitizePassword = sanitizeAndValidate(changePasswordData.password, validationRules);
+    const sanitizeNewPassword = sanitizeAndValidate(changePasswordData.newPassword, validationRules);
+    const sanitizeConfirmPassword = sanitizeAndValidate(changePasswordData.confirmPassword, validationRules);
+
+    if (!sanitizeUserId || !sanitizePassword || !sanitizeNewPassword || !sanitizeConfirmPassword || !sanitizeUsername) {
+        res.status(401).json({ message: "Invalid Input!" });
+    }
+    else {
+        if (sanitizeUsername.length >= 5 && sanitizeUsername.length <= 20) {
+            if (sanitizeNewPassword === sanitizeConfirmPassword) {
+                if (sanitizeNewPassword.length >= 7 && sanitizeNewPassword.length <= 20) {
+                    // select password
+                    const select = `SELECT * FROM users WHERE id = ? AND isDelete = ?`;
+                    db.query(select, [sanitizeUserId, 'not'], (error, results) => {
+                        if (error) {
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            if (results.length > 0) {
+                                // get db password
+                                const dbPassword = results[0].password;
+                                // const dbUsername = results[0].username;
+
+                                // hash current password
+                                const hashedPassword = crypto.createHash('sha256').update(sanitizePassword).digest('hex');
+                                // hash new Password
+                                const hashedNewPassword = crypto.createHash('sha256').update(sanitizeNewPassword).digest('hex');
+
+                                // check the current password and new password
+                                if (dbPassword === hashedPassword) {
+                                    // update database
+                                    const checkUsername = `SELECT * FROM users WHERE username = ? AND id != ?`;
+                                    db.query(checkUsername, [sanitizeUsername, sanitizeUserId], (error, results) => {
+                                        if (error) {
+                                            res.status(401).json({ message: "Server side error!" });
+                                        } else {
+                                            if (results.length > 0) {
+                                                res.status(401).json({ message: "Username already exist!" });
+                                            } else {
+                                                const update = `UPDATE users SET password = ? WHERE id = ?`;
+                                                db.query(update, [hashedNewPassword, sanitizeUserId], (error, results) => {
+                                                    if (error) {
+                                                        res.status(401).json({ message: "Server side error!" });
+                                                    } else {
+                                                        res.status(200).json({ message: "User credentials updated successfully!" });
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    res.status(401).json({ message: "Invalid Current Password!" });
+                                }
+                            } else {
+                                res.status(401).json({ message: "Something went wrong!" });
+                            }
+                        }
+                    });
+                } else {
+                    res.status(401).json({ message: "New password must have 7 to 20 characters!" });
+                }
+            } else {
+                res.status(401).json({ message: "New password and confirm password not match!" });
+            }
+        } else {
+            res.status(401).json({ message: "Username must have 5 to 20 characters!" });
+        }
+    }
 };
 
 // change profile info
@@ -218,32 +291,32 @@ const changeProfileInfo = async (req, res) => {
 
 // add to cart
 const addCart = async (req, res) => {
-    const {productId, quantity} = req.body;
+    const { productId, quantity } = req.body;
 
-    if (productId && quantity){
+    if (productId && quantity) {
         // select if product is already on cart
         const selectCart = `SELECT * FROM my_cart WHERE product_id = ? AND isDelete = ?`;
         db.query(selectCart, [productId, "not"], (error, results) => {
             if (error) {
-                res.status(401).json({message: "Server side error!"});
-            }else{
-                if (results.length > 0){
-                    res.status(401).json({message: "Product already on cart!"});
-                }else{
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                if (results.length > 0) {
+                    res.status(401).json({ message: "Product already on cart!" });
+                } else {
                     // insert to cart
                     const inserttocart = `INSERT INTO my_cart (product_id, quantity) VALUES (?, ?)`;
                     db.query(inserttocart, [productId, quantity], (error, results) => {
                         if (error) {
-                            res.status(401).json({message: "Server side error!"});
-                        }else{
-                            res.status(200).json({message: `Product added to cart!`});
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            res.status(200).json({ message: `Product added to cart!` });
                         }
                     });
                 }
             }
         });
-    }else{
-        res.status(401).json({message: "Something went wrong!"});
+    } else {
+        res.status(401).json({ message: "Something went wrong!" });
     }
 }
 
@@ -255,15 +328,106 @@ const fetchCart = async (req, res) => {
     WHERE my_cart.isDelete = ?`;
     db.query(getCart, ["not"], (error, results) => {
         if (error) {
-            res.status(401).json({message: "Server side error!"});
-        }else{
-            if (results.length > 0){
-                res.status(200).json({message: results});
-            }else{
-                res.status(401).json({message: "No cart found!"});
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json({ message: results });
+            } else {
+                res.status(401).json({ message: "No cart found!" });
             }
         }
     })
 }
 
-module.exports = { registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart };
+// add address
+const addAddress = async (req, res) => {
+    const { addressData, userId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 255 } },
+    ];
+
+    const sanitizeStreet = sanitizeAndValidate(addressData.street, validationRules);
+    const sanitizeUserId = sanitizeAndValidate(userId.toString(), validationRules);
+    const sanitizeBarangay = sanitizeAndValidate(addressData.barangay, validationRules);
+    const sanitizeMunicipality = sanitizeAndValidate(addressData.municipality, validationRules);
+    const sanitizeProvince = sanitizeAndValidate(addressData.province, validationRules);
+    const sanitizeZipcode = sanitizeAndValidate(addressData.zipCode, validationRules);
+    const sanitizeCountry = sanitizeAndValidate(addressData.country, validationRules);
+    const sanitizeLandMark = sanitizeAndValidate(addressData.landMark, validationRules);
+
+    if (!sanitizeStreet || !sanitizeUserId || !sanitizeBarangay || !sanitizeMunicipality || !sanitizeProvince || !sanitizeZipcode || !sanitizeCountry || !sanitizeLandMark) {
+        res.status(401).json({ message: "Invalid Input!" });
+    } else {
+        const addAddress = `INSERT INTO user_address (street, barangay, municipality, province, zip_code, country, land_mark, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        db.query(addAddress, [sanitizeStreet, sanitizeBarangay, sanitizeMunicipality, sanitizeProvince, sanitizeZipcode, sanitizeCountry, sanitizeLandMark, sanitizeUserId], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                res.status(200).json({ message: "New Address has been successfully added!" });
+            }
+        });
+    }
+}
+
+// fetch address
+const fetchAddress = async (req, res) => {
+    const { userId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 255 } },
+    ];
+
+    const sanitizeUserId = sanitizeAndValidate(userId.toString(), validationRules);
+
+    const getAddress = `SELECT * FROM user_address WHERE user_id = ?`;
+    db.query(getAddress, [sanitizeUserId], (error, results) => {
+        if (error) {
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json({ message: results });
+            } else {
+                res.status(401).json({ message: "No Address Found!" });
+            }
+        }
+    });
+}
+
+// place order
+const placeOrder = async (req, res) => {
+    const { placeOrderData, userId } = req.body;
+
+    if (placeOrder.address === "") {
+        res.status(401).json({ message: "Please Select Address!" });
+    } else {
+        const validationRules = [
+            { validator: validator.isLength, options: { min: 1, max: 255 } },
+        ];
+
+        const sanitizeAddress = sanitizeAndValidate(placeOrderData.address, validationRules);
+        const sanitizePaymentType = sanitizeAndValidate(placeOrderData.paymentType, validationRules);
+        const sanitizeUserId = sanitizeAndValidate(userId.toString(), validationRules);
+
+        if (!sanitizeAddress || !sanitizePaymentType || !sanitizeUserId) {
+            res.status(401).json({message: "Invalid Input!"});
+        }else{
+            const productId = (placeOrderData.productIds).join(',');
+            const quantity = (placeOrderData.quantity).join(',');
+            const eachAmount = (placeOrderData.eachAmount).join(',');
+
+            // insert to database
+            const insertProduct = `INSERT INTO orders (user_id, product_id, quantity, each_amount, address, payment_type, shipping, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+            db.query(insertProduct, [sanitizeUserId, productId, quantity, eachAmount, sanitizeAddress, sanitizePaymentType, 130, placeOrderData.totalAmount], (error, results) => {
+                if (error) {
+                    res.status(401).json({message: "Server side error!"});
+                }else{
+                    res.status(200).json({message: "Ordered Success!"});
+                }
+            });
+        }
+    }
+
+}
+
+module.exports = { registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder };

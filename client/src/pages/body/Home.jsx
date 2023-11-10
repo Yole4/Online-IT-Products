@@ -30,11 +30,7 @@ function Home() {
   const navigate = useNavigate();
 
   const [isProfile, setIsProfile] = useState(false);
-  const [isCart, setIsCart] = useState(false);
   const [isComments, setIsComments] = useState(false);
-  const [isChangePassword, setIsChangePassword] = useState(false);
-  const [isMyAddress, setIsMyAddress] = useState(false);
-  const [isAddAddress, setIsAddAddress] = useState(false);
   const [isMyOrder, setIsMyOrder] = useState(false);
 
   // ---------------------------------- PARTIAL LOGIN --------------------------------
@@ -45,7 +41,10 @@ function Home() {
   const { isLoading, errorResponse, user, logoutUser, updateLoginInfo, loginInfo,
     userCredentials, handleLogin, isOpenLogin, setIsOpenLogin, isLogout, setIsLogout,
     registerInfo, updateRegisterInfo, registerUser, isOpenRegister, setIsOpenRegister,
-    updateProfile, handleAddToCart, isProductClick, setIsProductClick, cartList
+    updateProfile, handleAddToCart, isProductClick, setIsProductClick, cartList,
+    isChangePassword, setIsChangePassword, changePasswordData, setChangePasswordData, handleChangePassword,
+    isAddAddress, setIsAddAddress, addressData, setAddressData, handleAddAddress, isMyAddress, setIsMyAddress, myAddressList, placeOrderData, setPlaceOrderData,
+    isPlaceOrder, setIsPlaceOrder, handlePlaceOrder, isCart, setIsCart
   } = useContext(AuthContext); // require auth context
 
   const { categoryList, publicLoading, productList } = useContext(PublicContext);
@@ -112,6 +111,127 @@ function Home() {
       setAmmount(0);
     }
   }, [quantity]);
+
+  const [isCheckedMap, setIsCheckedMap] = useState({});
+  const hasTrueValue = Object.values(isCheckedMap).includes(true);
+
+  // Function to toggle the state of all checkboxes
+  const handleToggleAllCheckboxes = () => {
+
+    const hasTrueValue = Object.values(isCheckedMap).includes(true);
+    const updatedMap = Object.fromEntries(
+      Object.keys(isCheckedMap).map((key) => [key, !hasTrueValue])
+    );
+
+    setIsCheckedMap(updatedMap);
+  };
+
+  const handleCheckboxChange = (itemId) => {
+    setQuantityMap((prev) => ({ ...prev, [itemId]: prev[itemId] || 1 }));
+
+    setIsCheckedMap((prev) => {
+      const updatedMap = { ...prev, [itemId]: !prev[itemId] };
+
+      return updatedMap;
+    });
+  };
+
+  // ----------------------------- check the checked item or product ----------------------------------------
+  // get the checked item
+  const getCheckedItems = () => {
+    return Object.keys(isCheckedMap).filter((itemId) => isCheckedMap[itemId]);
+  };
+
+  useEffect(() => {
+    if (isCheckedMap) {
+      const checkedItems = getCheckedItems();
+      // console.log('Checked Items:', checkedItems);
+    }
+  }, [isCheckedMap]);
+  // ---------------------------------  SOLVE AMMOUNT ON CART -------------------------
+  const [quantityMap, setQuantityMap] = useState({});
+  const [totalsArray, setTotalsArray] = useState({});
+
+  useEffect(() => {
+    if (cartList) {
+      // Initialize quantityMap and isCheckedMap based on cartList
+      const initialQuantities = cartList.reduce((acc, item) => {
+        acc[item.id] = item.quantity;
+        return acc;
+      }, {});
+
+      setQuantityMap(initialQuantities);
+
+      const initialCheckedMap = cartList.reduce((acc, item) => {
+        acc[item.id] = false;
+        return acc;
+      }, {});
+
+      setIsCheckedMap(initialCheckedMap);
+
+      const initialTotalsArray = cartList.reduce((acc, item) => {
+        acc[item.id] = 0; // Initialize total amount to 0
+        return acc;
+      }, {});
+
+      setTotalsArray(initialTotalsArray);
+    }
+  }, [cartList]);
+
+  useEffect(() => {
+    if (quantityMap) {
+      // Iterate over cartList and update totalsArray
+      cartList?.forEach((item) => {
+        const totalAmount = (quantityMap[item.id] || item.quantity) * item.prize;
+
+        setTotalsArray((prevTotals) => ({
+          ...prevTotals,
+          [item.id]: totalAmount.toFixed(2),
+        }));
+      });
+    }
+  }, [quantityMap, isCheckedMap]);
+
+  useEffect(() => {
+    if (quantityMap) {
+      const getCheckedIds = () => {
+        return Object.keys(isCheckedMap).filter((id) => isCheckedMap[id]);
+      };
+
+      // Function to get totals based on checked IDs
+      const getTotalsForCheckedIds = () => {
+        const checkedIds = getCheckedIds();
+        return checkedIds.map((id) => totalsArray[id]);
+      };
+
+      const getQuantityNumber = () => {
+        const quantityId = getCheckedIds();
+        return quantityId.map((id) => quantityMap[id]);
+      }
+
+      const getProductInfo = () => {
+        const productInfoIds = getCheckedIds();
+        const resultArray = [];
+        cartList?.map(item => {
+          productInfoIds.map(productItem => {
+            if (item.id === parseInt(productItem)) {
+              resultArray.push(item.name);
+            }
+          })
+        });
+        setPlaceOrderData((prev) => ({ ...prev, productInfo: resultArray }));
+      };
+      getProductInfo();
+
+      const totals = getTotalsForCheckedIds();
+      const sum = totals.reduce((acc, value) => acc + parseFloat(value), 0);
+
+      setPlaceOrderData((prev) => ({ ...prev, productIds: getCheckedIds() }));
+      setPlaceOrderData((prev) => ({ ...prev, quantity: getQuantityNumber() }));
+      setPlaceOrderData((prev) => ({ ...prev, eachAmount: getTotalsForCheckedIds() }));
+      setPlaceOrderData((prev) => ({ ...prev, totalAmount: sum }));
+    }
+  }, [quantityMap, isCheckedMap, totalsArray]);
 
   //--------------------------------  BUTTON ADD TO CART  ---------------------------
   const buttonAddToCart = async () => {
@@ -186,7 +306,7 @@ function Home() {
             <li className="nav-item dropdown no-arrow">
               <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span className="mr-2 d-none d-lg-inline text-gray-600 small">{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</span>
-                <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={userCredentials && userCredentials.given_image ? userCredentials.given_image : givenImage} />
+                <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={userCredentials && userCredentials.given_image ? `${backendUrl}/${userCredentials.given_image}` : givenImage} />
               </a>
 
               <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -285,7 +405,7 @@ function Home() {
               <AiOutlineCloseCircle size={30} />
             </div>
             <div style={{ textAlign: 'center' }}>
-              <img src={userCredentials && userCredentials.given_image ? userCredentials.given_image : givenImage} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
+              <img src={userCredentials && userCredentials.given_image ? `${backendUrl}/${userCredentials.given_image}` : givenImage} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
               <label htmlFor="uploadPhoto" style={{ marginLeft: '-40px', cursor: 'pointer', zIndex: '3', color: 'white', position: 'absolute', marginTop: '110px' }}>
                 <VscDeviceCamera size={30} style={{ backgroundColor: 'rgb(71, 71, 98)', padding: '3px', borderRadius: '50%' }} />
                 <input type="file" id="uploadPhoto" onChange={(e) => updateProfile(e.target.files[0])} style={{ display: 'none' }} />
@@ -320,34 +440,86 @@ function Home() {
               <span>My Cart</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'left', alignItems: 'start', gap: '8px' }}>
-              <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
+              <input type="checkbox" onChange={handleToggleAllCheckboxes} style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
               <AiFillShop size={20} />
               <span>{`${userCredentials?.first_name}'s`} Cart</span>
               <div style={{ position: 'absolute', right: '20px', color: 'red' }}>
-                <span>₱123</span>
+                <span>Total: ₱{placeOrderData.totalAmount}</span>
               </div>
             </div>
 
-            {cartList?.map(item => (
-              <>
-                <hr />
-                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
-                  <div style={{ display: 'flex', gap: '7px', justifyContent: 'center', alignItems: 'center' }}>
-                    <input type="checkbox" style={{ height: '20px', width: '20px', cursor: 'pointer' }} />
-                    <img src={`${backendUrl}/${item.image}`} alt="" style={{ width: '50px', height: '50px' }} />
-                    <span>{item.name}</span>
+            {cartList?.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '15px' }}>
+                <span style={{ color: 'red' }}>Cart is Empty</span>
+              </div>
+            ) : (
+              cartList?.map((item) => (
+                <div key={item.id}>
+                  <hr />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginLeft: '10px' }}>
+                    <span style={{ color: 'red', fontSize: '15px' }}>
+                      <span style={{ textDecoration: 'line-through', color: '#d2d2d2' }}>₱{item.discount}</span>{' '}
+                      <span style={{ color: '' }}>₱{item.prize}</span>
+                    </span>
+                    <span style={{ fontSize: '15px' }}>{`₱${((quantityMap[item.id] || item.quantity) * item.prize).toFixed(2)}`}</span>
                   </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
+                    <div style={{ display: 'flex', gap: '7px', justifyContent: 'center', alignItems: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={isCheckedMap[item.id] || false}
+                        onChange={() => handleCheckboxChange(item.id)}
+                        style={{ height: '20px', width: '20px', cursor: 'pointer' }}
+                      />
+                      <img src={`${backendUrl}/${item.image}`} alt="" style={{ width: '50px', height: '50px' }} />
+                      <span>{item.name}</span>
+                    </div>
 
-                  <div style={{ display: 'flex' }}>
-                    <button onClick={() => setQuantity(quantity === 0 ? 0 : quantity - 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlineMinus /></button>
-                    <span style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px', padding: '2px' }}>{quantity}</span>
-                    <button onClick={() => setQuantity(quantity + 1)} style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><AiOutlinePlus /></button>
+                    <div style={{ display: 'flex' }}>
+                      <button
+                        onClick={() =>
+                          setQuantityMap((prev) => ({ ...prev, [item.id]: (prev[item.id] || item.quantity) - 1 }))
+                        }
+                        style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                      >
+                        <AiOutlineMinus />
+                      </button>
+                      <span
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          color: 'black',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginTop: '3px',
+                          padding: '2px',
+                        }}
+                      >
+                        {quantityMap[item.id] || item.quantity}
+                      </span>
+                      <button
+                        onClick={() =>
+                          setQuantityMap((prev) => ({ ...prev, [item.id]: (prev[item.id] || item.quantity) + 1 }))
+                        }
+                        style={{ width: '40px', height: '40px', color: 'black', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                      >
+                        <AiOutlinePlus />
+                      </button>
+                    </div>
+
+                    <span>
+                      <RiDeleteBin6Line size={20} style={{ color: 'red', cursor: 'pointer' }} />
+                    </span>
                   </div>
-
-                  <span><RiDeleteBin6Line size={20} style={{ color: 'red', cursor: 'pointer' }} /></span>
                 </div>
-              </>
-            ))}
+              ))
+            )}
+
+            <div style={{ marginTop: '15px' }}>
+              <button onClick={() => hasTrueValue ? setIsPlaceOrder(true) : alert("No Item Selected!")} style={{ borderRadius: '10px', fontSize: '20px', background: hasTrueValue ? 'orange' : '', padding: '5px' }}>Check Out</button>
+            </div>
           </div>
         </div>
       )}
@@ -509,28 +681,43 @@ function Home() {
 
             <div className="popup-edit" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>My Address</span>
-              <button onClick={() => setIsAddAddress(true)} style={{ width: 'auto', padding: '3px 10px', fontSize: '15px', borderRadius: '4px' }} className='btn btn-primary'>Add</button>
-            </div>
-
-            <hr />
-            <div className="form-div" style={{ marginLeft: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'start', gap: '10px', alignItems: 'center', width: '100%' }}>
-                <input type="radio" />
-                <span>Libertad Aurora Zamboanga Del Sur</span>
+              <div className="modal-close" onClick={() => setIsMyAddress(false)}>
+                <AiOutlineCloseCircle size={30} />
               </div>
             </div>
 
-            <hr />
-            <div className="form-div" style={{ marginLeft: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'start', gap: '10px', alignItems: 'center', width: '100%' }}>
-                <input type="radio" />
-                <span>Sta Cruz, Dapitan City</span>
-              </div>
-            </div>
 
-            <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
-              <button className='btn btn-danger' type='button' style={{ width: '80px', fontSize: '15px' }} onClick={() => setIsMyAddress(false)}>Cancel</button>
-              <button className='btn btn-primary' type='submit' style={{ width: '80px', fontSize: '15px' }}>Save</button>
+            <hr />
+            <div className="form-div" style={{ fontSize: '12px' }} >
+              <table className="table table-hover table-striped">
+                <thead>
+                  <tr>
+                    <th>Address</th>
+                    <th>Land Mark</th>
+                    <th>Country</th>
+                    <th>Zip Code</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {myAddressList && myAddressList.length === 0 ? (
+                    <div style={{ position: 'absolute', width: '90%', color: 'red', margin: '15px 0px 0px 10px', fontSize: '14px' }}>
+                      <span>No Address!</span>
+                    </div>
+                  ) : (
+                    myAddressList && myAddressList.map((item, index) => (
+                      <tr key={item.id}>
+                        <td>{`${item.street}. ${item.barangay} ${item.municipality}, ${item.province}`}</td>
+                        <td>{`${item.land_mark}`}</td>
+                        <td>{`${item.country}`}</td>
+                        <td>{item.zip_code}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <button className='btn btn-primary' onClick={() => setIsAddAddress(true)} style={{ fontSize: '15px' }}>Add New Address</button>
             </div>
           </div>
         </div>
@@ -547,40 +734,40 @@ function Home() {
 
             <hr />
 
-            <form >
+            <form onSubmit={handleAddAddress}>
               <div className='form-div'>
                 <label htmlFor="">Street</label>
-                <input type="text" className='form-control' placeholder='e.g. Sta. Cruz' required />
+                <input type="text" className='form-control' value={addressData.street} onChange={(e) => setAddressData((prev) => ({ ...prev, street: e.target.value }))} placeholder='e.g. Sta. Cruz' required />
               </div>
 
               <div style={{ marginTop: '15px' }}>
                 <label htmlFor="">Village (Barangay)</label>
-                <input type="text" className='form-control' placeholder='e.g. Libertad' required />
+                <input type="text" className='form-control' value={addressData.barangay} onChange={(e) => setAddressData((prev) => ({ ...prev, barangay: e.target.value }))} placeholder='e.g. Libertad' required />
               </div>
 
               <div style={{ marginTop: '15px' }}>
                 <label htmlFor="">Municipality/City</label>
-                <input type="text" className='form-control' placeholder='e.g. Dapitan City' required />
+                <input type="text" className='form-control' value={addressData.municipality} onChange={(e) => setAddressData((prev) => ({ ...prev, municipality: e.target.value }))} placeholder='e.g. Dapitan City' required />
               </div>
 
               <div style={{ marginTop: '15px' }}>
                 <label htmlFor="">Province/State</label>
-                <input type="text" className='form-control' placeholder='e.g. Zamboanga Del Norte' required />
+                <input type="text" className='form-control' value={addressData.province} onChange={(e) => setAddressData((prev) => ({ ...prev, province: e.target.value }))} placeholder='e.g. Zamboanga Del Norte' required />
               </div>
 
               <div style={{ marginTop: '15px' }}>
                 <label htmlFor="">Postal Code/Zip Code</label>
-                <input type="number" className='form-control' placeholder='Zip Code' required />
+                <input type="number" className='form-control' value={addressData.zipCode} onChange={(e) => setAddressData((prev) => ({ ...prev, zipCode: e.target.value }))} placeholder='Zip Code' required />
               </div>
 
               <div style={{ marginTop: '15px' }}>
                 <label htmlFor="">Country</label>
-                <input type="text" className='form-control' placeholder='e.g. Philippines' required />
+                <input type="text" className='form-control' value={addressData.country} onChange={(e) => setAddressData((prev) => ({ ...prev, country: e.target.value }))} placeholder='e.g. Philippines' required />
               </div>
 
               <div style={{ marginTop: '15px' }}>
                 <label htmlFor="">Land Mark (Additional Address Info)</label>
-                <input type="text" className='form-control' placeholder='e.g. Inside Rice Mailing Corporation' required />
+                <input type="text" className='form-control' value={addressData.landMark} onChange={(e) => setAddressData((prev) => ({ ...prev, landMark: e.target.value }))} placeholder='e.g. Inside Rice Mailing Corporation' required />
               </div>
 
               <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
@@ -613,6 +800,68 @@ function Home() {
         </div>
       )}
 
+      {/* PLACE ORDER MODAL */}
+      {isPlaceOrder && (
+        <div className="popup">
+          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isPlaceOrder ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+            <div className="modal-close" onClick={() => setIsPlaceOrder(false)}>
+              <AiOutlineCloseCircle size={30} />
+            </div>
+            <div className="popup-edit">
+              <span>Confirmation</span>
+            </div>
+
+            <hr />
+            <form onSubmit={handlePlaceOrder}>
+              <div className="form-group">
+                <label htmlFor="name" className="control-label">Address</label>
+                <select className='form-control form-control-border' value={placeOrderData.address} onChange={(e) => setPlaceOrderData((prev) => ({...prev, address: e.target.value}))} required>
+                  <option value="" selected disabled>Select Address</option>
+                  <option value="Address">Address</option>
+                  {myAddressList?.map(item => (
+                    <option key={item.id} value={`${item.street}. ${item.barangay} ${item.municipality}, ${item.province}`}>{`${item.street}. ${item.barangay} ${item.municipality}, ${item.province}`}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label htmlFor="name" className="control-label">Payment</label>
+                <select className='form-control form-control-border' value={placeOrderData.paymentType} onChange={(e) => setPlaceOrderData((prev) => ({...prev, paymentType: e.target.value}))} required>
+                  <option value="" selected disabled>Select Payment</option>
+                  <option value="Cash on Delivery">Cash on Delivery</option>  
+                  <option value="G-Cash">G-Cash</option>
+                </select>
+              </div>
+
+              {placeOrderData.eachAmount?.map((item, index) => (
+                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', marginTop: '10px' }}>
+                  <span>{placeOrderData.productInfo[index]}</span>
+                  <span>Item: {placeOrderData.quantity[index]}</span>
+                  <span>₱{placeOrderData.eachAmount[index]}</span>
+                </div>
+              ))}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', marginTop: '10px' }}>
+                <span>Shipping Fee</span>
+                <span>₱130</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', marginTop: '10px' }}>
+                <span>Discount</span>
+                <span>₱0</span>
+              </div>
+              <hr />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                <span></span>
+                <span style={{ color: 'red' }}>Total: ₱{placeOrderData.totalAmount + 130}</span>
+              </div>
+              <br />
+              <div>
+                <button type='submit' style={{ borderRadius: '10px', fontSize: '20px', background: 'orange', padding: '5px' }}>Place Order</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Change Password */}
       {isChangePassword && (
         <div className="popup">
@@ -622,25 +871,25 @@ function Home() {
               <span>Change Password</span>
             </div>
             <hr />
-            <form >
+            <form onSubmit={handleChangePassword}>
               <div className='form-div'>
                 <label htmlFor="">Username</label>
-                <input type="text" className='form-control' placeholder='Username' required />
+                <input type="text" value={changePasswordData.username} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, username: e.target.value }))} className='form-control' placeholder='Username' required />
               </div>
 
               <div style={{ marginTop: '15px' }}>
                 <label htmlFor="">Current Password</label>
-                <input type="password" className='form-control' placeholder='*********' required />
+                <input type="password" value={changePasswordData.password} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, password: e.target.value }))} className='form-control' placeholder='*********' required />
               </div>
 
               <div style={{ marginTop: '15px' }}>
                 <label htmlFor="">New Password</label>
-                <input type="password" className='form-control' placeholder='*********' required />
+                <input type="password" value={changePasswordData.newPassword} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, newPassword: e.target.value }))} className='form-control' placeholder='*********' required />
               </div>
 
               <div style={{ marginTop: '15px' }}>
                 <label htmlFor="">Confirm Password</label>
-                <input type="password" className='form-control' placeholder='*********' required />
+                <input type="password" value={changePasswordData.confirmPassword} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, confirmPassword: e.target.value }))} className='form-control' placeholder='*********' required />
               </div>
 
               <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>

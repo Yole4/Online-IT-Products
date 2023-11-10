@@ -136,6 +136,39 @@ export const AuthContextProvider = ({ children }) => {
         }
     }, [token, mount, user]);
 
+    // ---------------------------------    CHANGE PASSWORD ----------------------------------------------
+    const [isChangePassword, setIsChangePassword] = useState(false);
+    const [changePasswordData, setChangePasswordData] = useState({
+        username: 's',
+        password: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        try {
+            const response = await apostRequest(`${baseUrl}/users/change-password`, { changePasswordData, userId: userId.id });
+
+            setIsLoading(false);
+
+            if (response.error) {
+                setErrorResponse({ message: response.message, isError: true });
+            } else {
+                setMount(mount ? false : true);
+                setIsChangePassword(false);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    };
+
     // -------------------------------------    FETCH USER CREDENTIALS --------------------------------------
     const [userCredentials, setUserCredentials] = useState([]);
 
@@ -153,6 +186,7 @@ export const AuthContextProvider = ({ children }) => {
                     if (response.error) {
                         console.log(response.message);
                     } else {
+                        setChangePasswordData((prev) => ({ ...prev, username: response.message[0].username }));
                         setUserCredentials(response.message[0]);
                     }
                 } catch (error) {
@@ -163,6 +197,72 @@ export const AuthContextProvider = ({ children }) => {
             fetchUserData();
         }
     }, [userId, mount]);
+
+    //-----------------------------------------------   ADD NEW ADDRESS ------------------------------------------------
+    const [addressMount, setAddressMount] = useState(false);
+    const [isAddAddress, setIsAddAddress] = useState(false);
+    const [addressData, setAddressData] = useState({
+        street: '',
+        barangay: '',
+        municipality: '',
+        province: '',
+        zipCode: '',
+        country: '',
+        landMark: ''
+    });
+
+    const handleAddAddress = async (e) => {
+        e.preventDefault();
+
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        try {
+            const response = await apostRequest(`${baseUrl}/users/add-address`, { addressData, userId: userId.id });
+
+            setIsLoading(false);
+
+            if (response.error) {
+                setErrorResponse({ message: response.message, isError: true });
+            } else {
+                setIsAddAddress(false);
+                setAddressMount(addressMount ? false : true);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    };
+
+    //-----------------------------------------------   FETCH ADDRESS   ------------------------------------------------
+    const [myAddressList, setMyAddressList] = useState(null);
+    const [isMyAddress, setIsMyAddress] = useState(false);
+
+    useEffect(() => {
+        if (userId) {
+            setIsLoading(true);
+            setErrorResponse(null);
+
+            const fetchAddress = async () => {
+                try {
+                    const response = await apostRequest(`${baseUrl}/users/fetch-address`, {userId: userId.id})
+
+                    setIsLoading(false);
+                    
+                    if (response.error){
+                        console.log(response.message);
+                    }else{
+                        setIsMyAddress(false);
+                        setMyAddressList(response.message);
+                    }
+                } catch (error) {
+
+                }
+            };
+            fetchAddress();
+        }
+    }, [userId, addressMount]);
 
     // ----------------------------------------------   AUTO PROFILE UPLOAD --------------------------------------------
     const [autoImage, setAutoImage] = useState([]);
@@ -189,10 +289,10 @@ export const AuthContextProvider = ({ children }) => {
                         setIsLoading(false);
 
                         if (response.error) {
-                            return setErrorResponse(response);
+                            setErrorResponse({ message: response.message, isError: true });
                             // console.log(response);
                         } else {
-                            setErrorResponse(response.message);
+                            setErrorResponse({ message: response.message, isError: false });
                             setMount(mount ? false : true);
                         }
                     } catch (error) {
@@ -232,6 +332,45 @@ export const AuthContextProvider = ({ children }) => {
         }
     }, []);
 
+    // -----------------------------------------    PLACE ORDER -----------------------------------------
+    const [placeOrderMount, setPlaceOrderMount] = useState(false);
+    const [isCart, setIsCart] = useState(false);
+    const [isPlaceOrder, setIsPlaceOrder] = useState(false);
+    const [placeOrderData, setPlaceOrderData] = useState({
+        productIds: null,
+        quantity: null,
+        eachAmount: null,
+        totalAmount: null,
+        productInfo: null,
+        address: null,
+        paymentType: null
+    });
+
+    const handlePlaceOrder = async (e) => {
+        e.preventDefault();
+        
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        try {
+            const response = await apostRequest(`${baseUrl}/users/place-order`, {placeOrderData, userId: userId.id});
+
+            setIsLoading(false);
+
+            if (response.error){
+                setErrorResponse({ message: response.message, isError: true });
+            }else{
+                setIsPlaceOrder(false);
+                isCart(false);
+                setPlaceOrderMount(placeOrderMount ? false : true);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    }
+    
     // ---------------------------------------  FETCH CART ----------------------------------
     const [cartList, setCartList] = useState(null);
 
@@ -283,7 +422,27 @@ export const AuthContextProvider = ({ children }) => {
         handleAddToCart,
         isProductClick,
         setIsProductClick,
-        cartList
+        cartList,
+        isChangePassword,
+        setIsChangePassword,
+        changePasswordData,
+        setChangePasswordData,
+        handleChangePassword,
+        isAddAddress,
+        setIsAddAddress,
+        addressData,
+        setAddressData,
+        handleAddAddress,
+        myAddressList,
+        isMyAddress,
+        setIsMyAddress,
+        placeOrderData,
+        setPlaceOrderData,
+        isPlaceOrder,
+        setIsPlaceOrder,
+        handlePlaceOrder,
+        isCart,
+        setIsCart
     }}>
         {children}
     </AuthContext.Provider>
