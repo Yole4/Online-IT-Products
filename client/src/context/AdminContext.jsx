@@ -42,6 +42,7 @@ export const AdminContextProvider = ({ children }) => {
                 setMount(mount ? false : true);
                 setIsAddCategories(false);
                 setErrorResponse({ message: response.message, isError: false });
+                setCategoryName('');
             }
         } catch (error) {
             setIsLoading(false);
@@ -265,7 +266,8 @@ export const AdminContextProvider = ({ children }) => {
         stock: null,
         description: '',
         prize: null,
-        address: ''
+        address: '',
+        discount: null
     });
 
     const handleAddProduct = async (e) => {
@@ -282,6 +284,7 @@ export const AdminContextProvider = ({ children }) => {
         addProduct.append("description", addProductData.description);
         addProduct.append("prize", addProductData.prize);
         addProduct.append("address", addProductData.address);
+        addProduct.append("discount", addProductData.discount);
 
         try {
             const response = await apostRequest(`${baseUrl}/admin/add-product`, addProduct);
@@ -310,7 +313,8 @@ export const AdminContextProvider = ({ children }) => {
         description: '',
         editId: '',
         prize: null,
-        address: ''
+        address: '',
+        discount: null
     });
     const [isEditProduct, setIsEditProduct] = useState(false);
 
@@ -329,6 +333,7 @@ export const AdminContextProvider = ({ children }) => {
         editProduct.append("editId", editProductData.editId);
         editProduct.append("prize", editProductData.prize);
         editProduct.append("address", editProductData.address);
+        editProduct.append("discount", editProductData.discount);
 
         try {
             const response = await apostRequest(`${baseUrl}/admin/edit-product`, editProduct);
@@ -399,7 +404,8 @@ export const AdminContextProvider = ({ children }) => {
                         setProductList(response.message);
                     }
                 } catch (error) {
-
+                    setIsLoading(false);
+                    console.log("Error: ", error);
                 }
             };
             fetchProduct();
@@ -410,6 +416,35 @@ export const AdminContextProvider = ({ children }) => {
         item.category.toLowerCase().includes(searchProduct.toLowerCase()) ||
         item.name.toLowerCase().includes(searchProduct.toLowerCase())
     );
+
+    // ===================================================  GET ORDERS  ==============================================================
+    const [userOrders, setUserOrder] = useState(null);
+
+    useEffect(() => {
+        if (userId) {
+            const getUserOrders = async () => {
+
+                setIsLoading(true);
+                setErrorResponse(null);
+
+                try {
+                    const response = await agetRequest(`${baseUrl}/admin/get-orders`);
+
+                    setIsLoading(false);
+
+                    if (response.error) {
+                        setErrorResponse({ message: response.message, isError: true });
+                    } else {
+                        setUserOrder(response.message);
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                    console.log("Error: ", error);
+                }
+            };
+            getUserOrders();
+        }
+    }, [userId]);
 
     return (
         <AdminContext.Provider
@@ -461,7 +496,10 @@ export const AdminContextProvider = ({ children }) => {
                 handleEditProduct,
                 isDeleteProduct,
                 setIsDeleteProduct,
-                handleDeleteProduct
+                handleDeleteProduct,
+                productMount,
+                mount,
+                userOrders
             }}
         >
             {children}

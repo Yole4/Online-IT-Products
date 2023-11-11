@@ -4,7 +4,7 @@ const multer = require('multer');
 
 const router = express.Router();
 
-const {protected, loginUser, registerUser, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder} = require('../controllers/UserController');
+const {protected, loginUser, registerUser, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder, deleteCart, fetchMyOrder} = require('../controllers/UserController');
 
 // auto image upload
 const imageUpload = multer({
@@ -23,6 +23,8 @@ router.get('/fetch-cart', verifyToken, fetchCart);
 router.post('/add-address', verifyToken, addAddress);
 router.post('/fetch-address', verifyToken, fetchAddress);
 router.post('/place-order', verifyToken, placeOrder);
+router.post('/delete-cart', verifyToken, deleteCart);
+router.post('/fetch-myOrders', verifyToken, fetchMyOrder);
 
 module.exports = router;
 

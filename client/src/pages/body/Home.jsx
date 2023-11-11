@@ -31,7 +31,6 @@ function Home() {
 
   const [isProfile, setIsProfile] = useState(false);
   const [isComments, setIsComments] = useState(false);
-  const [isMyOrder, setIsMyOrder] = useState(false);
 
   // ---------------------------------- PARTIAL LOGIN --------------------------------
   const [isLogin, setIsLogin] = useState(false);
@@ -44,10 +43,10 @@ function Home() {
     updateProfile, handleAddToCart, isProductClick, setIsProductClick, cartList,
     isChangePassword, setIsChangePassword, changePasswordData, setChangePasswordData, handleChangePassword,
     isAddAddress, setIsAddAddress, addressData, setAddressData, handleAddAddress, isMyAddress, setIsMyAddress, myAddressList, placeOrderData, setPlaceOrderData,
-    isPlaceOrder, setIsPlaceOrder, handlePlaceOrder, isCart, setIsCart
+    isPlaceOrder, setIsPlaceOrder, handlePlaceOrder, isCart, setIsCart, handleDeleteCart, isMyOrder, setIsMyOrder, myOrdersList
   } = useContext(AuthContext); // require auth context
 
-  const { categoryList, publicLoading, productList } = useContext(PublicContext);
+  const { categoryList, publicLoading, productListToSearch, homeSearch, setHomeSearch } = useContext(PublicContext);
 
   const [isErrorResponse, setIsErrorResponse] = useState(false);
 
@@ -212,14 +211,17 @@ function Home() {
       const getProductInfo = () => {
         const productInfoIds = getCheckedIds();
         const resultArray = [];
+        const allArray = [];
         cartList?.map(item => {
           productInfoIds.map(productItem => {
             if (item.id === parseInt(productItem)) {
               resultArray.push(item.name);
+              allArray.push(item);
             }
           })
         });
         setPlaceOrderData((prev) => ({ ...prev, productInfo: resultArray }));
+        setPlaceOrderData((prev) => ({ ...prev, allData: allArray }));
       };
       getProductInfo();
 
@@ -229,14 +231,14 @@ function Home() {
       setPlaceOrderData((prev) => ({ ...prev, productIds: getCheckedIds() }));
       setPlaceOrderData((prev) => ({ ...prev, quantity: getQuantityNumber() }));
       setPlaceOrderData((prev) => ({ ...prev, eachAmount: getTotalsForCheckedIds() }));
-      setPlaceOrderData((prev) => ({ ...prev, totalAmount: sum }));
+      setPlaceOrderData((prev) => ({ ...prev, totalAmount: sum + 130 }));
     }
   }, [quantityMap, isCheckedMap, totalsArray]);
 
   //--------------------------------  BUTTON ADD TO CART  ---------------------------
   const buttonAddToCart = async () => {
     if (quantity > 0) {
-      if (eachProductInfo?.stock > quantity) {
+      if (eachProductInfo?.stock >= quantity) {
         handleAddToCart(eachProductInfo.id, quantity);
       } else {
         alert(`Sorry our stock on this product is ${eachProductInfo.stock} left!`);
@@ -297,7 +299,7 @@ function Home() {
             <li className="nav-item dropdown" onClick={() => isLogin ? setIsCart(true) : setIsOpenLogin(true)}>
               <div className="nav-link">
                 <LuShoppingCart style={{ cursor: 'pointer' }} size={20} />
-                <span className="badge badge-warning navbar-badge">3</span>
+                <span className="badge badge-warning navbar-badge">{cartList?.length === 0 ? '' : cartList?.length}</span>
               </div>
             </li>
           )}
@@ -353,7 +355,7 @@ function Home() {
       <div className='top-search'>
         <form action="simple-results.html">
           <div>
-            <input type="search" className="form-control " placeholder="Search Product" style={{ paddingLeft: '35px', borderRadius: '5px', height: '40px', fontSize: '15px' }} />
+            <input type="search" className="form-control" value={homeSearch} onChange={(e) => setHomeSearch(e.target.value)} placeholder="Search Product" style={{ paddingLeft: '35px', borderRadius: '5px', height: '40px', fontSize: '15px' }} />
             <BiSearchAlt2 size={23} style={{ position: 'absolute', marginTop: '-30px', marginLeft: '8px' }} />
           </div>
         </form>
@@ -366,7 +368,7 @@ function Home() {
       </div>
 
       <div className="gallery">
-        {productList?.map(item => (
+        {productListToSearch?.map(item => (
           <div key={item.id} className="product-content" onClick={() => isLogin ? productButton(item) : setIsOpenLogin(true)}>
             <img src={`${backendUrl}/${item.image}`} className='product-image' alt="" />
             <h3 className='product-name'>{item.name}</h3>
@@ -510,7 +512,7 @@ function Home() {
                     </div>
 
                     <span>
-                      <RiDeleteBin6Line size={20} style={{ color: 'red', cursor: 'pointer' }} />
+                      <RiDeleteBin6Line onClick={() => handleDeleteCart(item)} size={20} style={{ color: 'red', cursor: 'pointer' }} />
                     </span>
                   </div>
                 </div>
@@ -788,10 +790,42 @@ function Home() {
               <span>My Order</span>
             </div>
 
-            <hr />
-            <div className="form-div" style={{ color: 'red' }}>
-              <span>No Order Yet</span>
-            </div>
+            {myOrdersList?.length === 0 ? (
+              <div className="form-div" style={{ color: 'red', marginTop: '10px', textAlign: 'center' }}>
+                <span>No Order Yet</span>
+              </div>
+            ) : (
+              myOrdersList?.map(item => (
+                <div key={item.id}>
+                  <hr style={{ border: '1px solid black' }} />
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <span style={{ fontSize: '12px' }}>Order Date: {item.date}</span>
+                    <span style={{ fontSize: '14px', color: item.status === "Pending" ? 'red' : item.status === "To Receive" ? 'orange' : 'blue'}}>{item.status}</span>
+                  </div>
+                  {item.product_info.split(',').map((product, index) => (
+                    <div key={index} style={{ marginLeft: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                      <span>{product.trim()} (x{item.quantity.split(',').reverse()[index].trim()})</span>
+                      <span>₱{item.each_amount.split(',').reverse()[index].trim()}</span>
+                    </div>
+                  ))}
+                  <div style={{ marginLeft: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', marginTop: '10px' }}>
+                    <span>Shipping Fee</span>
+                    <span>₱130</span>
+                  </div>
+                  <div style={{ marginLeft: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                    <span>Discount</span>
+                    <span>₱0</span>
+                  </div>
+                  <hr />
+                  <div style={{ marginLeft: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                    <span></span>
+                    <span style={{ color: 'red' }}>Total: ₱{item.total_amount}</span>
+                  </div>
+                </div>
+              ))
+            )}
+
             <br />
             <div>
               <button className='btn btn-primary' style={{ width: '100%' }} onClick={() => setIsMyOrder(false)}>Okay</button>
@@ -815,7 +849,7 @@ function Home() {
             <form onSubmit={handlePlaceOrder}>
               <div className="form-group">
                 <label htmlFor="name" className="control-label">Address</label>
-                <select className='form-control form-control-border' value={placeOrderData.address} onChange={(e) => setPlaceOrderData((prev) => ({...prev, address: e.target.value}))} required>
+                <select className='form-control form-control-border' value={placeOrderData.address} onChange={(e) => setPlaceOrderData((prev) => ({ ...prev, address: e.target.value }))} required>
                   <option value="" selected disabled>Select Address</option>
                   <option value="Address">Address</option>
                   {myAddressList?.map(item => (
@@ -826,9 +860,9 @@ function Home() {
 
               <div className="form-group" style={{ marginBottom: '20px' }}>
                 <label htmlFor="name" className="control-label">Payment</label>
-                <select className='form-control form-control-border' value={placeOrderData.paymentType} onChange={(e) => setPlaceOrderData((prev) => ({...prev, paymentType: e.target.value}))} required>
+                <select className='form-control form-control-border' value={placeOrderData.paymentType} onChange={(e) => setPlaceOrderData((prev) => ({ ...prev, paymentType: e.target.value }))} required>
                   <option value="" selected disabled>Select Payment</option>
-                  <option value="Cash on Delivery">Cash on Delivery</option>  
+                  <option value="Cash on Delivery">Cash on Delivery</option>
                   <option value="G-Cash">G-Cash</option>
                 </select>
               </div>
@@ -851,7 +885,7 @@ function Home() {
               <hr />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
                 <span></span>
-                <span style={{ color: 'red' }}>Total: ₱{placeOrderData.totalAmount + 130}</span>
+                <span style={{ color: 'red' }}>Total: ₱{placeOrderData.totalAmount}</span>
               </div>
               <br />
               <div>

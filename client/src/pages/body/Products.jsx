@@ -171,7 +171,7 @@ function Products() {
             {/* -----------------   ADD PRODUCT -------------------- */}
             {isAddProduct && (
                 <div className="popup">
-                    <div className='department-modal' style={{ animation: isAddProduct ? 'animateCenter 0.3s linear' : '' }}>
+                    <div className='department-modal' style={{ animation: isAddProduct ? 'animateCenter 0.3s linear' : '', maxHeight: '100vh', overflow: 'auto'  }}>
                         <h5>Add New Product</h5>
                         <hr />
                         <div className="container-fluid">
@@ -199,8 +199,13 @@ function Products() {
                                 </div>
 
                                 <div className="form-group">
-                                    <label htmlFor="name" className="control-label">Prize</label>
-                                    <input type="number" value={addProductData.prize} onChange={(e) => setAddProductdata((prev) => ({ ...prev, prize: e.target.value }))} className="form-control form-control-border" placeholder="Prize" required />
+                                    <label htmlFor="name" className="control-label">Old Price</label>
+                                    <input type="number" value={addProductData.discount} onChange={(e) => setAddProductdata((prev) => ({ ...prev, discount: e.target.value }))} className="form-control form-control-border" placeholder="Old Price" required />
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Price</label>
+                                    <input type="number" value={addProductData.prize} onChange={(e) => setAddProductdata((prev) => ({ ...prev, prize: e.target.value }))} className="form-control form-control-border" placeholder="Price" required />
                                 </div>
 
                                 <div className="form-group">
@@ -226,7 +231,7 @@ function Products() {
             {/* -----------------   EDIT PRODUCT -------------------- */}
             {isEditProduct && (
                 <div className="popup">
-                    <div className='department-modal' style={{ animation: isEditProduct ? 'animateCenter 0.3s linear' : '' }}>
+                    <div className='department-modal' style={{ animation: isEditProduct ? 'animateCenter 0.3s linear' : '', maxHeight: '100vh', overflow: 'auto' }}>
                         <h5>Edit Product</h5>
                         <hr />
                         <div className="container-fluid">
@@ -254,8 +259,13 @@ function Products() {
                                 </div>
 
                                 <div className="form-group">
-                                    <label htmlFor="name" className="control-label">Prize</label>
-                                    <input type="number" value={editProductData.prize} onChange={(e) => setEditProductData((prev) => ({ ...prev, prize: e.target.value }))} className="form-control form-control-border" placeholder="Prize" required />
+                                    <label htmlFor="name" className="control-label">Old Price</label>
+                                    <input type="number" value={editProductData.discount} onChange={(e) => setEditProductData((prev) => ({ ...prev, discount: e.target.value }))} className="form-control form-control-border" placeholder="Old Price" required />
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="name" className="control-label">Price</label>
+                                    <input type="number" value={editProductData.prize} onChange={(e) => setEditProductData((prev) => ({ ...prev, prize: e.target.value }))} className="form-control form-control-border" placeholder="Price" required />
                                 </div>
 
                                 <div className="form-group">

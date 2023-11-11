@@ -20,7 +20,7 @@ import { AdminContext } from '../../context/AdminContext';
 function Dashboard() {
     const navigate = useNavigate();
 
-    const { usersList, categoryList, isLoading, errorResponse } = useContext(AdminContext);
+    const { usersList, categoryList, isLoading, errorResponse, userOrders } = useContext(AdminContext);
 
     const [isErrorResponse, setIsErrorResponse] = useState(false);
 
@@ -71,10 +71,34 @@ function Dashboard() {
                                 </div>
                             </div>
                             <div className="col-lg-3 col-6">
+                                <div className="small-box bg-danger">
+                                    <div className="inner">
+                                        <h3>{userOrders ? userOrders.filter(item => item.status === "Pending").length : 0}<sup style={{ fontSize: 20 }}></sup></h3>
+                                        <p>Pending Orders</p>
+                                    </div>
+                                    <div className="icon">
+                                        <i><FcShipped /></i>
+                                    </div>
+                                    <a href="#" className="small-box-footer" onClick={() => navigate('/orders')}>More info <i className="fas fa-arrow-circle-right" /></a>
+                                </div>
+                            </div>
+                            <div className="col-lg-3 col-6">
                                 <div className="small-box bg-success">
                                     <div className="inner">
-                                        <h3>3<sup style={{ fontSize: 20 }}></sup></h3>
-                                        <p>Orders</p>
+                                        <h3>{userOrders ? userOrders.filter(item => item.status === "To Receive").length : 0}<sup style={{ fontSize: 20 }}></sup></h3>
+                                        <p>To Receive Orders</p>
+                                    </div>
+                                    <div className="icon">
+                                        <i><FcShipped /></i>
+                                    </div>
+                                    <a href="#" className="small-box-footer" onClick={() => navigate('/orders')}>More info <i className="fas fa-arrow-circle-right" /></a>
+                                </div>
+                            </div>
+                            <div className="col-lg-3 col-6">
+                                <div className="small-box bg-info">
+                                    <div className="inner">
+                                        <h3>{userOrders ? userOrders.filter(item => item.status === "To Receive").length : 0}<sup style={{ fontSize: 20 }}></sup></h3>
+                                        <p>Receives Orders</p>
                                     </div>
                                     <div className="icon">
                                         <i><FcShipped /></i>

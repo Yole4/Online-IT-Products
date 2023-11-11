@@ -214,7 +214,7 @@ const deleteUser = async (req, res) => {
 
 // add new product
 const addProduct = async (req, res) => {
-    const { category, productName, stock, description, prize, address } = req.body;
+    const { category, productName, stock, description, prize, address, discount } = req.body;
 
     const validationRules = [
         { validator: validator.isLength, options: { min: 1, max: 255 } },
@@ -225,6 +225,7 @@ const addProduct = async (req, res) => {
     const sanitizeStock = sanitizeAndValidate(stock, validationRules);
     const sanitizePrize = sanitizeAndValidate(prize, validationRules);
     const sanitizeAddress = sanitizeAndValidate(address, validationRules);
+    const sanitizeDiscount = sanitizeAndValidate(discount, validationRules);
 
     if (!sanitizeCategory || !sanitizeProductName || !sanitizeStock || !sanitizePrize || !sanitizeAddress) {
         res.status(401).json({ message: "Invalid Input!" });
@@ -246,8 +247,8 @@ const addProduct = async (req, res) => {
                         return res.status(401).send({ message: "Invalid File Name!" });
                     }
                     else {
-                        const insert = `INSERT INTO products (category, image, name, description, stock, prize, address) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-                        db.query(insert, [sanitizeCategory, uniqueFilePath, sanitizeProductName, description, sanitizeStock, sanitizePrize, sanitizeAddress], (error, results) => {
+                        const insert = `INSERT INTO products (category, image, name, description, stock, prize, address, discount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                        db.query(insert, [sanitizeCategory, uniqueFilePath, sanitizeProductName, description, sanitizeStock, sanitizePrize, sanitizeAddress, sanitizeDiscount], (error, results) => {
                             if (error) {
                                 res.status(401).json({ message: "Server side error!" });
                             } else {
@@ -280,7 +281,7 @@ const fetchProduct = async (req, res) => {
 
 // edit product
 const editProduct = async (req, res) => {
-    const { category, productName, stock, description, editId, prize, address } = req.body;
+    const { category, productName, stock, description, editId, prize, address, discount } = req.body;
 
     const validationRules = [
         { validator: validator.isLength, options: { min: 1, max: 255 } },
@@ -290,6 +291,7 @@ const editProduct = async (req, res) => {
     const sanitizeProductName = sanitizeAndValidate(productName, validationRules);
     const sanitizeStock = sanitizeAndValidate(stock, validationRules);
     const sanitizePrize = sanitizeAndValidate(prize, validationRules);
+    const sanitizeDiscount = sanitizeAndValidate(discount, validationRules);
     const sanitizeAddress = sanitizeAndValidate(address, validationRules);
 
     if (!sanitizeCategory || !sanitizeProductName || !sanitizeStock || !sanitizeAddress) {
@@ -312,8 +314,8 @@ const editProduct = async (req, res) => {
                         return res.status(401).send({ message: "Invalid File Name!" });
                     }
                     else {
-                        const updateProduct = `UPDATE products SET category = ?, image = ?, name = ?, description = ?, stock = ?, prize = ?, address = ? WHERE id = ?`;
-                        db.query(updateProduct, [sanitizeCategory, uniqueFilePath, sanitizeProductName, description, sanitizeStock, sanitizePrize, sanitizeAddress, editId], (error, results) => {
+                        const updateProduct = `UPDATE products SET category = ?, image = ?, name = ?, description = ?, stock = ?, prize = ?, address = ?, discount = ? WHERE id = ?`;
+                        db.query(updateProduct, [sanitizeCategory, uniqueFilePath, sanitizeProductName, description, sanitizeStock, sanitizePrize, sanitizeAddress, sanitizeDiscount, editId], (error, results) => {
                             if (error) {
                                 res.status(401).json({ message: "Server side error!" });
                             } else {
@@ -352,4 +354,16 @@ const deleteProduct = async (req, res) => {
     })
 }
 
-module.exports = { addCategory, fetchCategory, deleteCategory, editCategory, fetchUsers, editUser, deleteUser, addProduct, fetchProduct, editProduct, deleteProduct };
+// get users order
+const getUserOrders = async (req, res) => {
+    const getOrders = `SELECT * FROM orders WHERE isDelete = ?`;
+    db.query(getOrders, ["not"], (error, results) => {
+        if (error) {
+            res.status(401).json({message: "Server side error!"});
+        }else{
+            res.status(200).json({message: results});
+        }
+    })
+}
+
+module.exports = { getUserOrders, addCategory, fetchCategory, deleteCategory, editCategory, fetchUsers, editUser, deleteUser, addProduct, fetchProduct, editProduct, deleteProduct };

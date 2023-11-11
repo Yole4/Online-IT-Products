@@ -330,11 +330,7 @@ const fetchCart = async (req, res) => {
         if (error) {
             res.status(401).json({ message: "Server side error!" });
         } else {
-            if (results.length > 0) {
-                res.status(200).json({ message: results });
-            } else {
-                res.status(401).json({ message: "No cart found!" });
-            }
+            res.status(200).json({ message: results });
         }
     })
 }
@@ -385,18 +381,14 @@ const fetchAddress = async (req, res) => {
         if (error) {
             res.status(401).json({ message: "Server side error!" });
         } else {
-            if (results.length > 0) {
-                res.status(200).json({ message: results });
-            } else {
-                res.status(401).json({ message: "No Address Found!" });
-            }
+            res.status(200).json({ message: results });
         }
     });
 }
 
 // place order
 const placeOrder = async (req, res) => {
-    const { placeOrderData, userId } = req.body;
+    const { placeOrderData, userId, fullname } = req.body;
 
     if (placeOrder.address === "") {
         res.status(401).json({ message: "Please Select Address!" });
@@ -407,22 +399,50 @@ const placeOrder = async (req, res) => {
 
         const sanitizeAddress = sanitizeAndValidate(placeOrderData.address, validationRules);
         const sanitizePaymentType = sanitizeAndValidate(placeOrderData.paymentType, validationRules);
+        const sanitizeFullname = sanitizeAndValidate(fullname, validationRules);
         const sanitizeUserId = sanitizeAndValidate(userId.toString(), validationRules);
 
-        if (!sanitizeAddress || !sanitizePaymentType || !sanitizeUserId) {
-            res.status(401).json({message: "Invalid Input!"});
-        }else{
+        if (!sanitizeAddress || !sanitizePaymentType || !sanitizeUserId || !sanitizeFullname) {
+            res.status(401).json({ message: "Invalid Input!" });
+        } else {
             const productId = (placeOrderData.productIds).join(',');
             const quantity = (placeOrderData.quantity).join(',');
             const eachAmount = (placeOrderData.eachAmount).join(',');
+            const productInfo = (placeOrderData.productInfo).join(',');
 
             // insert to database
-            const insertProduct = `INSERT INTO orders (user_id, product_id, quantity, each_amount, address, payment_type, shipping, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-            db.query(insertProduct, [sanitizeUserId, productId, quantity, eachAmount, sanitizeAddress, sanitizePaymentType, 130, placeOrderData.totalAmount], (error, results) => {
+            const insertProduct = `INSERT INTO orders (user_id, fullname, product_id, product_info, quantity, each_amount, address, payment_type, shipping, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            db.query(insertProduct, [sanitizeUserId, sanitizeFullname, productId, productInfo, quantity, eachAmount, sanitizeAddress, sanitizePaymentType, 130, placeOrderData.totalAmount], (error, results) => {
                 if (error) {
-                    res.status(401).json({message: "Server side error!"});
-                }else{
-                    res.status(200).json({message: "Ordered Success!"});
+                    res.status(401).json({ message: "Server side error!" });
+                } else {
+                    // insert notification
+                    const insertNotification = `INSERT INTO notifications (user_id, notification_type, content) VALUES (?, ?, ?)`;
+                    db.query(insertNotification, [1, "Place Order", `${sanitizeFullname} had new order!`], (error, results) => {
+                        if (error) {
+                            res.status(401).json({message: "Server side error!"});
+                        }else{
+                            // res.status(200).json({ message: "Ordered Success!" });
+                            placeOrderData.productIds.map((item, index) => {
+                                const updateProductSoldAndStock = 'UPDATE products SET stock = ?, sold = ? WHERE id = ?';
+                                db.query(
+                                  updateProductSoldAndStock,
+                                  [
+                                    parseInt(placeOrderData.allData[index].stock) - parseInt(placeOrderData.quantity[index]),
+                                    parseInt(placeOrderData.quantity[index]),
+                                    item,
+                                  ],
+                                  (error, results) => {
+                                    if (error) {
+                                      res.status(401).json({ message: 'Server side error!' });
+                                    } else {
+                                      res.status(200).json({ message: 'Ordered Success!' });
+                                    }
+                                  }
+                                );
+                              });
+                        }
+                    })
                 }
             });
         }
@@ -430,4 +450,37 @@ const placeOrder = async (req, res) => {
 
 }
 
-module.exports = { registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder };
+// delete cart
+const deleteCart = async (req, res) => {
+    const { item } = req.body;
+
+    // delete cart
+    const deleteCart = `UPDATE my_cart SET isDelete = ? WHERE product_id = ?`;
+    db.query(deleteCart, ["Deleted", item.product_id], (error, results) => {
+        if (error) {
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            res.status(200).json({ message: `${item.name} has been deleted to cart!` });
+        }
+    })
+};
+
+// fetch my order
+const fetchMyOrder = async (req, res) => {
+    const { userId } = req.body;
+
+    if (userId) {
+        const selectMyOrder = `SELECT * FROM orders WHERE user_id = ? AND isDelete = ?`;
+        db.query(selectMyOrder, [userId, "not"], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                res.status(200).json({ message: results });
+            }
+        });
+    } else {
+        res.status(401).json({ message: "Something went wrong!" });
+    }
+}
+
+module.exports = { fetchMyOrder, deleteCart, registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder };

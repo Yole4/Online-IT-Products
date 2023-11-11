@@ -139,7 +139,7 @@ export const AuthContextProvider = ({ children }) => {
     // ---------------------------------    CHANGE PASSWORD ----------------------------------------------
     const [isChangePassword, setIsChangePassword] = useState(false);
     const [changePasswordData, setChangePasswordData] = useState({
-        username: 's',
+        username: '',
         password: '',
         newPassword: '',
         confirmPassword: ''
@@ -162,6 +162,12 @@ export const AuthContextProvider = ({ children }) => {
                 setMount(mount ? false : true);
                 setIsChangePassword(false);
                 setErrorResponse({ message: response.message, isError: false });
+                setChangePasswordData({
+                    username: '',
+                    password: '',
+                    newPassword: '',
+                    confirmPassword: ''
+                });
             }
         } catch (error) {
             setIsLoading(false);
@@ -228,6 +234,15 @@ export const AuthContextProvider = ({ children }) => {
                 setIsAddAddress(false);
                 setAddressMount(addressMount ? false : true);
                 setErrorResponse({ message: response.message, isError: false });
+                setAddressData({
+                    street: '',
+                    barangay: '',
+                    municipality: '',
+                    province: '',
+                    zipCode: '',
+                    country: '',
+                    landMark: ''
+                });
             }
         } catch (error) {
             setIsLoading(false);
@@ -246,13 +261,13 @@ export const AuthContextProvider = ({ children }) => {
 
             const fetchAddress = async () => {
                 try {
-                    const response = await apostRequest(`${baseUrl}/users/fetch-address`, {userId: userId.id})
+                    const response = await apostRequest(`${baseUrl}/users/fetch-address`, { userId: userId.id })
 
                     setIsLoading(false);
-                    
-                    if (response.error){
+
+                    if (response.error) {
                         console.log(response.message);
-                    }else{
+                    } else {
                         setIsMyAddress(false);
                         setMyAddressList(response.message);
                     }
@@ -334,6 +349,7 @@ export const AuthContextProvider = ({ children }) => {
 
     // -----------------------------------------    PLACE ORDER -----------------------------------------
     const [placeOrderMount, setPlaceOrderMount] = useState(false);
+    const [isMyOrder, setIsMyOrder] = useState(false);
     const [isCart, setIsCart] = useState(false);
     const [isPlaceOrder, setIsPlaceOrder] = useState(false);
     const [placeOrderData, setPlaceOrderData] = useState({
@@ -343,25 +359,27 @@ export const AuthContextProvider = ({ children }) => {
         totalAmount: null,
         productInfo: null,
         address: null,
-        paymentType: null
+        paymentType: null,
+        allData: null
     });
 
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
-        
+
         setIsLoading(true);
         setErrorResponse(null);
 
         try {
-            const response = await apostRequest(`${baseUrl}/users/place-order`, {placeOrderData, userId: userId.id});
+            const response = await apostRequest(`${baseUrl}/users/place-order`, { placeOrderData, userId: userId.id, fullname: `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}` });
 
             setIsLoading(false);
 
-            if (response.error){
+            if (response.error) {
                 setErrorResponse({ message: response.message, isError: true });
-            }else{
+            } else {
                 setIsPlaceOrder(false);
-                isCart(false);
+                setIsCart(false);
+                setIsMyOrder(true);
                 setPlaceOrderMount(placeOrderMount ? false : true);
                 setErrorResponse({ message: response.message, isError: false });
             }
@@ -370,7 +388,60 @@ export const AuthContextProvider = ({ children }) => {
             console.log("Error: ", error);
         }
     }
-    
+
+    // ---------------------------------------- FETCH ORDERS    --------------------------------------------
+    const [myOrdersList, setMyOrdersList] = useState(null);
+
+    useEffect(() => {
+        if (userId) {
+            const fetchOrders = async () => {
+
+                setIsLoading(true);
+                setErrorResponse(null);
+
+                try {
+                    const response = await apostRequest(`${baseUrl}/users/fetch-myOrders`, { userId: userId.id });
+
+                    setIsLoading(false);
+
+                    if (response.error) {
+                        setErrorResponse({ message: response.message, isError: true });
+                    } else {
+                        setMyOrdersList(response.message);
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                    console.log("Error: ", error);
+                }
+            };
+            fetchOrders();
+        }
+    }, [userId, placeOrderMount]);
+
+    // -----------------------------------------    DELETE FROM THE CART    --------------------------------
+
+    const handleDeleteCart = async (item) => {
+
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        try {
+            const response = await apostRequest(`${baseUrl}/users/delete-cart`, { item });
+
+            setIsLoading(false);
+
+            if (response.error) {
+                setErrorResponse({ message: response.message, isError: true });
+            } else {
+                setAddCartMount(addCartMount ? false : true);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    }
+
     // ---------------------------------------  FETCH CART ----------------------------------
     const [cartList, setCartList] = useState(null);
 
@@ -397,7 +468,7 @@ export const AuthContextProvider = ({ children }) => {
             };
             fetchCart();
         }
-    }, userId, addCartMount);
+    }, [userId, addCartMount]);
 
     return <AuthContext.Provider value={{
         user,
@@ -442,7 +513,12 @@ export const AuthContextProvider = ({ children }) => {
         setIsPlaceOrder,
         handlePlaceOrder,
         isCart,
-        setIsCart
+        setIsCart,
+        handleDeleteCart,
+        isMyOrder,
+        setIsMyOrder,
+        myOrdersList,
+        placeOrderMount
     }}>
         {children}
     </AuthContext.Provider>

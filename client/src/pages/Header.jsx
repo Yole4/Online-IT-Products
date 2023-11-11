@@ -9,13 +9,32 @@ import { AiTwotoneHome, AiOutlineCloseCircle } from "react-icons/ai";
 import { VscDeviceCamera } from "react-icons/vsc";
 
 import { useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { backendUrl } from '../utils/Services';
+import { PublicContext } from '../context/PublicContext';
 
 function Header() {
     const navigate = useNavigate();
 
-    const { logoutUser, isLogout, setIsLogout } = useContext(AuthContext);
+    const { logoutUser, isLogout, setIsLogout, isLoading, errorResponse, userCredentials, changePasswordData, setChangePasswordData, isChangePassword, setIsChangePassword,
+        updateProfile, handleChangePassword
+    } = useContext(AuthContext);
+
+    const { publicLoading } = useContext(PublicContext);
+
+    const [isErrorResponse, setIsErrorResponse] = useState(false);
+    const [isProfile, setIsProfile] = useState(false);
+
+    useEffect(() => {
+        if (errorResponse) {
+            setIsErrorResponse(true);
+
+            setTimeout(() => {
+                setIsErrorResponse(false);
+            }, 5000);
+        }
+    }, [errorResponse]);
 
     return (
         <div>
@@ -79,13 +98,13 @@ function Header() {
                         </a>
 
                         <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                            <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} ><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
+                            <a className="dropdown-item" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }} onClick={() => setIsProfile(true)}><i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                                 Profile
                             </a>
                             <a className="dropdown-item" data-toggle="modal" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}><i className="fa-sm fa-fw mr-2 text-gray-400" ><AiTwotoneHome size={18} style={{ color: 'black', marginTop: '-3px' }} /></i>
                                 Home
                             </a>
-                            <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
+                            <a className="dropdown-item" data-toggle="modal" data-target="#change_password" style={{ cursor: 'pointer' }} onClick={() => setIsChangePassword(true)}><i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
                                 Change Password
                             </a>
                             <a className="dropdown-item" data-toggle="modal" data-target="#logout" style={{ cursor: 'pointer' }} onClick={() => setIsLogout(true)}>
@@ -98,7 +117,7 @@ function Header() {
             </nav>
 
             {/* Change Password */}
-            {/* {isChangePassword && (
+            {isChangePassword && (
                 <div className="popup">
                     <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isChangePassword ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
@@ -106,25 +125,25 @@ function Header() {
                             <span>Change Password</span>
                         </div>
                         <hr />
-                        <form onSubmit={handleChagePassword}>
+                        <form onSubmit={handleChangePassword}>
                             <div className='form-div'>
                                 <label htmlFor="">Username</label>
-                                <input type="text" value={changePass.username} onChange={(e) => setChangePass((prev) => ({ ...prev, username: e.target.value }))} className='form-control' placeholder='Username' required />
+                                <input type="text" value={changePasswordData.username} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, username: e.target.value }))} className='form-control' placeholder='Username' required />
                             </div>
 
                             <div style={{ marginTop: '15px' }}>
                                 <label htmlFor="">Current Password</label>
-                                <input type="password" value={changePass.currentPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, currentPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                                <input type="password" value={changePasswordData.password} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, password: e.target.value }))} className='form-control' placeholder='*********' required />
                             </div>
 
                             <div style={{ marginTop: '15px' }}>
                                 <label htmlFor="">New Password</label>
-                                <input type="password" value={changePass.newPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, newPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                                <input type="password" value={changePasswordData.newPassword} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, newPassword: e.target.value }))} className='form-control' placeholder='*********' required />
                             </div>
 
                             <div style={{ marginTop: '15px' }}>
                                 <label htmlFor="">Confirm Password</label>
-                                <input type="password" value={changePass.confirmPassword} onChange={(e) => setChangePass((prev) => ({ ...prev, confirmPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                                <input type="password" value={changePasswordData.confirmPassword} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, confirmPassword: e.target.value }))} className='form-control' placeholder='*********' required />
                             </div>
 
                             <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
@@ -134,7 +153,7 @@ function Header() {
                         </form>
                     </div>
                 </div>
-            )} */}
+            )}
 
             {/* -----------------------LOGOUT CONFIRMATION---------------------- */}
             {isLogout && (
@@ -158,17 +177,18 @@ function Header() {
             )}
 
             {/* --------   PROFILE ---------- */}
-            {/* {isProfile && (
+            {isProfile && (
                 <div className="popup" onClick={() => setIsProfile(false)}>
                     <div className="popup-body" onClick={(e) => e.stopPropagation()} style={{ animation: isProfile ? 'dropBottom .3s linear' : '' }}>
                         <div className="modal-close" onClick={() => setIsProfile(false)}>
                             <AiOutlineCloseCircle size={30} />
                         </div>
                         <div style={{ textAlign: 'center' }}>
-                            <img src={userCredentials && userCredentials.image !== '' ? `${backendUrl}/${userCredentials.image}` : givenImage} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
+                            <img src={userCredentials && userCredentials.given_image ? `${backendUrl}/${userCredentials.given_image}` : givenImage} style={{ borderRadius: '50%', height: '150px', width: '150px' }} />
                             <label htmlFor="uploadPhoto" style={{ marginLeft: '-40px', cursor: 'pointer', zIndex: '3', color: 'white', position: 'absolute', marginTop: '110px' }}>
                                 <VscDeviceCamera size={30} style={{ backgroundColor: 'rgb(71, 71, 98)', padding: '3px', borderRadius: '50%' }} />
-                                <input type="file" id="uploadPhoto" onChange={(e) => setAutoImage(e.target.files[0])} style={{ display: 'none' }} />
+                                <input type="file" id="uploadPhoto" onChange={(e) => updateProfile(e.target.files[0])} style={{ display: 'none' }} />
+                                {/* <input type="file" id="uploadPhoto" onChange={(e) => setAutoImage(e.target.files[0])} style={{ display: 'none' }} /> */}
                             </label>
                         </div>
                         <div style={{ textAlign: 'center' }}>
@@ -185,28 +205,28 @@ function Header() {
                         </div>
                     </div>
                 </div>
-            )} */}
+            )}
+
+            {/* Loading div */}
+            {isErrorResponse && errorResponse ? (
+                <div className='error-respond' style={{ backgroundColor: errorResponse.isError ? '#fb7d60' : '#7b4ae4' }}>
+                    <div>
+                        <h5>{errorResponse.message}</h5>
+                    </div>
+                </div>
+            ) : (
+                <></>
+            )}
 
             {/* fetching data screen */}
-            {/* {isLoading && (
+            {isLoading || publicLoading && (
                 <div className="popup">
                     <div className="modal-pop-up-loading">
                         <div className="modal-pop-up-loading-spiner"></div>
                         <p>Loading...</p>
                     </div>
                 </div>
-            )} */}
-
-            {/* Loading div */}
-            {/* {isError || isSuccess ? (
-                <div className='error-respond' style={{ backgroundColor: isSuccess && !isError ? '#7b4ae4' : '#fb7d60' }}>
-                    <div>
-                        <h5>{errorMessage}</h5>
-                    </div>
-                </div>
-            ) : (
-                <></>
-            )} */}
+            )}
         </div>
     )
 }

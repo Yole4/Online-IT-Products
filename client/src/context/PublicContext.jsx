@@ -1,12 +1,16 @@
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import {baseUrl, getRequest, postRequest } from "../utils/Services";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "./AuthContext";
+import { AdminContext } from "./AdminContext";
 
 export const PublicContext = createContext();
 
 export const PublicContextProvider = ({ children }) => { 
 
     const [publicLoading, setPublicLoading] = useState(false);
+    const {placeOrderMount} = useContext(AuthContext);
+    const {productMount, mount} = useContext(AdminContext);
 
     // ===============================================  GET CATEGORY    =======================================
     const [categoryList, setCategoryList] = useState(null);
@@ -32,10 +36,11 @@ export const PublicContextProvider = ({ children }) => {
             }
         };
         getCategory();
-    }, []);
+    }, [mount]);
 
     // ===========================================  GET PRODUCTS    ============================================
     const [productList, setProductList] = useState(null);
+    const [homeSearch, setHomeSearch] = useState('');
 
     useEffect(() => {
         const getProduct = async () => {
@@ -57,12 +62,19 @@ export const PublicContextProvider = ({ children }) => {
             }
         };
         getProduct();
-    }, []);
+    }, [placeOrderMount, productMount]);
+
+    const productListToSearch = productList?.filter(item =>
+        item.name.toLowerCase().includes(homeSearch.toLowerCase()) ||
+        item.description.toLowerCase().includes(homeSearch.toLowerCase())
+    );
 
     return <PublicContext.Provider value={{
         publicLoading,
         categoryList,
-        productList
+        productListToSearch,
+        homeSearch, 
+        setHomeSearch
     }}>
         {children}
     </PublicContext.Provider>

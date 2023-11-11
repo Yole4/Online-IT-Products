@@ -4,8 +4,6 @@ require('dotenv').config();
 
 // import routes
 const userRoutes = require('./routes/UserRoutes');
-const customerRoutes = require('./routes/CustomerRoutes');
-const sellerRoutes = require('./routes/SellerRoutes');
 const feedbackRoutes = require('./routes/FeedbackRoutes');
 const adminRoutes = require('./routes/AdminRoutes');
 const PublicRoutes = require('./routes/PublicRoutes');
@@ -24,8 +22,6 @@ app.use('/assets', express.static('assets'));
 
 // routers
 app.use('/api/users', userRoutes);
-app.use('/api/customers', customerRoutes);
-app.use('/api/seller', sellerRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/public', PublicRoutes);
