@@ -291,12 +291,12 @@ const changeProfileInfo = async (req, res) => {
 
 // add to cart
 const addCart = async (req, res) => {
-    const { productId, quantity } = req.body;
+    const { productId, quantity, userId } = req.body;
 
-    if (productId && quantity) {
+    if (productId && quantity && userId) {
         // select if product is already on cart
-        const selectCart = `SELECT * FROM my_cart WHERE product_id = ? AND isDelete = ?`;
-        db.query(selectCart, [productId, "not"], (error, results) => {
+        const selectCart = `SELECT * FROM my_cart WHERE product_id = ? AND isDelete = ? AND user_id = ?`;
+        db.query(selectCart, [productId, "not", userId], (error, results) => {
             if (error) {
                 res.status(401).json({ message: "Server side error!" });
             } else {
@@ -304,8 +304,8 @@ const addCart = async (req, res) => {
                     res.status(401).json({ message: "Product already on cart!" });
                 } else {
                     // insert to cart
-                    const inserttocart = `INSERT INTO my_cart (product_id, quantity) VALUES (?, ?)`;
-                    db.query(inserttocart, [productId, quantity], (error, results) => {
+                    const inserttocart = `INSERT INTO my_cart (product_id, quantity, user_id) VALUES (?, ?, ?)`;
+                    db.query(inserttocart, [productId, quantity, userId], (error, results) => {
                         if (error) {
                             res.status(401).json({ message: "Server side error!" });
                         } else {
@@ -322,11 +322,12 @@ const addCart = async (req, res) => {
 
 // fetch cart
 const fetchCart = async (req, res) => {
+    const { userId } = req.body;
     //get the cart
     const getCart = `SELECT * FROM my_cart
     LEFT JOIN products ON my_cart.product_id = products.id
-    WHERE my_cart.isDelete = ?`;
-    db.query(getCart, ["not"], (error, results) => {
+    WHERE my_cart.isDelete = ? AND my_cart.user_id = ?`;
+    db.query(getCart, ["not", userId], (error, results) => {
         if (error) {
             res.status(401).json({ message: "Server side error!" });
         } else {
@@ -420,27 +421,27 @@ const placeOrder = async (req, res) => {
                     const insertNotification = `INSERT INTO notifications (user_id, notification_type, content) VALUES (?, ?, ?)`;
                     db.query(insertNotification, [1, "Place Order", `${sanitizeFullname} had new order!`], (error, results) => {
                         if (error) {
-                            res.status(401).json({message: "Server side error!"});
-                        }else{
-                            // res.status(200).json({ message: "Ordered Success!" });
-                            placeOrderData.productIds.map((item, index) => {
-                                const updateProductSoldAndStock = 'UPDATE products SET stock = ?, sold = ? WHERE id = ?';
-                                db.query(
-                                  updateProductSoldAndStock,
-                                  [
-                                    parseInt(placeOrderData.allData[index].stock) - parseInt(placeOrderData.quantity[index]),
-                                    parseInt(placeOrderData.quantity[index]),
-                                    item,
-                                  ],
-                                  (error, results) => {
-                                    if (error) {
-                                      res.status(401).json({ message: 'Server side error!' });
-                                    } else {
-                                      res.status(200).json({ message: 'Ordered Success!' });
-                                    }
-                                  }
-                                );
-                              });
+                            res.status(401).json({ message: "Server side error!" });
+                        } else {
+                            const addRate = placeOrderData.productIds.map((item, index) => {
+                                return new Promise((resolve, reject) => {
+                                    const updateProductSoldAndStock = 'UPDATE products SET stock = ?, sold = ? WHERE id = ?';
+                                    db.query(updateProductSoldAndStock, [parseInt(placeOrderData.allData[index].stock) - parseInt(placeOrderData.quantity[index]), parseInt(placeOrderData.quantity[index]), item], (error, results) => {
+                                        if (error) {
+                                            reject(error);
+                                        } else {
+                                            resolve(results);
+                                        }
+                                    })
+                                });
+                            });
+                    
+                            Promise.all(addRate).then(() => {
+                                res.status(200).json({ message: 'Ordered Success!' });
+                            })
+                                .catch(error => {
+                                    res.status(401).json({ message: 'Server side error!' });
+                                });
                         }
                     })
                 }
@@ -483,4 +484,91 @@ const fetchMyOrder = async (req, res) => {
     }
 }
 
-module.exports = { fetchMyOrder, deleteCart, registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder };
+// fetch notifications
+const fetchUserNotification = async (req, res) => {
+    const { userId } = req.body;
+
+    // select
+    const select = `SELECT * FROM notifications WHERE user_id = ? AND isDelete = ?`;
+    db.query(select, [userId, "not"], (error, results) => {
+        if (error) {
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            res.status(200).json({ message: results.reverse() });
+        }
+    });
+};
+
+// add feedback
+const addFeedback = async (req, res) => {
+    const { userId, feedbackData } = req.body;
+
+    if (userId) {
+        const insertComments = `INSERT INTO feedback (user_id, product_id, ratings, comments) VALUES (?, ?, ?, ?)`;
+        db.query(insertComments, [userId, feedbackData.productId, feedbackData.ratings, feedbackData.comments], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                // insert notification
+                const insertNotificationToAdmin = `INSERT INTO notifications (user_id, notification_type, content) VALUES (?, ?, ?)`;
+                db.query(insertNotificationToAdmin, [1, "feedback", `${feedbackData.fullname} added feedback on ${feedbackData.productName}`], (error, results) => {
+                    if (error) {
+                        res.status(401).json({ message: "Server side error!" });
+                    } else {
+                        res.status(200).json({ message: "Feedback successfully added!" });
+                    }
+                })
+            }
+        })
+    } else {
+        res.status(401).json({ message: "Something went wrong!" });
+    }
+}
+
+// get comments
+const getComments = async (req, res) => {
+    const fetchComments = `SELECT users.first_name, users.middle_name, users.last_name, users.given_image, feedback.*, products.name FROM feedback 
+    LEFT JOIN users ON feedback.user_id = users.id
+    LEFT JOIN products ON feedback.product_id = products.id
+    WHERE feedback.isDelete = ?`;
+    db.query(fetchComments, ["not"], (error, results) => {
+        if (error) {
+            res.status(401).json({ message: "Server side error!" });
+        } else {
+            res.status(200).json({ message: results });
+        }
+    })
+}
+
+// insert ratings
+const insertRatings = async (req, res) => {
+    const { averageRatings } = req.body;
+
+    if (averageRatings) {
+        const insertTheRate = averageRatings.map(item => {
+            return new Promise((resolve, reject) => {
+                const updateQuery = "UPDATE products SET ratings = ? WHERE id = ?";
+                db.query(updateQuery, [Math.round(item.averageRating), item.product_id], (error, results) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(results);
+                    }
+                })
+            });
+        });
+
+        Promise.all(insertTheRate).then(() => {
+            res.status(200).json({ message: "Rate Updated!" });
+        })
+            .catch(error => {
+                console.error('Error inserting while updating rate: ', error);
+                res.status(401).json({ message: "An error occured while updateting rate" });
+            });
+    } else {
+        console.log("test");
+        res.status(401).json({ message: "Something went wrong!" });
+    }
+}
+
+module.exports = { insertRatings, getComments, addFeedback, fetchUserNotification, fetchMyOrder, deleteCart, registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder };

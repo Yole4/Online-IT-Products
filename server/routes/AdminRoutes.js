@@ -2,7 +2,7 @@ const express = require('express');
 const {verifyToken} = require('../auth/Authentication');
 const multer = require('multer');
 
-const { addCategory, fetchCategory, deleteCategory, editCategory, fetchUsers, editUser, deleteUser, addProduct, fetchProduct, editProduct, deleteProduct, getUserOrders } = require('../controllers/AdminController');
+const { addCategory, fetchCategory, deleteCategory, editCategory, fetchUsers, editUser, deleteUser, addProduct, fetchProduct, editProduct, deleteProduct, getUserOrders, getAllOrders, changeOrderStatus } = require('../controllers/AdminController');
 
 const router = express.Router();
 
@@ -20,6 +20,7 @@ router.post('/edit-user', verifyToken, editUser);
 router.post('/delete-user', verifyToken, deleteUser);
 router.get('/fetch-product', verifyToken, fetchProduct);
 router.post('/delete-product', verifyToken, deleteProduct);
+router.post('/change-order-status', verifyToken, changeOrderStatus);
 router.get('/get-orders', verifyToken, getUserOrders);
 router.post('/add-product', productImageUpload.single('productImage'), verifyToken, addProduct);
 router.post('/edit-product', productImageUpload.single('productImage'), verifyToken, editProduct);

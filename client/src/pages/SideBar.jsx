@@ -51,8 +51,8 @@ function SideBar() {
                             </li>
 
 
-                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }}>
-                                <a className={location.pathname === '/student-list' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
+                            <li className="nav-item dropdown" style={{ cursor: 'pointer' }} onClick={() => navigate('/orders')}>
+                                <a className={location.pathname === '/orders' ? 'nav-link nav-home hover-side' : 'nav-link nav-home'}>
                                     <i className="nav-icon"><FcShipped /></i>
                                     <p style={{ marginLeft: '10px' }}>
                                         Orders

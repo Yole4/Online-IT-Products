@@ -1,11 +1,14 @@
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { agetRequest, apostRequest, baseUrl, getRequest, postRequest } from "../utils/Services";
 import { useNavigate } from "react-router-dom";
+import { AdminContext } from "./AdminContext";
 
 export const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+
+    // const {changeStatusMount} = useContext(AdminContext);
 
     const navigate = useNavigate();
 
@@ -323,14 +326,16 @@ export const AuthContextProvider = ({ children }) => {
     // ---------------------------------    HANDLE ADD TO CART  -------------------------------------------
     const [addCartMount, setAddCartMount] = useState(false);
     const [isProductClick, setIsProductClick] = useState(false);
+    const [testerProduct, setTesterProduct] = useState('');
 
     const handleAddToCart = useCallback(async (productId, quantity) => {
 
         setIsLoading(true);
         setErrorResponse(null);
+        setTesterProduct(productId);
 
         try {
-            const response = await apostRequest(`${baseUrl}/users/add-cart`, { productId, quantity });
+            const response = await apostRequest(`${baseUrl}/users/add-cart`, { productId, quantity, userId: userId.id });
 
             setIsLoading(false);
 
@@ -345,7 +350,7 @@ export const AuthContextProvider = ({ children }) => {
             setIsLoading(false);
             console.log("Error: ", error);
         }
-    }, []);
+    }, [userId]);
 
     // -----------------------------------------    PLACE ORDER -----------------------------------------
     const [placeOrderMount, setPlaceOrderMount] = useState(false);
@@ -452,7 +457,7 @@ export const AuthContextProvider = ({ children }) => {
 
             const fetchCart = async () => {
                 try {
-                    const response = await agetRequest(`${baseUrl}/users/fetch-cart`);
+                    const response = await apostRequest(`${baseUrl}/users/fetch-cart`, { userId: userId.id });
 
                     setIsLoading(false);
 
@@ -468,7 +473,162 @@ export const AuthContextProvider = ({ children }) => {
             };
             fetchCart();
         }
-    }, [userId, addCartMount]);
+    }, [userId, addCartMount, testerProduct]);
+
+    // ------------------------------------------------ FETCH NOTIFICATION  -----------------------------------------------------
+    const [myNotifications, setMyNotifications] = useState(null);
+
+    useEffect(() => {
+        if (userId) {
+            const fetchNotifications = async () => {
+                setIsLoading(true);
+                setErrorResponse(null);
+
+                try {
+                    const response = await apostRequest(`${baseUrl}/users/fetch-notifications`, { userId: userId.id });
+
+                    setIsLoading(false);
+
+                    if (response.error) {
+                        console.log(response.message);
+                    } else {
+                        setMyNotifications(response.message);
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                    console.log("Error: ", error);
+                }
+            };
+            fetchNotifications();
+        }
+    }, [userId]);
+
+    // -------------------------------------    HANDLE ADD FEEDBACK -------------------------------------------
+    const [feedbackMount, setFeedbackMount] = useState(false);
+    const [feedbackData, setFeedbackData] = useState({
+        userId: null,
+        productId: null,
+        image: '',
+        fullname: '',
+        ratings: null,
+        comments: '',
+        productName: '',
+        id: null
+    });
+    const [isRateMe, setIsRateMe] = useState(false);
+    const [isSelectProduct, setIsSelectProduct] = useState(false);
+
+    const handleButtonFeedback = async (productId, productName) => {
+        setFeedbackData((prev) => ({ ...prev, productId: productId }));
+        setFeedbackData((prev) => ({ ...prev, productName: productName }));
+        setIsRateMe(true);
+        setIsSelectProduct(false);
+    }
+
+    const handleAddFeedback = async (e) => {
+        e.preventDefault();
+
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        try {
+            const response = await apostRequest(`${baseUrl}/users/add-feedback`, { feedbackData, userId: userId.id });
+
+            setIsLoading(false);
+
+            if (response.error) {
+                setErrorResponse({ message: response.message, isError: true });
+            } else {
+                setErrorResponse({ message: response.message, isError: false });
+                setFeedbackData((prev) => ({ ...prev, ratings: null }));
+                setFeedbackData((prev) => ({ ...prev, comments: '' }));
+                setFeedbackMount(feedbackMount ? false : true);
+                setIsRateMe(false);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    }
+
+    // --------------------------------------------------   FETCH COMMENTS  -------------------------------------------------------
+    const [commentsList, setCommentsList] = useState(null);
+
+    useEffect(() => {
+        if (userId) {
+            const fetchComments = async () => {
+                setIsLoading(true);
+                setErrorResponse(null);
+
+                try {
+                    const response = await agetRequest(`${baseUrl}/users/get-comments`);
+
+                    setIsLoading(false);
+
+                    if (response.error) {
+                        console.log(response.message);
+                    } else {
+                        setCommentsList(response.message);
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                    console.log("Error: ", error);
+                }
+            };
+            fetchComments();
+        }
+    }, [userId, feedbackMount]);
+
+    // --------------------------------------   CALCULATE RATE FOR PRODUCTS   ---------------------------------------------
+    let totalRatings = 0;
+    let productCount = 0;
+
+    const ratingsMap = new Map();
+
+    commentsList?.forEach(row => {
+        const { product_id, ratings } = row;
+        if (ratings !== null) {
+            if (ratingsMap.has(product_id)) {
+                ratingsMap.get(product_id).total += ratings;
+                ratingsMap.get(product_id).count++;
+            } else {
+                ratingsMap.set(product_id, { total: ratings, count: 1 });
+            }
+        }
+    });
+
+    // Calculate average ratings for each product_id
+    const averageRatings = [];
+
+    ratingsMap.forEach((value, key) => {
+        const { total, count } = value;
+        const averageRating = count > 0 ? total / count : 0;
+        averageRatings.push({ product_id: key, averageRating });
+    });
+
+    useEffect(() => {
+        if (averageRatings) {
+            const insertRatings = async () => {
+                setIsLoading(true);
+                
+                try {
+                    const response = await apostRequest(`${baseUrl}/users/insert-ratings`, {averageRatings});
+
+                    setIsLoading(false);
+
+                    if (response.error) {
+                        console.log(response.message);
+                    }else{
+                        // console.log(response.message);
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                    console.log("Error: ",error);
+                }
+            };
+            insertRatings();
+        }
+    }, [userId, feedbackMount, averageRatings]);
 
     return <AuthContext.Provider value={{
         user,
@@ -518,7 +678,17 @@ export const AuthContextProvider = ({ children }) => {
         isMyOrder,
         setIsMyOrder,
         myOrdersList,
-        placeOrderMount
+        placeOrderMount,
+        myNotifications,
+        feedbackData,
+        setFeedbackData,
+        handleAddFeedback,
+        handleButtonFeedback,
+        isRateMe,
+        setIsRateMe,
+        setIsSelectProduct,
+        isSelectProduct,
+        commentsList
     }}>
         {children}
     </AuthContext.Provider>

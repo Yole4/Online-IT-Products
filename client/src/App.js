@@ -11,6 +11,7 @@ import UsersList from './pages/body/UsersList';
 import Categories from './pages/body/Categories';
 import Undefine from './pages/404/Undefine';
 import Products from './pages/body/Products';
+import Orders from './pages/body/Orders';
 
 function App() {
   const {user} = useContext(AuthContext);
@@ -23,6 +24,7 @@ function App() {
       <Route path="/users" element={user? <UsersList /> : <Navigate to="/" replace /> } />
       <Route path="/categories" element={user? <Categories /> : <Navigate to="/" replace /> } />
       <Route path="/products" element={user? <Products /> : <Navigate to="/" replace /> } />
+      <Route path="/orders" element={user? <Orders /> : <Navigate to="/" replace /> } />
 
       <Route path="*" element={<Undefine />} />
     </Routes>

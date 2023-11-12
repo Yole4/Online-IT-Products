@@ -43,7 +43,8 @@ function Home() {
     updateProfile, handleAddToCart, isProductClick, setIsProductClick, cartList,
     isChangePassword, setIsChangePassword, changePasswordData, setChangePasswordData, handleChangePassword,
     isAddAddress, setIsAddAddress, addressData, setAddressData, handleAddAddress, isMyAddress, setIsMyAddress, myAddressList, placeOrderData, setPlaceOrderData,
-    isPlaceOrder, setIsPlaceOrder, handlePlaceOrder, isCart, setIsCart, handleDeleteCart, isMyOrder, setIsMyOrder, myOrdersList
+    isPlaceOrder, setIsPlaceOrder, handlePlaceOrder, isCart, setIsCart, handleDeleteCart, isMyOrder, setIsMyOrder, myOrdersList, myNotifications,
+    feedbackData, setFeedbackData, handleAddFeedback, handleButtonFeedback, isRateMe, setIsRateMe, isSelectProduct, setIsSelectProduct, commentsList
   } = useContext(AuthContext); // require auth context
 
   const { categoryList, publicLoading, productListToSearch, homeSearch, setHomeSearch } = useContext(PublicContext);
@@ -248,6 +249,16 @@ function Home() {
     }
   }
 
+  // ------------------ button feedback -------------------
+  const buttonFeedback = async (item) => {
+    setIsSelectProduct(true);
+
+    setFeedbackData((prev) => ({ ...prev, userId: item.user_id }));
+    setFeedbackData((prev) => ({ ...prev, productId: item.product_id }));
+    setFeedbackData((prev) => ({ ...prev, fullname: item.fullname }));
+    setFeedbackData((prev) => ({ ...prev, id: item.id }));
+  }
+
   return (
     <>
 
@@ -272,21 +283,23 @@ function Home() {
             <li className="nav-item dropdown">
               <a className="nav-link" data-toggle="dropdown" href="#">
                 <i className="far fa-bell" />
-                <span className="badge badge-warning navbar-badge">3</span>
+                <span className="badge badge-warning navbar-badge">{myNotifications?.length === 0 ? '' : myNotifications?.length}</span>
               </a>
-              <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                <span className="dropdown-item dropdown-header">3 Notification</span>
+              <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right notificationAlign">
+                <span className="dropdown-item dropdown-header">{myNotifications && myNotifications.length} Notification</span>
 
 
                 <div style={{ maxHeight: '400px', overflow: 'auto' }}>
-                  <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer' }}>
-                    <div style={{ display: 'flex' }}>
-                      <i className="fas fa-bell mr-2" style={{ color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px' }} /><p style={{ marginLeft: '10px' }}>this is the Notification</p>
+                  {myNotifications && myNotifications.reverse().map(item => (
+                    <div key={item.id} className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer', backgroundColor: item.seen === 0 ? 'rgba(131, 131, 131, 0.20)' : '' }}>
+                      <div style={{ display: 'flex' }}>
+                        <i className="fas fa-bell mr-2" style={{ color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px' }} /><p style={{ marginLeft: '10px' }}>{item.content}</p>
+                      </div>
+                      <div style={{ marginLeft: '10px' }}>
+                        <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>{item.date}</p>
+                      </div>
                     </div>
-                    <div style={{ marginLeft: '10px' }}>
-                      <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>August 4, 19899</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
                 <div className="dropdown-divider" />
@@ -355,47 +368,54 @@ function Home() {
       <div className='top-search'>
         <form action="simple-results.html">
           <div>
-            <input type="search" className="form-control" value={homeSearch} onChange={(e) => setHomeSearch(e.target.value)} placeholder="Search Product" style={{ paddingLeft: '35px', borderRadius: '5px', height: '40px', fontSize: '15px' }} />
+            <input type="search" className="form-control" value={homeSearch === "not" ? '' : homeSearch} onChange={(e) => setHomeSearch(e.target.value)} placeholder="Search Product" style={{ paddingLeft: '35px', borderRadius: '5px', height: '40px', fontSize: '15px' }} />
             <BiSearchAlt2 size={23} style={{ position: 'absolute', marginTop: '-30px', marginLeft: '8px' }} />
           </div>
         </form>
       </div>
 
       <div className='category-container'>
+        <button onClick={() => setHomeSearch("not")} className={homeSearch === "not" ? 'category selected' : 'category'}>All</button>
         {categoryList?.map(item => (
-          <button key={item.id} className='category'>{item.category_name}</button>
+          <button onClick={() => setHomeSearch(item.category_name)} key={item.id} className={item.category_name === homeSearch ? 'category selected' : 'category'}>{item.category_name}</button>
         ))}
       </div>
 
       <div className="gallery">
-        {productListToSearch?.map(item => (
-          <div key={item.id} className="product-content" onClick={() => isLogin ? productButton(item) : setIsOpenLogin(true)}>
-            <img src={`${backendUrl}/${item.image}`} className='product-image' alt="" />
-            <h3 className='product-name'>{item.name}</h3>
-            <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px' }}>
-              <span>₱{item.prize}</span>
-              <ul style={{ display: 'flex', listStyle: 'none', marginLeft: '-40px' }}>
-                <li><i className={item.ratings > 0 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
-                <li><i className={item.ratings > 1 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
-                <li><i className={item.ratings > 2 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
-                <li><i className={item.ratings > 3 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
-                <li><i className={item.ratings > 4 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
-                <li><i className={item.ratings > 5 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
-                <li><i className={item.ratings > 6 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
-                <li><i className={item.ratings > 7 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
-                <li><i className={item.ratings > 8 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
-                <li><i className={item.ratings > 9 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
-                <li style={{ marginLeft: '10px', color: 'red' }}>{item.sold} Sold</li>
-              </ul>
-            </div>
-            <div style={{ textAlign: 'left', marginLeft: '10px', fontSize: '15px', padding: '0px 15px 10px 10px' }}>
-              <span>{item.address}</span>
-            </div>
-            <div style={{ textAlign: 'left', marginBottom: '10px', marginLeft: '20px', fontSize: '13px', color: 'rgb(170, 146, 146)' }}>
-              <span>{item.date}</span>
-            </div>
+        {productListToSearch?.length === 0 ? (
+          <div style={{ fontSize: '18px', width: 'auto', height: 'auto', background: '#fff', padding: '20px', borderRadius: '15px', color: 'red' }}>
+            <span>No Pruduct Found!</span>
           </div>
-        ))}
+        ) : (
+          productListToSearch?.map(item => (
+            <div key={item.id} className="product-content" onClick={() => isLogin ? productButton(item) : setIsOpenLogin(true)}>
+              <img src={`${backendUrl}/${item.image}`} className='product-image' alt="" />
+              <h3 className='product-name'>{item.name}</h3>
+              <div className="ammount" style={{ textAlign: 'left', marginLeft: '20px' }}>
+                <span>₱{item.prize}</span>
+                <ul style={{ display: 'flex', listStyle: 'none', marginLeft: '-40px' }}>
+                  <li><i className={item.ratings > 0 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                  <li><i className={item.ratings > 1 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                  <li><i className={item.ratings > 2 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                  <li><i className={item.ratings > 3 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                  <li><i className={item.ratings > 4 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                  <li><i className={item.ratings > 5 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                  <li><i className={item.ratings > 6 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                  <li><i className={item.ratings > 7 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                  <li><i className={item.ratings > 8 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                  <li><i className={item.ratings > 9 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                  <li style={{ marginLeft: '10px', color: 'red' }}>{item.sold} Sold</li>
+                </ul>
+              </div>
+              <div style={{ textAlign: 'left', marginLeft: '10px', fontSize: '15px', padding: '0px 15px 10px 10px' }}>
+                <span>{item.address}</span>
+              </div>
+              <div style={{ textAlign: 'left', marginBottom: '10px', marginLeft: '20px', fontSize: '13px', color: 'rgb(170, 146, 146)' }}>
+                <span>{item.date}</span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
 
@@ -573,101 +593,53 @@ function Home() {
                 <div>
                   <span>Product Ratings and Comments</span>
 
-                  <hr />
+                  {!commentsList || !commentsList.some(item => item.product_id === eachProductInfo.id) && (
+                    <>
+                      <hr />
+                      <div style={{textAlign: 'center', color: 'red', marginLeft: '-20px'}}>
+                        <span>No Comments Yet!</span>
+                      </div>
+                    </>
+                  )}
 
-                  <div>
-                    <div style={{ display: 'flex' }}>
-                      <img src={mouse} style={{ width: '60px', height: '60px', borderRadius: '50%' }} alt="" />
-                      <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '10px' }}>
-                        <span style={{ fontSize: '15px', fontWeight: 'bold', marginTop: '10px' }}>User Name</span>
-                        <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px', fontSize: '13.5px', marginBottom: '4px' }}>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li style={{ color: 'black', marginLeft: '10px' }}> | </li>
-                          <li style={{ marginLeft: '10px', color: 'black' }}>Mouse</li>
-                        </ul>
-                        <span style={{ fontSize: '12px' }}>August 5, 1999</span>
-                      </div>
-                    </div>
+                  {commentsList?.map(item => item.product_id === eachProductInfo.id && (
+                    <>
+                      <hr />
+                      <div>
+                        <div style={{ display: 'flex' }}>
+                          <img src={item.given_image && item.given_image.length > 0 ? `${backendUrl}/${item.given_image}` : givenImage} style={{ width: '60px', height: '60px', borderRadius: '50%' }} alt="" />
+                          <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '10px' }}>
+                            <span style={{ fontSize: '15px', fontWeight: 'bold', marginTop: '10px' }}>{`${item.first_name} ${item.middle_name} ${item.last_name}`}</span>
+                            <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px', fontSize: '13.5px', marginBottom: '4px' }}>
+                              <li><i className={item.ratings > 0 ? 'fa fa-star' : 'fa fa-star notChecked'}></i></li>
+                              <li><i className={item.ratings > 1 ? 'fa fa-star' : 'fa fa-star notChecked'}></i></li>
+                              <li><i className={item.ratings > 2 ? 'fa fa-star' : 'fa fa-star notChecked'}></i></li>
+                              <li><i className={item.ratings > 3 ? 'fa fa-star' : 'fa fa-star notChecked'}></i></li>
+                              <li><i className={item.ratings > 4 ? 'fa fa-star' : 'fa fa-star notChecked'}></i></li>
+                              <li><i className={item.ratings > 5 ? 'fa fa-star' : 'fa fa-star notChecked'}></i></li>
+                              <li><i className={item.ratings > 6 ? 'fa fa-star' : 'fa fa-star notChecked'}></i></li>
+                              <li><i className={item.ratings > 7 ? 'fa fa-star' : 'fa fa-star notChecked'}></i></li>
+                              <li><i className={item.ratings > 8 ? 'fa fa-star' : 'fa fa-star notChecked'}></i></li>
+                              <li><i className={item.ratings > 9 ? 'fa fa-star' : 'fa fa-star notChecked'}></i></li>
+                              <li style={{ color: 'black', marginLeft: '10px' }}> | </li>
+                              <li style={{ marginLeft: '10px', color: 'black' }}>{item.name}</li>
+                            </ul>
+                            <span style={{ fontSize: '12px' }}>{item.date}</span>
+                          </div>
+                        </div>
 
-                    <div style={{ marginLeft: '70px', marginTop: '20px', fontSize: '14px' }}>
-                      <div style={{ width: '100%' }}>
-                        <span>this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments</span>
+                        <div style={{ marginLeft: '70px', marginTop: '20px', fontSize: '14px' }}>
+                          <div style={{ width: '100%' }}>
+                            <span>{item.comments}</span>
+                          </div>
+                          <div style={{ display: 'flex', fontSize: '15px', gap: '5px', marginTop: '8px' }}>
+                            <AiFillLike style={{ cursor: 'pointer' }} size={20} />
+                            <span> {item.is_like}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ display: 'flex', fontSize: '15px', gap: '5px', marginTop: '8px' }}>
-                        <AiFillLike style={{ cursor: 'pointer' }} size={20} />
-                        <span> 5</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <hr />
-
-                  <div>
-                    <div style={{ display: 'flex' }}>
-                      <img src={mouse} style={{ width: '60px', height: '60px', borderRadius: '50%' }} alt="" />
-                      <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '10px' }}>
-                        <span style={{ fontSize: '15px', fontWeight: 'bold', marginTop: '10px' }}>User Name</span>
-                        <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px', fontSize: '13.5px', marginBottom: '4px' }}>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li style={{ color: 'black', marginLeft: '10px' }}> | </li>
-                          <li style={{ marginLeft: '10px', color: 'black' }}>Mouse</li>
-                        </ul>
-                        <span style={{ fontSize: '12px' }}>August 5, 1999</span>
-                      </div>
-                    </div>
-
-                    <div style={{ marginLeft: '70px', marginTop: '20px', fontSize: '14px' }}>
-                      <div style={{ width: '100%' }}>
-                        <span>this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments</span>
-                      </div>
-                      <div style={{ display: 'flex', fontSize: '15px', gap: '5px', marginTop: '8px' }}>
-                        <AiFillLike size={20} />
-                        <span> 5</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <hr />
-
-                  <div>
-                    <div style={{ display: 'flex' }}>
-                      <img src={mouse} style={{ width: '60px', height: '60px', borderRadius: '50%' }} alt="" />
-                      <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '10px' }}>
-                        <span style={{ fontSize: '15px', fontWeight: 'bold', marginTop: '10px' }}>User Name</span>
-                        <ul style={{ display: 'flex', listStyle: 'none', color: '#ff9f43', marginLeft: '-40px', fontSize: '13.5px', marginBottom: '4px' }}>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li><i className='fa fa-star'></i></li>
-                          <li style={{ color: 'black', marginLeft: '10px' }}> | </li>
-                          <li style={{ marginLeft: '10px', color: 'black' }}>Mouse</li>
-                        </ul>
-                        <span style={{ fontSize: '12px' }}>August 5, 1999</span>
-                      </div>
-                    </div>
-
-                    <div style={{ marginLeft: '70px', marginTop: '20px', fontSize: '14px' }}>
-                      <div style={{ width: '100%' }}>
-                        <span>this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments this is the comments</span>
-                      </div>
-                      <div style={{ display: 'flex', fontSize: '15px', gap: '5px', marginTop: '8px' }}>
-                        <AiFillLike size={20} />
-                        <span> 5</span>
-                      </div>
-                    </div>
-                  </div>
+                    </>
+                  ))}
                 </div>
               </div>
             )}
@@ -702,7 +674,7 @@ function Home() {
                 </thead>
                 <tbody>
                   {myAddressList && myAddressList.length === 0 ? (
-                    <div style={{ position: 'absolute', width: '90%', color: 'red', margin: '15px 0px 0px 10px', fontSize: '14px' }}>
+                    <div style={{ position: '', width: '90%', color: 'red', margin: '15px 0px 0px 10px', fontSize: '14px' }}>
                       <span>No Address!</span>
                     </div>
                   ) : (
@@ -801,7 +773,7 @@ function Home() {
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                     <span style={{ fontSize: '12px' }}>Order Date: {item.date}</span>
-                    <span style={{ fontSize: '14px', color: item.status === "Pending" ? 'red' : item.status === "To Receive" ? 'orange' : 'blue'}}>{item.status}</span>
+                    <span className="badge badge-success badge-pill" style={{ fontSize: '14px', color: '#fff', padding: '3px 10px', borderRadius: '15px', background: item.status === 'Pending' ? 'red' : item.status === 'To Ship' ? 'lightblue' : item.status === "To Receive" ? 'orange' : 'none' }}>{item.status === "Received" ? (<button style={{ fontSize: '14px', padding: '5px 14px', borderRadius: '5px', background: 'orange' }} onClick={() => buttonFeedback(item)}>Add Feedback</button>) : item.status}</span>
                   </div>
                   {item.product_info.split(',').map((product, index) => (
                     <div key={index} style={{ marginLeft: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
@@ -851,7 +823,6 @@ function Home() {
                 <label htmlFor="name" className="control-label">Address</label>
                 <select className='form-control form-control-border' value={placeOrderData.address} onChange={(e) => setPlaceOrderData((prev) => ({ ...prev, address: e.target.value }))} required>
                   <option value="" selected disabled>Select Address</option>
-                  <option value="Address">Address</option>
                   {myAddressList?.map(item => (
                     <option key={item.id} value={`${item.street}. ${item.barangay} ${item.municipality}, ${item.province}`}>{`${item.street}. ${item.barangay} ${item.municipality}, ${item.province}`}</option>
                   ))}
@@ -890,6 +861,84 @@ function Home() {
               <br />
               <div>
                 <button type='submit' style={{ borderRadius: '10px', fontSize: '20px', background: 'orange', padding: '5px' }}>Place Order</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Choose Product */}
+      {isSelectProduct && (
+        <div className="popup">
+          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isSelectProduct ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+            <div className="modal-close" onClick={() => setIsSelectProduct(false)}>
+              <AiOutlineCloseCircle size={30} />
+            </div>
+            <div className="popup-edit">
+              <h5>Select Product</h5>
+            </div>
+            <hr />
+            <form>
+              <div className='form-group'>
+                <ul>
+                  {/* {myOrdersList?.map(item => (
+                    <li key={item.id} onClick={() => setIsRateMe(true)} style={{ cursor: 'pointer', margin: '10px 0 10px 0' }}>{item.product_info.split(',').map((product, index) => (
+                      <span key={index}>{product.trim()}</span>
+                    ))}</li>
+                  ))} */}
+                  {myOrdersList?.map(item => item.id === feedbackData.id && (
+                    <li key={item.id}>
+                      {item.product_info.split(',').map((product, index) => (
+                        <li key={index} style={{ cursor: 'pointer', margin: '10px 0 10px 0' }}>
+                          <a href='#' onClick={() => handleButtonFeedback(item.product_id.split(',')[index], item.product_info.split(',')[index])}>
+                            {product}
+                          </a>
+                        </li>
+                      ))}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Rate */}
+      {isRateMe && (
+        <div className="popup">
+          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isRateMe ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+            <div className="popup-edit">
+              <h5>Feedback to (name of product)</h5>
+            </div>
+            <hr />
+            <form onSubmit={handleAddFeedback}>
+              <div className='form-group'>
+                <label htmlFor="name" className="control-label">Add Rate (1/10)</label>
+                <select className='form-control form-control-border' value={feedbackData.ratings} onChange={(e) => setFeedbackData((prev) => ({ ...prev, ratings: e.target.value }))} required>
+                  <option value="" selected disabled>Rate 1 out of 10</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="name" className="control-label">Add Comments</label>
+                <textarea value={feedbackData.comments} onChange={(e) => setFeedbackData((prev) => ({ ...prev, comments: e.target.value }))} className="form-control form-control-border" placeholder="You Comment" id="" cols="30" rows="4"></textarea>
+              </div>
+
+              <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsRateMe(false)}>Cancel</button>
+                <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Save</button>
               </div>
             </form>
           </div>

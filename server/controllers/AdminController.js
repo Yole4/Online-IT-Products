@@ -366,4 +366,32 @@ const getUserOrders = async (req, res) => {
     })
 }
 
-module.exports = { getUserOrders, addCategory, fetchCategory, deleteCategory, editCategory, fetchUsers, editUser, deleteUser, addProduct, fetchProduct, editProduct, deleteProduct };
+// change order status
+const changeOrderStatus = async (req, res) => {
+    const {status, userId} = req.body
+
+    if (status && userId){
+        // change status
+        const changeStatus = `UPDATE orders SET status = ? WHERE id = ?`;
+        db.query(changeStatus, [status.status, status.editId], (error, results) => {
+            if (error) {
+                res.status(401).json({message: "Server side error!"});
+            }else{
+                // insert notification
+                const insertCustomerNotification = `INSERT INTO notifications (user_id, notification_type, content) VALUES (?, ?, ?)`;
+                db.query(insertCustomerNotification, [status.customerId, "Order Status", `Your order status was updated to ${status.status}.`], (error, results) => {
+                    if (error) {
+                        res.status(401).json({message: "Server side error!"});
+                    }else{
+                        res.status(200).json({message: `Status change to ${status.status}`});
+                    }
+                })
+            }
+        })
+
+    }else{
+        res.status(401).json({message: "Something went wrong!"});
+    }
+}
+
+module.exports = { changeOrderStatus, getUserOrders, addCategory, fetchCategory, deleteCategory, editCategory, fetchUsers, editUser, deleteUser, addProduct, fetchProduct, editProduct, deleteProduct };

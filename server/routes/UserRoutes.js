@@ -4,7 +4,7 @@ const multer = require('multer');
 
 const router = express.Router();
 
-const {protected, loginUser, registerUser, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder, deleteCart, fetchMyOrder} = require('../controllers/UserController');
+const {protected, loginUser, registerUser, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder, deleteCart, fetchMyOrder, fetchUserNotification, addFeedback, getComments, insertRatings} = require('../controllers/UserController');
 
 // auto image upload
 const imageUpload = multer({
@@ -19,12 +19,16 @@ router.post('/change-profile-info', verifyToken, changeProfileInfo);
 router.post('/fetch-user-credentials', verifyToken, fetchUserCredentials);
 router.post('/profile-upload', imageUpload.single('image'), verifyToken, profileUpload);
 router.post('/add-cart', verifyToken, addCart);
-router.get('/fetch-cart', verifyToken, fetchCart);
+router.post('/fetch-cart', verifyToken, fetchCart);
 router.post('/add-address', verifyToken, addAddress);
 router.post('/fetch-address', verifyToken, fetchAddress);
 router.post('/place-order', verifyToken, placeOrder);
 router.post('/delete-cart', verifyToken, deleteCart);
 router.post('/fetch-myOrders', verifyToken, fetchMyOrder);
+router.post('/fetch-notifications', verifyToken, fetchUserNotification);
+router.post('/add-feedback', verifyToken, addFeedback);
+router.get('/get-comments', verifyToken, getComments);
+router.post('/insert-ratings', verifyToken, insertRatings);
 
 module.exports = router;
 

@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useId, useState } from "react";
 import { agetRequest, apostRequest, baseUrl } from "../utils/Services";
 import { AuthContext } from "./AuthContext";
 
@@ -417,6 +417,39 @@ export const AdminContextProvider = ({ children }) => {
         item.name.toLowerCase().includes(searchProduct.toLowerCase())
     );
 
+    // ===================================================  HANDLE CHANGE ORDER STATUS    ==================================================
+    const [status, setStatus] = useState({
+        customerId: null,
+        status: '',
+        editId: null
+    });
+    const [isEditStatus, setIsEditStatus] = useState(false);
+    const [changeStatusMount, setChangeStatusMount] = useState(false);
+
+    const handleChangeOrderStatus = async (e) => {
+        e.preventDefault();
+
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        try {
+            const response = await apostRequest(`${baseUrl}/admin/change-order-status`, {status, userId: userId.id});
+
+            setIsLoading(false);
+
+            if (response.error) {
+                setErrorResponse({ message: response.message, isError: true });
+            }else{
+                setIsEditStatus(false);
+                setChangeStatusMount(changeStatusMount ? false : true);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ",error);
+        }
+    }
+
     // ===================================================  GET ORDERS  ==============================================================
     const [userOrders, setUserOrder] = useState(null);
 
@@ -444,7 +477,8 @@ export const AdminContextProvider = ({ children }) => {
             };
             getUserOrders();
         }
-    }, [userId]);
+    }, [userId, changeStatusMount]);
+
 
     return (
         <AdminContext.Provider
@@ -499,7 +533,13 @@ export const AdminContextProvider = ({ children }) => {
                 handleDeleteProduct,
                 productMount,
                 mount,
-                userOrders
+                userOrders,
+                status,
+                setStatus,
+                handleChangeOrderStatus,
+                setIsEditStatus,
+                isEditStatus,
+                changeStatusMount
             }}
         >
             {children}

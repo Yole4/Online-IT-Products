@@ -81,7 +81,7 @@ body {
     font-size: 26px;
     transition: .4s;
     margin: 3px;
-    /* color: rgb(170, 146, 146); */
+    /* color: rgb(255, 206, 114); */
 }
 
 .checked {
@@ -189,6 +189,10 @@ button {
     font-size: 15px;
 }
 
+.notChecked{
+    color: black;
+}
+
 .modal-close {
     position: absolute;
     top: 10px;
@@ -260,11 +264,17 @@ button {
 }
 
 .category{
-    width: auto;
+    width: 120px;
     border-radius: 15px;
     margin: 4px;
     font-size: 15px;
-    padding: 8px;
+    padding: 2px;
+    color: rgb(87, 87, 87);
+    /* background: rgb(255, 206, 114); */
+}
+
+.selected{
+    color: white;
     background: orange;
 }
 
@@ -423,5 +433,9 @@ button {
 
     .error-respond {
         width: 100%;
+    }
+
+    .notificationAlign{
+        margin-right: -70px;
     }
 }

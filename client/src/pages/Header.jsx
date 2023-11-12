@@ -18,7 +18,7 @@ function Header() {
     const navigate = useNavigate();
 
     const { logoutUser, isLogout, setIsLogout, isLoading, errorResponse, userCredentials, changePasswordData, setChangePasswordData, isChangePassword, setIsChangePassword,
-        updateProfile, handleChangePassword
+        updateProfile, handleChangePassword, myNotifications
     } = useContext(AuthContext);
 
     const { publicLoading } = useContext(PublicContext);
@@ -66,23 +66,23 @@ function Header() {
                     <li className="nav-item dropdown">
                         <a className="nav-link" data-toggle="dropdown" href="#">
                             <i className="far fa-bell" />
-                            <span className="badge badge-warning navbar-badge">5</span>
+                            <span className="badge badge-warning navbar-badge">{myNotifications?.length === 0 ? '' : myNotifications?.length}</span>
                         </a>
-                        <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                            <span className="dropdown-item dropdown-header">5 Notification</span>
+                        <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right notificationAlign">
+                            <span className="dropdown-item dropdown-header">{myNotifications && myNotifications.length} Notification</span>
 
 
                             <div style={{ maxHeight: '400px', overflow: 'auto' }}>
-                                {/* {myNotifications && myNotifications.reverse().map(item => ( */}
-                                <div className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer', backgroundColor: 'rgba(131, 131, 131, 0.20)' }}>
-                                    <div style={{ display: 'flex' }}>
-                                        <i className="fas fa-bell mr-2" style={{ color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px' }} /><p style={{ marginLeft: '10px' }}>this is the content of notification</p>
+                                {myNotifications && myNotifications.reverse().map(item => (
+                                    <div key={item.id} className='dropdown-item other' style={{ fontSize: '12px', cursor: 'pointer', backgroundColor: item.seen === 0 ? 'rgba(131, 131, 131, 0.20)' : '' }}>
+                                        <div style={{ display: 'flex' }}>
+                                            <i className="fas fa-bell mr-2" style={{ color: 'rgba(80, 66, 66, 0.935)', fontSize: '15px', marginTop: '5px' }} /><p style={{ marginLeft: '10px' }}>{item.content}</p>
+                                        </div>
+                                        <div style={{ marginLeft: '10px' }}>
+                                            <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>{item.date}</p>
+                                        </div>
                                     </div>
-                                    <div style={{ marginLeft: '10px' }}>
-                                        <p style={{ marginLeft: 22, fontSize: 10, color: 'rgb(105, 96, 96)' }}>notification date</p>
-                                    </div>
-                                </div>
-                                {/* ))} */}
+                                ))}
                             </div>
 
                             <div className="dropdown-divider" />

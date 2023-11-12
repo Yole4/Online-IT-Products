@@ -40,7 +40,7 @@ export const PublicContextProvider = ({ children }) => {
 
     // ===========================================  GET PRODUCTS    ============================================
     const [productList, setProductList] = useState(null);
-    const [homeSearch, setHomeSearch] = useState('');
+    const [homeSearch, setHomeSearch] = useState('not');
 
     useEffect(() => {
         const getProduct = async () => {
@@ -66,7 +66,8 @@ export const PublicContextProvider = ({ children }) => {
 
     const productListToSearch = productList?.filter(item =>
         item.name.toLowerCase().includes(homeSearch.toLowerCase()) ||
-        item.description.toLowerCase().includes(homeSearch.toLowerCase())
+        item.description.toLowerCase().includes(homeSearch.toLowerCase()) ||
+        item.isDelete.toLowerCase().includes(homeSearch.toLowerCase())
     );
 
     return <PublicContext.Provider value={{
@@ -74,7 +75,7 @@ export const PublicContextProvider = ({ children }) => {
         categoryList,
         productListToSearch,
         homeSearch, 
-        setHomeSearch
+        setHomeSearch,
     }}>
         {children}
     </PublicContext.Provider>
