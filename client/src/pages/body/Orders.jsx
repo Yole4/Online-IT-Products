@@ -5,6 +5,7 @@ import givenImage from '../../assets/images/given image.png';
 
 // react icons
 import { ImSearch } from "react-icons/im";
+import { MdOutlineRemoveRedEye } from "react-icons/md";
 
 import { useNavigate } from 'react-router-dom';
 
@@ -71,13 +72,6 @@ function Orders() {
                                 <div className="container-fluid">
                                     <div className="container-fluid" style={{ maxHeight: '70vh', overflow: 'auto' }}>
                                         <table className="table table-hover table-striped">
-                                            {/* <colgroup>
-                                                <col width="5%" />
-                                                <col width="20%" />
-                                                <col width="25%" />
-                                                <col width="20%" />
-                                                <col width="10%" />
-                                            </colgroup> */}
                                             <thead>
                                                 <tr>
                                                     <th>#</th>
@@ -89,31 +83,6 @@ function Orders() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {/* {usersListToSearch && usersListToSearch.length === 0 ? (
-                                                    <div style={{ position: 'absolute', width: '90%', color: 'red', margin: '15px 0px 0px 10px', fontSize: '14px' }}>
-                                                        <span>No User Account found!</span>
-                                                    </div>
-                                                ) : (
-                                                    usersListToSearch && usersListToSearch.map((item, index) => (
-                                                        <tr>
-                                                            <td className="text-center">{index + 1}</td>
-                                                            <td className="text-center"><img src={`${backendUrl}/${item.given_image}`} style={{ height: '40px', width: '40px', borderRadius: '50%' }} className="img-avatar img-thumbnail p-0 border-2" alt="user_avatar" /></td>
-                                                            <td>{`${item.first_name} ${item.middle_name} ${item.last_name}`}</td>
-                                                            <td><p className="m-0 truncate-1">{item.username}</p></td>
-                                                            <td><p className="m-0">{item.user_type}</p></td>
-                                                            <td style={{ textAlign: 'center' }}>
-                                                                <button type="button" className="btn btn-flat btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                                                                    Action
-                                                                </button>
-                                                                <div className="dropdown-menu" role="menu">
-                                                                    <a className="dropdown-item edit_data" href="#" onClick={() => editButton(item)}><span className="fa fa-edit text-primary" /> Edit</a>
-                                                                    <div className="dropdown-divider" />
-                                                                    <a className="dropdown-item delete_data" href="#" onClick={() => deleteButton(item)}><span className="fa fa-trash text-danger" /> Delete</a>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))
-                                                )} */}
                                                 {userOrders?.map((item, index) => (
                                                     <tr key={item.id}>
                                                         <td className="text-center">{index + 1}</td>
@@ -129,7 +98,7 @@ function Orders() {
                                                             <div className="dropdown-menu" role="menu">
                                                                 <a className="dropdown-item edit_data" href="#" onClick={() => { setIsEditStatus(true); setStatus((prev) => ({...prev, status: item.status})); setStatus((prev) => ({...prev, editId: item.id})); setStatus((prev) => ({...prev, customerId: item.user_id})) }} ><span className="fa fa-edit text-primary" /> Edit Status</a>
                                                                 <div className="dropdown-divider" />
-                                                                <a className="dropdown-item delete_data" href="#" onClick={() => buttonViewOrder(item)}><span className="fa fa-trash text-danger" /> View Order</a>
+                                                                <a className="dropdown-item delete_data" href="#" onClick={() => buttonViewOrder(item)}><MdOutlineRemoveRedEye size={25} /> View Order</a>
                                                             </div>
                                                         </td>
                                                     </tr>

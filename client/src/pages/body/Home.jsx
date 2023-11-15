@@ -21,6 +21,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { FaAddressCard } from "react-icons/fa";
 import { GrProductHunt } from "react-icons/gr";
 import { FcShipped } from "react-icons/fc";
+import { IoHomeSharp } from "react-icons/io5";
 
 import { AuthContext } from '../../context/AuthContext';
 import { PublicContext } from '../../context/PublicContext';
@@ -44,7 +45,8 @@ function Home() {
     isChangePassword, setIsChangePassword, changePasswordData, setChangePasswordData, handleChangePassword,
     isAddAddress, setIsAddAddress, addressData, setAddressData, handleAddAddress, isMyAddress, setIsMyAddress, myAddressList, placeOrderData, setPlaceOrderData,
     isPlaceOrder, setIsPlaceOrder, handlePlaceOrder, isCart, setIsCart, handleDeleteCart, isMyOrder, setIsMyOrder, myOrdersList, myNotifications,
-    feedbackData, setFeedbackData, handleAddFeedback, handleButtonFeedback, isRateMe, setIsRateMe, isSelectProduct, setIsSelectProduct, commentsList
+    feedbackData, setFeedbackData, handleAddFeedback, handleButtonFeedback, isRateMe, setIsRateMe, isSelectProduct, setIsSelectProduct, commentsList,
+    isEditProfileName, setIsEditProfileName, names, setNames, handleEditProfileName, eachComments, checkUpdate, setCheckUpdate
   } = useContext(AuthContext); // require auth context
 
   const { categoryList, publicLoading, productListToSearch, homeSearch, setHomeSearch } = useContext(PublicContext);
@@ -443,8 +445,9 @@ function Home() {
               </div><br />
             </div>
             <hr />
-            <div className="form-control" style={{ textAlign: 'center' }}>
-              <span>Other profile view</span>
+
+            <div style={{ margin: '10px 10px 0px 10px' }}>
+              <button onClick={() => { setNames({ firstName: userCredentials.first_name, middleName: userCredentials.middle_name, lastName: userCredentials.last_name }); setIsEditProfileName(true) }} style={{ width: '100%', padding: '5px', borderRadius: '5px', fontSize: '17px', color: 'black' }}>Edit Profile</button>
             </div>
           </div>
         </div>
@@ -596,7 +599,7 @@ function Home() {
                   {!commentsList || !commentsList.some(item => item.product_id === eachProductInfo.id) && (
                     <>
                       <hr />
-                      <div style={{textAlign: 'center', color: 'red', marginLeft: '-20px'}}>
+                      <div style={{ textAlign: 'center', color: 'red', marginLeft: '-20px' }}>
                         <span>No Comments Yet!</span>
                       </div>
                     </>
@@ -840,8 +843,10 @@ function Home() {
 
               {placeOrderData.eachAmount?.map((item, index) => (
                 <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', marginTop: '10px' }}>
-                  <span>{placeOrderData.productInfo[index]}</span>
-                  <span>Item: {placeOrderData.quantity[index]}</span>
+                  <div style={{ display: 'flex', gap: '5px' }}>
+                    <span>{placeOrderData.productInfo[index]}</span>
+                    <span>(x{placeOrderData.quantity[index]})</span>
+                  </div>
                   <span>₱{placeOrderData.eachAmount[index]}</span>
                 </div>
               ))}
@@ -910,12 +915,12 @@ function Home() {
           <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isRateMe ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
             <div className="popup-edit">
-              <h5>Feedback to (name of product)</h5>
+              <h5>Feedback to {feedbackData.productName}</h5>
             </div>
             <hr />
             <form onSubmit={handleAddFeedback}>
               <div className='form-group'>
-                <label htmlFor="name" className="control-label">Add Rate (1/10)</label>
+                <label htmlFor="name" className="control-label">{checkUpdate ? 'Update' : 'Add'} Rate (1/10)</label>
                 <select className='form-control form-control-border' value={feedbackData.ratings} onChange={(e) => setFeedbackData((prev) => ({ ...prev, ratings: e.target.value }))} required>
                   <option value="" selected disabled>Rate 1 out of 10</option>
                   <option value="1">1</option>
@@ -932,196 +937,300 @@ function Home() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="name" className="control-label">Add Comments</label>
+                <label htmlFor="name" className="control-label">{checkUpdate ? 'Update' : 'Add'} Comments</label>
                 <textarea value={feedbackData.comments} onChange={(e) => setFeedbackData((prev) => ({ ...prev, comments: e.target.value }))} className="form-control form-control-border" placeholder="You Comment" id="" cols="30" rows="4"></textarea>
               </div>
 
-              <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+              {checkUpdate && (
+                <div style={{margin: '-10px', padding: '0'}}>
+                  <button onClick={() => {setCheckUpdate(false); setFeedbackData((prev) => ({...prev, ratings: ''})); setFeedbackData((prev) => ({...prev, comments: ''}));}} style={{fontSize: '12px', padding: '5px', borderRadius: '5px', background: 'transparent', color: 'darkblue'}}>Switch to add comment</button>
+                </div>
+              )}
+
+              <div style={{ justifyContent: 'space-between', marginTop: '10px', display: 'flex' }}>
                 <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsRateMe(false)}>Cancel</button>
-                <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Save</button>
+                <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>{checkUpdate ? 'Update' : 'Add'}</button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+
+              <div className="form-div" style={{ fontSize: '12px', marginTop: '25px' }} >
+
+                {eachComments && eachComments.length === 0 ? (
+                  <span></span>
+                ) : (
+                  <table className="table table-hover table-striped">
+                    <thead>
+                      <tr>
+                        <th>Ratings</th>
+                        <th>Comments</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    
+                    <tbody>
+                      {
+                        eachComments && eachComments.map((item, index) => (
+                          <tr key={item.id}>
+                            <td>
+                              <div style={{ display: 'flex', listStyle: 'none', fontSize: '10px' }}>
+                                <li><i className={item.ratings > 0 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                                <li><i className={item.ratings > 1 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                                <li><i className={item.ratings > 2 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                                <li><i className={item.ratings > 3 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                                <li><i className={item.ratings > 4 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                                <li><i className={item.ratings > 5 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                                <li><i className={item.ratings > 6 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                                <li><i className={item.ratings > 7 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                                <li><i className={item.ratings > 8 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                                <li><i className={item.ratings > 9 ? 'fa fa-star checked' : 'fa fa-star'}></i></li>
+                              </div>
+                            </td>
+                            <td>{item.comments}</td>
+                            <td style={{ textAlign: 'center' }}>
+                              <div style={{ display: 'flex', gap: '5px' }}>
+                                <a href="#" onClick={() => {setCheckUpdate(true); setFeedbackData((prev) => ({...prev, ratings: item.ratings})); setFeedbackData((prev) => ({...prev, productId: item.product_id})); setFeedbackData((prev) => ({...prev, comments: item.comments})); setFeedbackData((prev) => ({...prev, updateCommentId: item.id}));}}><span className="fa fa-edit text-primary" /> </a>
+                                <div className="dropdown-divider" />
+                                <a href="#" ><span className="fa fa-trash text-danger" /> </a>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      }
+                    </tbody>
+                  </table>
+                )}
+
+              </div >
+            </form >
+          </div >
+        </div >
+      )
+      }
 
       {/* Change Password */}
-      {isChangePassword && (
-        <div className="popup">
-          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isChangePassword ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+      {
+        isChangePassword && (
+          <div className="popup">
+            <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isChangePassword ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
 
-            <div className="popup-edit">
-              <span>Change Password</span>
+              <div className="popup-edit">
+                <span>Change Password</span>
+              </div>
+              <hr />
+              <form onSubmit={handleChangePassword}>
+                <div className='form-div'>
+                  <label htmlFor="">Username</label>
+                  <input type="text" value={changePasswordData.username} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, username: e.target.value }))} className='form-control' placeholder='Username' required />
+                </div>
+
+                <div style={{ marginTop: '15px' }}>
+                  <label htmlFor="">Current Password</label>
+                  <input type="password" value={changePasswordData.password} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, password: e.target.value }))} className='form-control' placeholder='*********' required />
+                </div>
+
+                <div style={{ marginTop: '15px' }}>
+                  <label htmlFor="">New Password</label>
+                  <input type="password" value={changePasswordData.newPassword} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, newPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                </div>
+
+                <div style={{ marginTop: '15px' }}>
+                  <label htmlFor="">Confirm Password</label>
+                  <input type="password" value={changePasswordData.confirmPassword} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, confirmPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                </div>
+
+                <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                  <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsChangePassword(false)}>Cancel</button>
+                  <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Save</button>
+                </div>
+              </form>
             </div>
-            <hr />
-            <form onSubmit={handleChangePassword}>
+          </div>
+        )
+      }
+
+      {/* Change profile info */}
+      {
+        isEditProfileName && (
+          <div className="popup">
+            <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isEditProfileName ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+              <div className="popup-edit">
+                <span>Change Profile</span>
+              </div>
+              <hr />
+              <form onSubmit={handleEditProfileName}>
+                <div className='form-div'>
+                  <label htmlFor="">First Name</label>
+                  <input type="text" value={names.firstName} onChange={(e) => setNames((prev) => ({ ...prev, firstName: e.target.value }))} className='form-control' placeholder='First Name' required />
+                </div>
+
+                <div className='form-div'>
+                  <label htmlFor="">Middle Name</label>
+                  <input type="text" value={names.middleName} onChange={(e) => setNames((prev) => ({ ...prev, middleName: e.target.value }))} className='form-control' placeholder='Middle Name' required />
+                </div>
+
+                <div className='form-div'>
+                  <label htmlFor="">Last Name</label>
+                  <input type="text" value={names.lastName} onChange={(e) => setNames((prev) => ({ ...prev, lastName: e.target.value }))} className='form-control' placeholder='Last Name' required />
+                </div>
+
+                <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                  <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsEditProfileName(false)}>Cancel</button>
+                  <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Save</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )
+      }
+
+      {/* -----------------------LOGOUT CONFIRMATION---------------------- */}
+      {
+        isLogout && (
+          <div className="popup">
+            <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isLogout ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+              <div className="popup-edit">
+                <h5>Logout?</h5>
+              </div>
+              <hr />
               <div className='form-div'>
-                <label htmlFor="">Username</label>
-                <input type="text" value={changePasswordData.username} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, username: e.target.value }))} className='form-control' placeholder='Username' required />
-              </div>
-
-              <div style={{ marginTop: '15px' }}>
-                <label htmlFor="">Current Password</label>
-                <input type="password" value={changePasswordData.password} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, password: e.target.value }))} className='form-control' placeholder='*********' required />
-              </div>
-
-              <div style={{ marginTop: '15px' }}>
-                <label htmlFor="">New Password</label>
-                <input type="password" value={changePasswordData.newPassword} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, newPassword: e.target.value }))} className='form-control' placeholder='*********' required />
-              </div>
-
-              <div style={{ marginTop: '15px' }}>
-                <label htmlFor="">Confirm Password</label>
-                <input type="password" value={changePasswordData.confirmPassword} onChange={(e) => setChangePasswordData((prev) => ({ ...prev, confirmPassword: e.target.value }))} className='form-control' placeholder='*********' required />
+                <span>Are you sure you wan't to logout?</span>
               </div>
 
               <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
-                <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsChangePassword(false)}>Cancel</button>
-                <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Save</button>
+                <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsLogout(false)}>No</button>
+                <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { logoutUser() }}>Yes</button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* -----------------------LOGOUT CONFIRMATION---------------------- */}
-      {isLogout && (
-        <div className="popup">
-          <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isLogout ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
-
-            <div className="popup-edit">
-              <h5>Logout?</h5>
-            </div>
-            <hr />
-            <div className='form-div'>
-              <span>Are you sure you wan't to logout?</span>
-            </div>
-
-            <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
-              <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsLogout(false)}>No</button>
-              <button className='btn btn-primary' type='submit' style={{ width: '80px' }} onClick={() => { logoutUser() }}>Yes</button>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-      {isOpenLogin && !isOpenRegister && (
-        <div onClick={() => setIsOpenLogin(false)} className='popup'>
+      {
+        isOpenLogin && !isOpenRegister && (
+          <div onClick={() => setIsOpenLogin(false)} className='popup'>
 
-          {/* Register page */}
-          <div onClick={(e) => e.stopPropagation()} className='popup-body' style={{ animation: isOpenLogin ? 'dropBottom .3s linear' : '' }} >
-            <div style={{ textAlign: 'center' }}>
-              <h3>Login</h3><br />
-            </div>
-            <div className="modal-close" onClick={() => setIsOpenLogin(false)}>
-              <AiOutlineCloseCircle size={30} />
-            </div>
-
-            <form onSubmit={handleLogin}>
-              <div className='form-div'>
-                <label htmlFor="">Username</label>
-                <input type="text" value={updateLoginInfo.username} onChange={(e) => updateLoginInfo({ ...loginInfo, username: e.target.value })} className='form-control' placeholder='Username' required />
+            {/* Register page */}
+            <div onClick={(e) => e.stopPropagation()} className='popup-body' style={{ animation: isOpenLogin ? 'dropBottom .3s linear' : '' }} >
+              <div style={{ textAlign: 'center' }}>
+                <h3>Login</h3><br />
+              </div>
+              <div className="modal-close" onClick={() => setIsOpenLogin(false)}>
+                <AiOutlineCloseCircle size={30} />
               </div>
 
-              <div style={{ marginTop: '20px' }}>
-                <label htmlFor="">Password</label>
-                <input type="password" value={updateLoginInfo.password} onChange={(e) => updateLoginInfo({ ...loginInfo, password: e.target.value })} className='form-control' placeholder='*********' required />
+              <form onSubmit={handleLogin}>
+                <div className='form-div'>
+                  <label htmlFor="">Username</label>
+                  <input type="text" value={updateLoginInfo.username} onChange={(e) => updateLoginInfo({ ...loginInfo, username: e.target.value })} className='form-control' placeholder='Username' required />
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <label htmlFor="">Password</label>
+                  <input type="password" value={updateLoginInfo.password} onChange={(e) => updateLoginInfo({ ...loginInfo, password: e.target.value })} className='form-control' placeholder='*********' required />
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Login" />
+                </div>
+
+              </form>
+              <div style={{ marginTop: '10px', textAlign: 'center' }} className='forgot-password'>
+                <span>Forgot Password?</span>
               </div>
 
-              <div style={{ marginTop: '20px' }}>
-                <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value={isLoading ? "Loging in..." : "Login"} />
+              <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                <span>Don't Have Account? <a style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }} onClick={() => { setIsOpenRegister(true); setIsOpenLogin(false) }} >Register</a></span>
               </div>
-
-            </form>
-            <div style={{ marginTop: '10px', textAlign: 'center' }} className='forgot-password'>
-              <span>Forgot Password?</span>
-            </div>
-
-            <div style={{ textAlign: 'center', marginTop: '10px' }}>
-              <span>Don't Have Account? <a style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }} onClick={() => { setIsOpenRegister(true); setIsOpenLogin(false) }} >Register</a></span>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Register page */}
-      {isOpenRegister && !isOpenLogin && (
-        <div onClick={() => setIsOpenRegister(false)} className='popup'>
+      {
+        isOpenRegister && !isOpenLogin && (
+          <div onClick={() => setIsOpenRegister(false)} className='popup'>
 
-          {/* Register page */}
-          <div onClick={(e) => e.stopPropagation()} className='popup-body' style={{ animation: isOpenRegister ? 'dropBottom .3s linear' : '' }} >
-            <div style={{ textAlign: 'center' }}>
-              <h3>Register</h3><br />
-            </div>
-            <div className="modal-close" onClick={() => setIsOpenRegister(false)}>
-              <AiOutlineCloseCircle size={30} />
-            </div>
-
-            <form onSubmit={registerUser}>
-              <div className='form-div'>
-                <label htmlFor="">First Name</label>
-                <input type="text" className='form-control' value={updateRegisterInfo.firstName} onChange={(e) => updateRegisterInfo({ ...registerInfo, firstName: e.target.value })} placeholder='First Name' required />
+            {/* Register page */}
+            <div onClick={(e) => e.stopPropagation()} className='popup-body' style={{ animation: isOpenRegister ? 'dropBottom .3s linear' : '' }} >
+              <div style={{ textAlign: 'center' }}>
+                <h3>Register</h3><br />
+              </div>
+              <div className="modal-close" onClick={() => setIsOpenRegister(false)}>
+                <AiOutlineCloseCircle size={30} />
               </div>
 
-              <div style={{ marginTop: '20px' }}>
-                <label htmlFor="">Middle Name (Optional)</label>
-                <input type="text" className='form-control' value={updateRegisterInfo.middleName} onChange={(e) => updateRegisterInfo({ ...registerInfo, middleName: e.target.value })} placeholder='Middle Name' />
+              <form onSubmit={registerUser}>
+                <div className='form-div'>
+                  <label htmlFor="">First Name</label>
+                  <input type="text" className='form-control' value={updateRegisterInfo.firstName} onChange={(e) => updateRegisterInfo({ ...registerInfo, firstName: e.target.value })} placeholder='First Name' required />
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <label htmlFor="">Middle Name (Optional)</label>
+                  <input type="text" className='form-control' value={updateRegisterInfo.middleName} onChange={(e) => updateRegisterInfo({ ...registerInfo, middleName: e.target.value })} placeholder='Middle Name' />
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <label htmlFor="">Last Name</label>
+                  <input type="text" className='form-control' value={updateRegisterInfo.lastName} onChange={(e) => updateRegisterInfo({ ...registerInfo, lastName: e.target.value })} placeholder='Last Name' required />
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <label htmlFor="">Username</label>
+                  <input type="text" className='form-control' value={updateRegisterInfo.username} onChange={(e) => updateRegisterInfo({ ...registerInfo, username: e.target.value })} placeholder='Username' required />
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <label htmlFor="">Password</label>
+                  <input type="password" className='form-control' value={updateRegisterInfo.password} onChange={(e) => updateRegisterInfo({ ...registerInfo, password: e.target.value })} placeholder='*********' required />
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <label htmlFor="">Confirm Password</label>
+                  <input type="password" className='form-control' value={updateRegisterInfo.confirmPassword} onChange={(e) => updateRegisterInfo({ ...registerInfo, confirmPassword: e.target.value })} placeholder='*********' required />
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value="Register" />
+                </div>
+
+              </form>
+
+              <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                <span>Already have account? <a style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }} onClick={() => { setIsOpenLogin(true); setIsOpenRegister(false) }} >Login</a></span>
               </div>
-
-              <div style={{ marginTop: '20px' }}>
-                <label htmlFor="">Last Name</label>
-                <input type="text" className='form-control' value={updateRegisterInfo.lastName} onChange={(e) => updateRegisterInfo({ ...registerInfo, lastName: e.target.value })} placeholder='Last Name' required />
-              </div>
-
-              <div style={{ marginTop: '20px' }}>
-                <label htmlFor="">Username</label>
-                <input type="text" className='form-control' value={updateRegisterInfo.username} onChange={(e) => updateRegisterInfo({ ...registerInfo, username: e.target.value })} placeholder='Username' required />
-              </div>
-
-              <div style={{ marginTop: '20px' }}>
-                <label htmlFor="">Password</label>
-                <input type="password" className='form-control' value={updateRegisterInfo.password} onChange={(e) => updateRegisterInfo({ ...registerInfo, password: e.target.value })} placeholder='*********' required />
-              </div>
-
-              <div style={{ marginTop: '20px' }}>
-                <label htmlFor="">Confirm Password</label>
-                <input type="password" className='form-control' value={updateRegisterInfo.confirmPassword} onChange={(e) => updateRegisterInfo({ ...registerInfo, confirmPassword: e.target.value })} placeholder='*********' required />
-              </div>
-
-              <div style={{ marginTop: '20px' }}>
-                <input type="submit" style={{ width: '100%' }} className='btn btn-primary' value={isLoading ? "Registering..." : "Register"} />
-              </div>
-
-            </form>
-
-            <div style={{ textAlign: 'center', marginTop: '10px' }}>
-              <span>Already have account? <a style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }} onClick={() => { setIsOpenLogin(true); setIsOpenRegister(false) }} >Login</a></span>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
 
       {/* Loading div */}
-      {isErrorResponse && errorResponse ? (
-        <div className='error-respond' style={{ backgroundColor: errorResponse.isError ? '#fb7d60' : '#7b4ae4' }}>
-          <div>
-            <h5>{errorResponse.message}</h5>
+      {
+        isErrorResponse && errorResponse ? (
+          <div className='error-respond' style={{ backgroundColor: errorResponse.isError ? '#fb7d60' : '#7b4ae4' }}>
+            <div>
+              <h5>{errorResponse.message}</h5>
+            </div>
           </div>
-        </div>
-      ) : (
-        <></>
-      )}
+        ) : (
+          <></>
+        )
+      }
 
       {/* fetching data screen */}
-      {isLoading || publicLoading && (
-        <div className="popup">
-          <div className="modal-pop-up-loading">
-            <div className="modal-pop-up-loading-spiner"></div>
-            <p>Loading...</p>
+      {
+        isLoading || publicLoading && (
+          <div className="popup">
+            <div className="modal-pop-up-loading">
+              <div className="modal-pop-up-loading-spiner"></div>
+              <p>Loading...</p>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
     </>
   )
 }

@@ -18,7 +18,7 @@ function Header() {
     const navigate = useNavigate();
 
     const { logoutUser, isLogout, setIsLogout, isLoading, errorResponse, userCredentials, changePasswordData, setChangePasswordData, isChangePassword, setIsChangePassword,
-        updateProfile, handleChangePassword, myNotifications
+        updateProfile, handleChangePassword, myNotifications, isEditProfileName, setIsEditProfileName, handleEditProfileName, names, setNames
     } = useContext(AuthContext);
 
     const { publicLoading } = useContext(PublicContext);
@@ -200,9 +200,43 @@ function Header() {
                             </div><br />
                         </div>
                         <hr />
-                        <div className="form-control" style={{ textAlign: 'center' }}>
-                            <span>Other profile view</span>
+                        <div style={{ margin: '10px 10px 0px 10px' }}>
+                            <button onClick={() => { setNames({ firstName: userCredentials.first_name, middleName: userCredentials.middle_name, lastName: userCredentials.last_name }); setIsEditProfileName(true) }} style={{ width: '100%', padding: '5px', borderRadius: '5px', fontSize: '17px', color: 'black' }}>Edit Profile</button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Change profile info */}
+            {isEditProfileName && (
+                <div className="popup">
+                    <div className="popup-body student-body" onClick={(e) => e.stopPropagation()} style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '5px', animation: isEditProfileName ? 'animateCenter 0.3s linear' : 'closeAnimateCenter 0.3s linear' }}>
+
+                        <div className="popup-edit">
+                            <span>Change Profile</span>
+                        </div>
+                        <hr />
+                        <form onSubmit={handleEditProfileName}>
+                            <div className='form-div'>
+                                <label htmlFor="">First Name</label>
+                                <input type="text" value={names.firstName} onChange={(e) => setNames((prev) => ({ ...prev, firstName: e.target.value }))} className='form-control' placeholder='First Name' required />
+                            </div>
+
+                            <div className='form-div'>
+                                <label htmlFor="">Middle Name</label>
+                                <input type="text" value={names.middleName} onChange={(e) => setNames((prev) => ({ ...prev, middleName: e.target.value }))} className='form-control' placeholder='Middle Name' required />
+                            </div>
+
+                            <div className='form-div'>
+                                <label htmlFor="">Last Name</label>
+                                <input type="text" value={names.lastName} onChange={(e) => setNames((prev) => ({ ...prev, lastName: e.target.value }))} className='form-control' placeholder='Last Name' required />
+                            </div>
+
+                            <div style={{ justifyContent: 'space-between', marginTop: '25px', display: 'flex' }}>
+                                <button className='btn btn-danger' type='button' style={{ width: '80px' }} onClick={() => setIsEditProfileName(false)}>Cancel</button>
+                                <button className='btn btn-primary' type='submit' style={{ width: '80px' }}>Save</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

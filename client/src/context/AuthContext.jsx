@@ -178,6 +178,38 @@ export const AuthContextProvider = ({ children }) => {
         }
     };
 
+    //------------------------------------------------------    EDIT PROFILE    -----------------------------------------------------------
+    const [isEditProfileName, setIsEditProfileName] = useState(false);
+    const [names, setNames] = useState({
+        firstName: '',
+        middleName: '',
+        lastName: ''
+    });
+
+    const handleEditProfileName = async (e) => {
+        e.preventDefault();
+
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        try {
+            const response = await apostRequest(`${baseUrl}/users/change-profile-info`, { names, userId: userId.id });
+
+            setIsLoading(false);
+
+            if (response.error) {
+                setErrorResponse({ message: response.message, isError: true });
+            } else {
+                setIsEditProfileName(false);
+                setMount(mount ? false : true);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    };
+
     // -------------------------------------    FETCH USER CREDENTIALS --------------------------------------
     const [userCredentials, setUserCredentials] = useState([]);
 
@@ -505,6 +537,7 @@ export const AuthContextProvider = ({ children }) => {
 
     // -------------------------------------    HANDLE ADD FEEDBACK -------------------------------------------
     const [feedbackMount, setFeedbackMount] = useState(false);
+    const [eachMount, setEachMount] = useState(false);
     const [feedbackData, setFeedbackData] = useState({
         userId: null,
         productId: null,
@@ -513,16 +546,20 @@ export const AuthContextProvider = ({ children }) => {
         ratings: null,
         comments: '',
         productName: '',
-        id: null
+        id: null,
+        updateCommentId: null
     });
+
     const [isRateMe, setIsRateMe] = useState(false);
     const [isSelectProduct, setIsSelectProduct] = useState(false);
+    const [checkUpdate, setCheckUpdate] = useState(false);
 
     const handleButtonFeedback = async (productId, productName) => {
         setFeedbackData((prev) => ({ ...prev, productId: productId }));
         setFeedbackData((prev) => ({ ...prev, productName: productName }));
         setIsRateMe(true);
         setIsSelectProduct(false);
+        setEachMount(eachMount ? false : true);
     }
 
     const handleAddFeedback = async (e) => {
@@ -531,23 +568,44 @@ export const AuthContextProvider = ({ children }) => {
         setIsLoading(true);
         setErrorResponse(null);
 
-        try {
-            const response = await apostRequest(`${baseUrl}/users/add-feedback`, { feedbackData, userId: userId.id });
+        if (checkUpdate) {
+            try {
+                const response = await apostRequest(`${baseUrl}/users/update-feedback`, { feedbackData, userId: userId.id });
 
-            setIsLoading(false);
+                setIsLoading(false);
 
-            if (response.error) {
-                setErrorResponse({ message: response.message, isError: true });
-            } else {
-                setErrorResponse({ message: response.message, isError: false });
-                setFeedbackData((prev) => ({ ...prev, ratings: null }));
-                setFeedbackData((prev) => ({ ...prev, comments: '' }));
-                setFeedbackMount(feedbackMount ? false : true);
-                setIsRateMe(false);
+                if (response.error) {
+                    setErrorResponse({ message: response.message, isError: true });
+                } else {
+                    setErrorResponse({ message: response.message, isError: false });
+                    setFeedbackData((prev) => ({ ...prev, ratings: '' }));
+                    setFeedbackData((prev) => ({ ...prev, comments: '' }));
+                    setFeedbackMount(feedbackMount ? false : true);
+                    // setIsRateMe(false);
+                }
+            } catch (error) {
+                setIsLoading(false);
+                console.log("Error: ", error);
             }
-        } catch (error) {
-            setIsLoading(false);
-            console.log("Error: ", error);
+        } else {
+            try {
+                const response = await apostRequest(`${baseUrl}/users/add-feedback`, { feedbackData, userId: userId.id });
+
+                setIsLoading(false);
+
+                if (response.error) {
+                    setErrorResponse({ message: response.message, isError: true });
+                } else {
+                    setErrorResponse({ message: response.message, isError: false });
+                    setFeedbackData((prev) => ({ ...prev, ratings: '' }));
+                    setFeedbackData((prev) => ({ ...prev, comments: '' }));
+                    setFeedbackMount(feedbackMount ? false : true);
+                    // setIsRateMe(false);
+                }
+            } catch (error) {
+                setIsLoading(false);
+                console.log("Error: ", error);
+            }
         }
     }
 
@@ -610,25 +668,54 @@ export const AuthContextProvider = ({ children }) => {
         if (averageRatings) {
             const insertRatings = async () => {
                 setIsLoading(true);
-                
+
                 try {
-                    const response = await apostRequest(`${baseUrl}/users/insert-ratings`, {averageRatings});
+                    const response = await apostRequest(`${baseUrl}/users/insert-ratings`, { averageRatings });
 
                     setIsLoading(false);
 
                     if (response.error) {
                         console.log(response.message);
-                    }else{
+                    } else {
                         // console.log(response.message);
                     }
                 } catch (error) {
                     setIsLoading(false);
-                    console.log("Error: ",error);
+                    console.log("Error: ", error);
                 }
             };
             insertRatings();
         }
     }, [userId, feedbackMount, averageRatings]);
+
+    // ------------------------------   FETCH EACH COMMENT  ---------------------------------
+    const [eachComments, setEachComments] = useState(null);
+
+    useEffect(() => {
+        if (userId) {
+            setIsLoading(true);
+            setErrorResponse(null);
+
+            const fetchEach = async () => {
+                try {
+                    const response = await apostRequest(`${baseUrl}/users/each-comment`, { userId: userId.id, productId: feedbackData.productId });
+
+                    setIsLoading(false);
+
+                    if (response.error) {
+                        console.log(response.message);
+                    } else {
+                        setEachComments(response.message);
+                    }
+                } catch (error) {
+                    setIsLoading(false);
+                    console.log("Error: ", error);
+                }
+            };
+            fetchEach();
+        }
+    }, [userId, eachMount, feedbackMount]);
+
 
     return <AuthContext.Provider value={{
         user,
@@ -688,7 +775,15 @@ export const AuthContextProvider = ({ children }) => {
         setIsRateMe,
         setIsSelectProduct,
         isSelectProduct,
-        commentsList
+        commentsList,
+        isEditProfileName,
+        setIsEditProfileName,
+        names,
+        setNames,
+        handleEditProfileName,
+        eachComments,
+        checkUpdate,
+        setCheckUpdate
     }}>
         {children}
     </AuthContext.Provider>

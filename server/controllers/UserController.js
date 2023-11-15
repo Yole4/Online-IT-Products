@@ -287,6 +287,29 @@ const changePassword = async (req, res) => {
 // change profile info
 const changeProfileInfo = async (req, res) => {
     // change profile info
+    const { names, userId } = req.body;
+
+    const validationRules = [
+        { validator: validator.isLength, options: { min: 1, max: 50 } },
+    ];
+
+    const sanitizeFirstName = sanitizeAndValidate(names.firstName, validationRules);
+    const sanitizeLastName = sanitizeAndValidate(names.lastName, validationRules);
+    const sanitizeUserId = sanitizeAndValidate(userId.toString(), validationRules);
+
+    if (!sanitizeFirstName || !sanitizeLastName || !sanitizeUserId){
+        res.status(401).json({message: "Invalid Input!"});
+    }else{
+        // update info
+        const updateInfo = `UPDATE users SET first_name = ?, middle_name = ?, last_name = ? WHERE id = ?`;
+        db.query(updateInfo, [sanitizeFirstName, names.middleName, sanitizeLastName, sanitizeUserId], (error, results) => {
+            if (error){
+                res.status(401).json({message: "Server side error!"});
+            }else{
+                res.status(200).json({message: "Profile has been successfully updated!"});
+            }
+        });
+    }
 };
 
 // add to cart
@@ -435,7 +458,7 @@ const placeOrder = async (req, res) => {
                                     })
                                 });
                             });
-                    
+
                             Promise.all(addRate).then(() => {
                                 res.status(200).json({ message: 'Ordered Success!' });
                             })
@@ -525,6 +548,24 @@ const addFeedback = async (req, res) => {
     }
 }
 
+// update feedback
+const updateFeedback = async (req, res) => {
+    const { userId, feedbackData } = req.body;
+
+    if (userId) {
+        const updateComments = `UPDATE feedback SET ratings = ?, comments = ? WHERE id = ?`;
+        db.query(updateComments, [feedbackData.ratings, feedbackData.comments, feedbackData.updateCommentId], (error, results) => {
+            if (error) {
+                res.status(401).json({ message: "Server side error!" });
+            } else {
+                res.status(200).json({message: "Updated!"});
+            }
+        })
+    } else {
+        res.status(401).json({ message: "Something went wrong!" });
+    }
+}
+
 // get comments
 const getComments = async (req, res) => {
     const fetchComments = `SELECT users.first_name, users.middle_name, users.last_name, users.given_image, feedback.*, products.name FROM feedback 
@@ -571,4 +612,22 @@ const insertRatings = async (req, res) => {
     }
 }
 
-module.exports = { insertRatings, getComments, addFeedback, fetchUserNotification, fetchMyOrder, deleteCart, registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder };
+// get each comments
+const eachComments = async (req, res) => {
+    const {userId, productId} = req.body;
+
+    if (userId && productId){
+        const fetchComment = `SELECT * FROM feedback WHERE user_id = ? AND product_id = ?`;
+        db.query(fetchComment, [userId, productId], (error, results) => {
+            if (error){
+                res.status(401).json({message: "Server side error!"});
+            }else{
+                res.status(200).json({message: results});
+            }
+        });
+    }else{
+        res.status(401).json({message: "Something went wrong!"});
+    }
+};
+
+module.exports = { updateFeedback, eachComments, insertRatings, getComments, addFeedback, fetchUserNotification, fetchMyOrder, deleteCart, registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder };
