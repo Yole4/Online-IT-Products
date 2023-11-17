@@ -13,6 +13,7 @@ import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { backendUrl } from '../utils/Services';
 import { PublicContext } from '../context/PublicContext';
+import { AdminContext } from '../context/AdminContext';
 
 function Header() {
     const navigate = useNavigate();
@@ -22,6 +23,8 @@ function Header() {
     } = useContext(AuthContext);
 
     const { publicLoading } = useContext(PublicContext);
+
+    const {settingsData} = useContext(AdminContext);
 
     const [isErrorResponse, setIsErrorResponse] = useState(false);
     const [isProfile, setIsProfile] = useState(false);
@@ -36,6 +39,7 @@ function Header() {
         }
     }, [errorResponse]);
 
+
     return (
         <div>
             <nav className="main-header navbar navbar-expand navbar-primary navbar-dark bg-navy">
@@ -45,7 +49,7 @@ function Header() {
                         <a className="nav-link" data-widget="pushmenu" href="#" role="button"><i className="fas fa-bars" /></a>
                     </li>
                     <li className="nav-item d-none d-sm-inline-block" >
-                        <span style={{ cursor: 'pointer' }} className="nav-link" onClick={() => navigate('/')}>Online IT Products</span>
+                        <span style={{ cursor: 'pointer' }} className="nav-link" onClick={() => navigate('/')}>{settingsData?.title}</span>
                     </li>
                 </ul>
                 {/* Right navbar links */}

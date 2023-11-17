@@ -51,7 +51,7 @@ function Dashboard() {
                 </div>
 
                 <div style={{ marginLeft: '20px', textAlign: 'center', marginBottom: '20px' }}>
-                    <h1 className="m-0">Welcome to Online IT Product Market</h1>
+                    <h1 className="m-0">Admin Dashboard</h1>
                     <hr />
                 </div>
 

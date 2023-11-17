@@ -8,6 +8,7 @@ import mouse from '../../assets/images/mouse.jpeg';
 import computer from '../../assets/images/computer.png';
 import laptop from '../../assets/images/laptop.avif';
 import givenImage from '../../assets/images/given image.png';
+import logo from '../../assets/images/logo.png';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -25,7 +26,8 @@ import { IoHomeSharp } from "react-icons/io5";
 
 import { AuthContext } from '../../context/AuthContext';
 import { PublicContext } from '../../context/PublicContext';
-import { backendUrl } from '../../utils/Services';
+import { backendUrl, baseUrl } from '../../utils/Services';
+import { AdminContext } from '../../context/AdminContext';
 
 function Home() {
   const navigate = useNavigate();
@@ -50,6 +52,8 @@ function Home() {
   } = useContext(AuthContext); // require auth context
 
   const { categoryList, publicLoading, productListToSearch, homeSearch, setHomeSearch } = useContext(PublicContext);
+
+  const { settingsData } = useContext(AdminContext);
 
   const [isErrorResponse, setIsErrorResponse] = useState(false);
 
@@ -263,17 +267,18 @@ function Home() {
 
   return (
     <>
+    
 
       <nav className="main-header navbar navbar-expand navbar-primary navbar-dark bg-navy" style={{ marginLeft: '0' }}>
         {/* Left navbar links */}
         <ul className="navbar-nav">
 
-          <li className="nav-item">
-            <a className="nav-link"><GrProductHunt size={20} /></a>
+          <li className="nav-item" style={{ marginTop: '-7px' }}>
+            <a className="nav-link"><img src={settingsData ? `${backendUrl}/${settingsData.image}` : logo} style={{ width: '38px', height: '38px', borderRadius: '50%' }} alt="" /></a>
           </li>
 
           <li className="nav-item d-sm-inline-block" style={{ marginLeft: '-20px' }}>
-            <span style={{ cursor: 'pointer' }} className="nav-link">IT Products</span>
+            <span style={{ cursor: 'pointer' }} className="nav-link">{settingsData?.title}</span>
           </li>
 
         </ul>
@@ -942,8 +947,8 @@ function Home() {
               </div>
 
               {checkUpdate && (
-                <div style={{margin: '-10px', padding: '0'}}>
-                  <button onClick={() => {setCheckUpdate(false); setFeedbackData((prev) => ({...prev, ratings: ''})); setFeedbackData((prev) => ({...prev, comments: ''}));}} style={{fontSize: '12px', padding: '5px', borderRadius: '5px', background: 'transparent', color: 'darkblue'}}>Switch to add comment</button>
+                <div style={{ margin: '-10px', padding: '0' }}>
+                  <button onClick={() => { setCheckUpdate(false); setFeedbackData((prev) => ({ ...prev, ratings: '' })); setFeedbackData((prev) => ({ ...prev, comments: '' })); }} style={{ fontSize: '12px', padding: '5px', borderRadius: '5px', background: 'transparent', color: 'darkblue' }}>Switch to add comment</button>
                 </div>
               )}
 
@@ -965,7 +970,7 @@ function Home() {
                         <th>Action</th>
                       </tr>
                     </thead>
-                    
+
                     <tbody>
                       {
                         eachComments && eachComments.map((item, index) => (
@@ -987,7 +992,7 @@ function Home() {
                             <td>{item.comments}</td>
                             <td style={{ textAlign: 'center' }}>
                               <div style={{ display: 'flex', gap: '5px' }}>
-                                <a href="#" onClick={() => {setCheckUpdate(true); setFeedbackData((prev) => ({...prev, ratings: item.ratings})); setFeedbackData((prev) => ({...prev, productId: item.product_id})); setFeedbackData((prev) => ({...prev, comments: item.comments})); setFeedbackData((prev) => ({...prev, updateCommentId: item.id}));}}><span className="fa fa-edit text-primary" /> </a>
+                                <a href="#" onClick={() => { setCheckUpdate(true); setFeedbackData((prev) => ({ ...prev, ratings: item.ratings })); setFeedbackData((prev) => ({ ...prev, productId: item.product_id })); setFeedbackData((prev) => ({ ...prev, comments: item.comments })); setFeedbackData((prev) => ({ ...prev, updateCommentId: item.id })); }}><span className="fa fa-edit text-primary" /> </a>
                                 <div className="dropdown-divider" />
                                 <a href="#" ><span className="fa fa-trash text-danger" /> </a>
                               </div>

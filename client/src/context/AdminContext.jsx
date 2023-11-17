@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useId, useState } from "react";
-import { agetRequest, apostRequest, baseUrl } from "../utils/Services";
+import { agetRequest, apostRequest, baseUrl, getRequest } from "../utils/Services";
 import { AuthContext } from "./AuthContext";
 
 export const AdminContext = createContext();
@@ -433,20 +433,20 @@ export const AdminContextProvider = ({ children }) => {
         setErrorResponse(null);
 
         try {
-            const response = await apostRequest(`${baseUrl}/admin/change-order-status`, {status, userId: userId.id});
+            const response = await apostRequest(`${baseUrl}/admin/change-order-status`, { status, userId: userId.id });
 
             setIsLoading(false);
 
             if (response.error) {
                 setErrorResponse({ message: response.message, isError: true });
-            }else{
+            } else {
                 setIsEditStatus(false);
                 setChangeStatusMount(changeStatusMount ? false : true);
                 setErrorResponse({ message: response.message, isError: false });
             }
         } catch (error) {
             setIsLoading(false);
-            console.log("Error: ",error);
+            console.log("Error: ", error);
         }
     }
 
@@ -479,6 +479,72 @@ export const AdminContextProvider = ({ children }) => {
         }
     }, [userId, changeStatusMount]);
 
+    // ===========================================  UPDATE SETTINGS ================================================
+    const [isSettings, setIsSettings] = useState(false);
+    const [settingsMount, setSettingsMount] = useState(false);
+    const [updateSettingsData, setUpdateSettingsData] = useState({
+        title: '',
+        image: null,
+        id: null
+    });
+
+    const handleUpdateSettings = async (e) => {
+        e.preventDefault();
+
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        const data = new FormData();
+        data.append("title", updateSettingsData.title);
+        data.append("image", updateSettingsData.image);
+        data.append("id", updateSettingsData.id);
+        try {
+            const response = await apostRequest(`${baseUrl}/admin/update-settings`, data);
+
+            setIsLoading(false);
+
+            if (response.error){
+                setErrorResponse({ message: response.message, isError: true });
+            }else{
+                setIsSettings(false);
+                setSettingsMount(settingsMount ? false : true);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    };
+
+    // ===================================================  FETCH SETTINGS  =================================================
+    const [settingsData, setSettingsData] = useState(null);
+
+    useEffect(() => {
+        if (userId) {
+            const fetcHSettings = async () => {
+                setIsLoading(true);
+                setErrorResponse(null);
+
+                try {
+                    const response = await getRequest(`${baseUrl}/admin/fetch-settings`);
+
+                    setIsLoading(false);
+
+                    if (response.error) {
+                        console.log(response.message);
+                    } else {
+                        setIsSettings(false);
+                        setUpdateSettingsData((prev) => ({...prev, title: response.message.title}));
+                        setUpdateSettingsData((prev) => ({...prev, id: response.message.id}));
+                        setSettingsData(response.message);
+                    }
+                } catch (error) {
+                    console.log("Error: ", error);
+                }
+            };
+            fetcHSettings();
+        }
+    }, [userId, settingsMount]);
 
     return (
         <AdminContext.Provider
@@ -539,7 +605,13 @@ export const AdminContextProvider = ({ children }) => {
                 handleChangeOrderStatus,
                 setIsEditStatus,
                 isEditStatus,
-                changeStatusMount
+                changeStatusMount,
+                settingsData,
+                setIsSettings,
+                isSettings,
+                updateSettingsData,
+                setUpdateSettingsData,
+                handleUpdateSettings
             }}
         >
             {children}

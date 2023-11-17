@@ -394,4 +394,58 @@ const changeOrderStatus = async (req, res) => {
     }
 }
 
-module.exports = { changeOrderStatus, getUserOrders, addCategory, fetchCategory, deleteCategory, editCategory, fetchUsers, editUser, deleteUser, addProduct, fetchProduct, editProduct, deleteProduct };
+// fetch settings
+const fetchSettings = async (req, res) => {
+    const getSetngs = `SELECT * FROM settings`;
+    db.query(getSetngs, (error, results) => {
+        if (error) {
+            res.status(401).json({message: "Server side error!"});
+        }else{
+            res.status(200).json({message: results[0]});
+        }
+    });
+}
+
+// update settings
+const updateSettings = async (req, res) => {
+    const {title, id} = req.body;
+    
+    if (title && id) {
+        const originalFileName = req.file.originalname;
+        const uniqueFileName = `${Date.now()}_+_${originalFileName}`;
+        const uniqueFilePath = `assets/settings image/${uniqueFileName}`;
+
+        const typeMime = mime.lookup(originalFileName);
+
+        if ((typeMime === 'image/png') || (typeMime === 'image/jpeg')) {
+            fs.rename(req.file.path, uniqueFilePath, (err) => {
+                if (err) {
+                    res.status(401).json({ message: "Error to upload file" });
+                } else {
+                    const sanitizedFileName = sanitizeHtml(req.file.originalname); // Sanitize HTML content
+                    if (!validator.isLength(sanitizedFileName, { min: 1, max: 255 })) {
+                        return res.status(401).send({ message: "Invalid File Name!" });
+                    }
+                    else {
+                        const update = `UPDATE settings SET title = ?, image = ? WHERE id = ?`;
+                        db.query(update, [title, uniqueFilePath, id], (error, results) => {
+                            if (error) {
+                                res.status(401).json({message: "Server side error!"});
+                            }else{
+                                res.status(200).json({message: "Updated success!"});
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        else {
+            res.status(401).json({ message: "Invalid Image Type!" });
+        }
+    }else{
+        res.status(401).json({message: "Something went wrong!"});
+    }
+}
+
+
+module.exports = { updateSettings, fetchSettings, changeOrderStatus, getUserOrders, addCategory, fetchCategory, deleteCategory, editCategory, fetchUsers, editUser, deleteUser, addProduct, fetchProduct, editProduct, deleteProduct };
