@@ -98,7 +98,7 @@ function Header() {
                     <li className="nav-item dropdown no-arrow">
                         <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span className="mr-2 d-none d-lg-inline text-gray-600 small">{`${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</span>
-                            <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={givenImage} />
+                            <img style={{ width: 25, height: 25 }} className="img-profile rounded-circle" src={userCredentials ? `${backendUrl}/${userCredentials.given_image}` : givenImage} />
                         </a>
 
                         <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">

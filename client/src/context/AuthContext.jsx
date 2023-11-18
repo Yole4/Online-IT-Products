@@ -688,6 +688,29 @@ export const AuthContextProvider = ({ children }) => {
         }
     }, [userId, feedbackMount, averageRatings]);
 
+    // -----------------------------    DELETE COMMENT  ---------------------------------
+
+    const handleDelete = async (item) => {
+        setIsLoading(true);
+        setErrorResponse(null);
+
+        try {
+            const response = await apostRequest(`${baseUrl}/users/delete-comment`, { item, userId: userId.id });
+
+            setIsLoading(false);
+
+            if (response.error) {
+                setErrorResponse({ message: response.message, isError: true });
+            } else {
+                setEachMount(eachMount ? false : true);
+                setErrorResponse({ message: response.message, isError: false });
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log("Error: ", error);
+        }
+    }
+
     // ------------------------------   FETCH EACH COMMENT  ---------------------------------
     const [eachComments, setEachComments] = useState(null);
 
@@ -783,7 +806,8 @@ export const AuthContextProvider = ({ children }) => {
         handleEditProfileName,
         eachComments,
         checkUpdate,
-        setCheckUpdate
+        setCheckUpdate,
+        handleDelete
     }}>
         {children}
     </AuthContext.Provider>

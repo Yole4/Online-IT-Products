@@ -617,8 +617,8 @@ const eachComments = async (req, res) => {
     const {userId, productId} = req.body;
 
     if (userId && productId){
-        const fetchComment = `SELECT * FROM feedback WHERE user_id = ? AND product_id = ?`;
-        db.query(fetchComment, [userId, productId], (error, results) => {
+        const fetchComment = `SELECT * FROM feedback WHERE user_id = ? AND product_id = ? AND isDelete = ?`;
+        db.query(fetchComment, [userId, productId, "not"], (error, results) => {
             if (error){
                 res.status(401).json({message: "Server side error!"});
             }else{
@@ -630,4 +630,22 @@ const eachComments = async (req, res) => {
     }
 };
 
-module.exports = { updateFeedback, eachComments, insertRatings, getComments, addFeedback, fetchUserNotification, fetchMyOrder, deleteCart, registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder };
+// delete comments
+const deleteComment = async (req, res) => {
+    const {item, userId} = req.body;
+
+    if (item && userId){
+        const deleteC = `UPDATE feedback SET isDelete = ? WHERE id = ?`;
+        db.query(deleteC, ["Deleted", item], (error, results) => {
+            if (error) {
+                res.status(401).json({message: "Server side error!"});
+            }else{
+                res.status(200).json({message: "Comment successfully deleted!"});
+            }
+        });
+    }else{
+        res.status(401).json({message: "Server side error!"});
+    }
+}
+
+module.exports = { deleteComment, updateFeedback, eachComments, insertRatings, getComments, addFeedback, fetchUserNotification, fetchMyOrder, deleteCart, registerUser, loginUser, fetchCustomerUsers, fetchSellerUsers, protected, changePassword, changeProfileInfo, fetchUserCredentials, profileUpload, addCart, fetchCart, addAddress, fetchAddress, placeOrder };

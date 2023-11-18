@@ -39,7 +39,7 @@ function SideBar() {
                     {/* Sidebar user (optional) */}
                     <div className="user-panel mt-3 pb-3 mb-3 d-flex">
                         <div className="image">
-                            <img style={{ width: 34, height: 34 }} src={givenImage} className="img-profile rounded-circle" />
+                            <img style={{ width: 34, height: 34 }} src={userCredentials ? `${backendUrl}/${userCredentials.given_image}` : givenImage} className="img-profile rounded-circle" />
                         </div>
                         <div className="info">
                             <a href="#" className="d-block" data-toggle="modal" data-target="#profile" style={{ cursor: 'pointer' }}>{userCredentials && `${userCredentials.first_name} ${userCredentials.middle_name} ${userCredentials.last_name}`}</a>

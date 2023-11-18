@@ -67,7 +67,8 @@ export const PublicContextProvider = ({ children }) => {
     const productListToSearch = productList?.filter(item =>
         item.name.toLowerCase().includes(homeSearch.toLowerCase()) ||
         item.description.toLowerCase().includes(homeSearch.toLowerCase()) ||
-        item.isDelete.toLowerCase().includes(homeSearch.toLowerCase())
+        item.isDelete.toLowerCase().includes(homeSearch.toLowerCase()) ||
+        item.category.toLowerCase().includes(homeSearch.toLowerCase())
     );
 
     return <PublicContext.Provider value={{

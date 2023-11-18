@@ -48,7 +48,7 @@ function Home() {
     isAddAddress, setIsAddAddress, addressData, setAddressData, handleAddAddress, isMyAddress, setIsMyAddress, myAddressList, placeOrderData, setPlaceOrderData,
     isPlaceOrder, setIsPlaceOrder, handlePlaceOrder, isCart, setIsCart, handleDeleteCart, isMyOrder, setIsMyOrder, myOrdersList, myNotifications,
     feedbackData, setFeedbackData, handleAddFeedback, handleButtonFeedback, isRateMe, setIsRateMe, isSelectProduct, setIsSelectProduct, commentsList,
-    isEditProfileName, setIsEditProfileName, names, setNames, handleEditProfileName, eachComments, checkUpdate, setCheckUpdate
+    isEditProfileName, setIsEditProfileName, names, setNames, handleEditProfileName, eachComments, checkUpdate, setCheckUpdate, handleDelete
   } = useContext(AuthContext); // require auth context
 
   const { categoryList, publicLoading, productListToSearch, homeSearch, setHomeSearch } = useContext(PublicContext);
@@ -994,7 +994,7 @@ function Home() {
                               <div style={{ display: 'flex', gap: '5px' }}>
                                 <a href="#" onClick={() => { setCheckUpdate(true); setFeedbackData((prev) => ({ ...prev, ratings: item.ratings })); setFeedbackData((prev) => ({ ...prev, productId: item.product_id })); setFeedbackData((prev) => ({ ...prev, comments: item.comments })); setFeedbackData((prev) => ({ ...prev, updateCommentId: item.id })); }}><span className="fa fa-edit text-primary" /> </a>
                                 <div className="dropdown-divider" />
-                                <a href="#" ><span className="fa fa-trash text-danger" /> </a>
+                                <a href="#" onClick={() => handleDelete(item.id)}><span className="fa fa-trash text-danger" /> </a>
                               </div>
                             </td>
                           </tr>
